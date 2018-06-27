@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<staff rev="0">
+  <staffmember id="admin">
+    <name>Admin</name>
+    <givenName>Admin</givenName>
+    <alias>admin</alias>
+    <email>admin@example.com</email>
+    <authentication type="local">
+      <hash type="hmac_sha256" salt="QbyZc+snKYU7icHuS0WnDLaMpEoqJEtN72rrQGDzVSU=">LmtrSmqFj0I2eIjGgP5oLBghXswGUCYHTWOqgGqi+VU=</hash>
+    </authentication>
+  </staffmember>
+</staff>

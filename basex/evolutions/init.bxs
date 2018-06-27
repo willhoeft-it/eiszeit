@@ -1,0 +1,10 @@
+<commands>
+  <!-- If the database does not exist yet, set it up with the provided init files -->
+  <xquery>
+    if (not(db:exists('eiszeit'))) then
+      let $evPath := '/srv/basex/webapp/eiszeit/evolutions/'
+      let $files := for $f in file:list($evPath, false(), '*_init.xml')
+        return concat($evPath, $f)
+      return db:create('eiszeit', $files)
+  </xquery>
+</commands>
