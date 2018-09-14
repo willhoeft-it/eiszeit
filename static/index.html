@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Timetracking - Work Day Time Log</title>
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+  <link href="styles.css" rel="stylesheet" type="text/css"/>
+  <link rel="icon" type="image/png" href="favicon-32x32.png" sizes="32x32"/>
+</head>
+<body>
+  <h2>Log your time!</h2>
+  <div class="container">
+    <form id="app" @submit="submitWorkingtimes">
+      <table width='100%'>
+        <tr>
+          <td width='30%'>
+            <h4>Input Form</h4>
+            <!-- TODO: validate: sum(working time) - sum(task-duration) = 0 -->
+
+            <table>
+              <tbody>
+                <tr>
+                  <td>Date:</td>
+                  <td><input v-model="workingday._date"></input></td>
+                </tr>
+                <tr>
+                  <td><button @click="getWorkingtimes">GET</button></td>
+                  <td><button @click="submitWorkingtimes">POST</button></td>
+                </tr>
+                <!-- TODO button to add more  -->
+                <template v-for="wt in workingday.workingtime">
+                  <tr>
+                    <td>Working Time Start:</td>
+                    <td><input v-model="wt._start"/></td>
+                  </tr>
+                  <tr>
+                    <td>Working Time End:</td>
+                    <td><input  v-model="wt._end"/></td>
+                  </tr>
+                  <tr>
+                    <!-- TODO bind and calculate duration  -->
+                    <td>Working Time Duration:</td>
+                    <td><input v-model="wt._duration"></input></td>
+                  </tr>
+                </template>
+                <tr v-for="b in workingday.break">
+                  <!-- TODO calculate duration  -->
+                  <td>Break Duration:</td>
+                  <td><input v-model="b._duration"/></td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+          <td width='40%'>
+            <h4>JSON Data Model</h4>
+            <!--<pre v-if="workingday" v-html="prettyJSON(workingday)"></pre> -->
+            <div>
+              {{fetchState}}
+            </div>
+          </td>
+        </tr>
+      </table>
+
+      <!-- TODO XsltForms did not repeat within a table. Make this pretty -->
+      <ul>
+          <li v-for="(booking, index) in workingday.booking">
+            <!-- TODO: compute title from tasks.id and booking._taskid -->
+            <p>Task: {{booking.tasktitle}}</p>
+            <p><input v-model="booking.description"/></p>
+            <p v-if="index > 0">
+              <button @click="removeBooking(index)">X</button>
+            </p>
+            <p>
+              <span>Billable:</span>
+              <span>
+                <select v-model="booking._billable">
+                  <option>yes</option>
+                  <option>no</option>
+                  <option>depends</option>
+                </select>
+              </span>
+            </p>
+          </li>
+
+      </ul>
+      <button @click="addBooking">Add</button>
+    </form></div>
+
+
+  <script src="https://unpkg.com/vue/dist/vue.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script src="//unpkg.com/uiv"></script>
+  <script src="xml2json.js"></script>
+  <script src="luxon.js"></script>
+  <script>
+    function durationAsHours(s) {
+      const d = luxon.Duration.fromISO(s)
+      if (!d) return d
+      return d.toFormat("hh:mm")
+    }
+
+    const vm = new Vue({
+      el: '#app',
+      data: {
+        fetchState: "nothing to do",
+        workingday: null
+      },
+      created: function () {
+        this.getWorkingtimes()
+      },
+      methods: {
+        getWorkingtimes: function () {
+          console.log("getWorkingtimes")
+          const urlDate = (this.workingday && this.workingday._date) ? ("/" + this.workingday._date) : ""
+          this.fetchState = "fetching.."
+          const self = this
+          axios.get('../api/timetrack' + urlDate)
+            .then(function (response) {
+              console.log(response);
+              const x2js = new X2JS({
+                arrayAccessFormPaths : [
+                  "workingday.workingtime", "workingday.break", "workingday.booking"
+                ]
+              });
+              console.log("json model");
+              const d = x2js.xml_str2json(response.data).workingday;
+              // TODO: Do it generically for all _duration attributes, traversing the tree
+              if (d.workingtime) {
+                d.workingtime[0]._duration = durationAsHours(d.workingtime[0]._duration);
+              }
+              self.workingday = d;
+              console.log(self.workingday);
+              self.fetchState = "fetched!"
+            })
+            .catch(function (error) {
+              console.log(error);
+              self.fetchState = "ERROR: " + error
+            });
+        },
+        submitWorkingtimes: function (e) {
+          e.preventDefault()
+          // TODO
+          console.log("submitWorkingTimes")
+        },
+        removeBooking: function(index) {
+          this.workingday.booking.splice(index, 1)
+        },
+        addBooking: function(e) {
+          e.preventDefault()
+          console.log("addBooking")
+          const b = {
+            // _taskid:0,
+            _duration: "PT0H",
+            description:"",
+            _billable: "no"
+          }
+          if (!this.workingday.booking) {
+            Vue.set(this.workingday, 'booking', [b])
+          } else {
+            this.workingday.booking.push(b)
+          }
+
+        }
+      }
+    })
+  </script>
+</body>
+</html>
