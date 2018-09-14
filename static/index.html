@@ -52,7 +52,7 @@
             <mdc-textfield v-model="wt._end" label="end" value="19:00" type="text" ></mdc-textfield>
           </mdc-layout-cell>
           <mdc-layout-cell span=1>
-            <mdc-textfield v-model="wt._duration" label="duration" value="09:00" type="text" ></mdc-textfield>
+            <mdc-duration-textfield v-model="wt._duration" ></mdc-duration-textfield>
           </mdc-layout-cell>
            <mdc-layout-cell span=8>
             <mdc-textfield v-model="wt.description" label="comment" value="" type="text" multiline rows="1" cols="100"></mdc-textfield>
@@ -78,7 +78,7 @@
             <mdc-textfield v-model="b._end" label="end" value="" type="text" ></mdc-textfield>
           </mdc-layout-cell>
           <mdc-layout-cell span=1>
-            <mdc-textfield v-model="b._duration" label="duration" value="0:30" type="text" ></mdc-textfield>
+            <mdc-duration-textfield v-model="b._duration" ></mdc-duration-textfield>
           </mdc-layout-cell>
           <mdc-layout-cell span=8>
             <mdc-textfield v-model="b.description" label="comment" value="" type="text" multiline rows="1" cols="100"></mdc-textfield>
@@ -108,7 +108,7 @@
             <mdc-textfield v-model="booking._end" label="end" value="" type="text" ></mdc-textfield>
           </mdc-layout-cell>
           <mdc-layout-cell span=1>
-            <mdc-textfield v-model="booking._duration" label="duration" value="01:30" type="text" ></mdc-textfield>
+            <mdc-duration-textfield v-model="booking._duration"></mdc-duration-textfield>
           </mdc-layout-cell>
           <mdc-layout-cell span=1>
             <mdc-select v-model="booking._billable" label="billable">
@@ -143,13 +143,18 @@
   </div>
 
   <script>
-    // page scope unique key
+    // page scope unique key generator
     var pskey = 0
     
     function durationAsHours(s) {
       const d = luxon.Duration.fromISO(s)
       if (!d) return d
       return d.toFormat("hh:mm")
+    }
+    
+    function hoursAsDuration(s) {
+      if (!s) return null
+      return s.replace(/(\d?\d):(\d?\d).*/, "PT$1H$2M")
     }
     
     function addDefaultWorkingTime(wd) {
@@ -194,6 +199,28 @@
       }
       wd.booking.push(b)
     }
+    
+    // TODO: validate on change, not input, handle validation errors correctly
+    Vue.component('mdc-duration-textfield', {
+      props: ['value'],
+      template:
+        `<mdc-textfield
+          v-bind:value="durationAsHours(value)"
+          v-on:input="updateValue($event)"
+          label="duration"
+          type="text" >
+        </mdc-textfield>`,
+        methods: {
+          // Instead of updating the value directly, this
+          // method is used to format and place constraints
+          // on the input's value
+          updateValue: function (value) {
+            // Emit the number value through the input event
+            this.$emit('input', hoursAsDuration(value))
+          }
+        }
+    })
+        
 
     const vm = new Vue({
       el: '#app',
@@ -239,10 +266,7 @@
               });
               console.log("json model");
               const d = x2js.xml_str2json(response.data).workingday;
-              // TODO: Do it generically for all _duration attributes on all workingtimes and other, traversing the tree
-              if (d.workingtime) {
-                d.workingtime[0]._duration = durationAsHours(d.workingtime[0]._duration);
-              } else {
+              if (! d.workingtime) {
                 addDefaultWorkingTime(d);
               }
               if (! d.break) {
