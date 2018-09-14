@@ -28,49 +28,108 @@
 <body>
   <div class="container">
     <div id="app">
-      <div>User: Jörn Willhöft</div>
-      <input v-model="workingday._date" value="" type="date" placeholder="MM/DD/YYYY" overflow="hidden" text-overflow="ellipsis"/>
-      <mdc-textfield label="unbooked time" value="07:30" type="text" readonly disabled></mdc-textfield>
-      <div>Working Time</div>
-      <!-- TODO: define a :key for all v-for uses. See https://vuejs.org/v2/style-guide/#Keyed-v-for-essential -->
-      <div v-for="wt in workingday.workingtime">
-        <mdc-textfield v-model="wt._start" label="begin" value="10:00" type="text" ></mdc-textfield>
-        <mdc-textfield v-model="wt._end" label="end" value="19:00" type="text" ></mdc-textfield>
-        <mdc-textfield v-model="wt._duration" label="duration" value="09:00" type="text" ></mdc-textfield>
-        <mdc-textfield label="comment" value="" type="text" multiline rows="1" cols="100"></mdc-textfield>
-        <mdc-fab icon="delete"></mdc-fab>        
+      <!-- TODO: use material typography: mdc-text, mdc-headline, etc. -->
+      <h2>User: Jörn Willhöft</h2>
+      <mdc-layout-grid>
+        <mdc-layout-cell span=2>
+          <!-- TODO: change to a date/time picker component, e.g. https://github.com/mariomka/vue-datetime (no more timepicker?!)-->
+          <input v-model="workingday._date" value="" type="date" placeholder="MM/DD/YYYY" overflow="hidden" text-overflow="ellipsis"/>
+        </mdc-layout-cell>
+        <mdc-layout-cell span=1>
+          <!-- TODO: calculate unbooked time -->
+          <mdc-textfield label="unbooked time" value="00:00" type="text" readonly disabled></mdc-textfield>
+        </mdc-layout-cell>
+      </mdc-layout-grid>
+      <h2>Working Time</h2>
+      <!-- TODO: update duration on end change (all 3 items) -->
+      <!-- TODO: update end on duration change (all 3 items) -->
+      <div v-for="(wt, index) in workingday.workingtime" :key="wt.key">
+        <mdc-layout-grid>
+          <mdc-layout-cell span=1>
+            <mdc-textfield v-model="wt._start" label="begin" value="10:00" type="text" ></mdc-textfield>
+          </mdc-layout-cell>
+          <mdc-layout-cell span=1>
+            <mdc-textfield v-model="wt._end" label="end" value="19:00" type="text" ></mdc-textfield>
+          </mdc-layout-cell>
+          <mdc-layout-cell span=1>
+            <mdc-textfield v-model="wt._duration" label="duration" value="09:00" type="text" ></mdc-textfield>
+          </mdc-layout-cell>
+           <mdc-layout-cell span=8>
+            <mdc-textfield v-model="wt.description" label="comment" value="" type="text" multiline rows="1" cols="100"></mdc-textfield>
+          </mdc-layout-cell>
+          <mdc-layout-cell span=1>
+            <mdc-fab @click="removeWorkingTime(index)" icon="delete"></mdc-fab>        
+          </mdc-layout-cell>
+        </mdc-layout-grid>
       </div>
-      <mdc-fab icon="add"></mdc-fab>
-      <div>Breaks</div>
-      <div v-for="b in workingday.break">
-        <mdc-textfield label="begin" value="" type="text" ></mdc-textfield>
-        <mdc-textfield label="end" value="" type="text" ></mdc-textfield>
-        <mdc-textfield v-model="b._duration" label="duration" value="0:30" type="text" ></mdc-textfield>
-        <mdc-textfield label="comment" value="" type="text" multiline rows="1" cols="100"></mdc-textfield>
-        <mdc-fab icon="delete"></mdc-fab>
+      <mdc-layout-grid>
+        <mdc-layout-cell span=11></mdc-layout-cell>
+        <mdc-layout-cell span=1>
+          <mdc-fab @click="addWorkingTime" icon="add"></mdc-fab>
+        </mdc-layout-cell>
+      </mdc-layout-grid>
+      <h2>Breaks</h2>
+      <div v-for="(b, index) in workingday.break" :key="b.key">
+        <mdc-layout-grid>
+          <mdc-layout-cell span=1>
+            <mdc-textfield v-model="b._start" label="begin" value="" type="text" ></mdc-textfield>
+          </mdc-layout-cell>
+          <mdc-layout-cell span=1>
+            <mdc-textfield v-model="b._end" label="end" value="" type="text" ></mdc-textfield>
+          </mdc-layout-cell>
+          <mdc-layout-cell span=1>
+            <mdc-textfield v-model="b._duration" label="duration" value="0:30" type="text" ></mdc-textfield>
+          </mdc-layout-cell>
+          <mdc-layout-cell span=8>
+            <mdc-textfield v-model="b.description" label="comment" value="" type="text" multiline rows="1" cols="100"></mdc-textfield>
+          </mdc-layout-cell>
+          <mdc-layout-cell span=1>
+            <mdc-fab @click="removeBreak(index)" icon="delete"></mdc-fab>
+          </mdc-layout-cell>
       </div>
-      <mdc-fab icon="add"></mdc-fab>
-      <div>Bookings</div>
-      <div v-for="(booking, index) in workingday.booking">
-        <!-- TODO: load and select titles from tasks.id and booking._taskid -->
-        <mdc-select label="Task" value="task_123">
-          <option value="task_123">{{booking.tasktitle}}</option>
-          <option value="task_456">Dummy</option>
-          <option value="c">Dummy2</option>
-        </mdc-select>
-        <mdc-textfield label="begin" value="" type="text" ></mdc-textfield>
-        <mdc-textfield label="end" value="" type="text" ></mdc-textfield>
-        <mdc-textfield label="duration" value="01:30" type="text" ></mdc-textfield>
-        <!-- TODO: change to checkbox with indeterminate or to three "chips" -->
-        <mdc-select v-model="booking._billable" label="billable">
-          <option value="yes">yes</option>
-          <option value="no">no</option>
-          <option value="depends">depends</option>
-        </mdc-select>
-        <mdc-textfield v-model="booking.description" label="description" value="Designed UI for time tracker" type="text" multiline rows="1" cols="100"></mdc-textfield>
-        <mdc-fab @click="removeBooking(index)" icon="delete"></mdc-fab>
+      <mdc-layout-grid>
+        <mdc-layout-cell span=11></mdc-layout-cell>
+        <mdc-layout-cell span=1>
+          <mdc-fab @click="addBreak" icon="add"></mdc-fab>
+        </mdc-layout-cell>
+      </mdc-layout-grid>
+      <h2>Bookings</h2>
+      <div v-for="(booking, index) in workingday.booking" :key="booking.key">
+        <mdc-layout-grid>
+          <mdc-layout-cell span=2>
+            <mdc-select v-model="booking._taskId" label="Task">
+              <mdc-option v-for="t in tasks" v-bind:value="t._id">{{t._title}}</mdc-option>
+            </mdc-select>
+          </mdc-layout-cell>
+          <mdc-layout-cell span=1>
+            <mdc-textfield v-model="booking._start" label="begin" value="" type="text" ></mdc-textfield>
+          </mdc-layout-cell>
+          <mdc-layout-cell span=1>
+            <mdc-textfield v-model="booking._end" label="end" value="" type="text" ></mdc-textfield>
+          </mdc-layout-cell>
+          <mdc-layout-cell span=1>
+            <mdc-textfield v-model="booking._duration" label="duration" value="01:30" type="text" ></mdc-textfield>
+          </mdc-layout-cell>
+          <mdc-layout-cell span=1>
+            <mdc-select v-model="booking._billable" label="billable">
+              <mdc-option value="yes">yes</mdc-option>
+              <mdc-option value="no">no</mdc-option>
+              <mdc-option value="depends">depends</mdc-option>
+            </mdc-select>
+          </mdc-layout-cell>
+          <mdc-layout-cell span=5>
+            <mdc-textfield v-model="booking.description" label="description" value="Designed UI for time tracker" type="text" multiline rows="1" cols="100"></mdc-textfield>
+          </mdc-layout-cell>
+          <mdc-layout-cell span=1>
+            <mdc-fab @click="removeBooking(index)" icon="delete"></mdc-fab>
+          </mdc-layout-cell>
       </div>
-      <mdc-fab @click="addBooking" icon="add"></mdc-fab>
+      <mdc-layout-grid>
+        <mdc-layout-cell span=11></mdc-layout-cell>
+        <mdc-layout-cell span=1>
+          <mdc-fab @click="addBooking" icon="add"></mdc-fab>
+        </mdc-layout-cell>
+      </mdc-layout-grid>
       <div>
         <mdc-button @click="submitWorkingtimes" raised>submit</mdc-button>
         <mdc-button @click="getWorkingtimes">reset</mdc-button>
@@ -84,10 +143,56 @@
   </div>
 
   <script>
+    // page scope unique key
+    var pskey = 0
+    
     function durationAsHours(s) {
       const d = luxon.Duration.fromISO(s)
       if (!d) return d
       return d.toFormat("hh:mm")
+    }
+    
+    function addDefaultWorkingTime(wd) {
+      const wt = {
+        _start: "10:00",
+        _duration: "PT9H30M", 
+        description: "",
+        key: pskey++
+      }
+      if (! wd.workingtime) {
+        console.log("creating workingtime array")
+        wd.workingtime = []
+      }
+      wd.workingtime.push(wt)
+    }
+    
+    function addDefaultBreak(wd) {
+      const b = {
+        _duration: "PT0H30M", 
+        description: "",
+        key: pskey++
+      }
+      if (! wd.break) {
+        console.log("creating break array")
+        wd.break = []
+      }
+      wd.break.push(b)
+    }
+    
+    function addDefaultBooking(wd) {
+      const b = {
+        _taskId: "1",
+        _start: "10:00",
+        _duration: "PT0H30M", 
+        _billable: "depends",
+        description: "",
+        key: pskey++
+      }
+      if (! wd.booking) {
+        console.log("creating booking array")
+        wd.booking = []
+      }
+      wd.booking.push(b)
     }
 
     const vm = new Vue({
@@ -95,7 +200,25 @@
       data: {
         fetchState: "nothing to do",
         // TODO: check/fix console error "workingday is null"
-        workingday: null
+        workingday: null,
+        // TODO: load tasks for user and date dynamically
+        tasks: [{
+          _id: 1,
+          _title: "UI design",
+          _billableDefault: "yes"
+        }, {
+          _id: 2,
+          _title: "Implementation",
+          _billableDefault: "yes"
+        }, {
+          _id: 3,
+          _title: "Akquisition",
+          _billableDefault: "no"
+        }, {
+          _id: 4,
+          _title: "Long example dummmy task description",
+          _billableDefault: "depends"
+        } ]
       },
       created: function () {
         this.getWorkingtimes()
@@ -116,13 +239,22 @@
               });
               console.log("json model");
               const d = x2js.xml_str2json(response.data).workingday;
-              // TODO: Do it generically for all _duration attributes, traversing the tree
+              // TODO: Do it generically for all _duration attributes on all workingtimes and other, traversing the tree
               if (d.workingtime) {
                 d.workingtime[0]._duration = durationAsHours(d.workingtime[0]._duration);
+              } else {
+                addDefaultWorkingTime(d);
               }
+              if (! d.break) {
+                addDefaultBreak(d);
+              }
+              if (! d.booking) {
+                addDefaultBooking(d);
+              }
+              
               self.workingday = d;
               console.log(self.workingday);
-              self.fetchState = "fetched!"
+              self.fetchState = "fetched!";
             })
             .catch(function (error) {
               console.log(error);
@@ -130,26 +262,39 @@
             });
         },
         submitWorkingtimes: function () {
-          // TODO
-          console.log("submitWorkingTimes")
+          // TODO implement
+          console.log("submitWorkingTimes (not yet implemented)")
+        },
+        addWorkingTime: function() {
+          console.log("addWorkingTime")
+          addDefaultWorkingTime(this.workingday)
+        },
+        // TODO: for alle remove.. functions, use the key instead the index
+        removeWorkingTime: function(index) {
+          this.workingday.workingtime.splice(index, 1)
+          if (this.workingday.workingtime.length==0) {
+            addDefaultWorkingTime(this.workingday)
+          }
+        },
+        addBreak: function() {
+          console.log("addBreak")
+          addDefaultBreak(this.workingday)
+        },
+        removeBreak: function(index) {
+          this.workingday.break.splice(index, 1)
+          if (this.workingday.break.length==0) {
+            addDefaultBreak(this.workingday)
+          }
         },
         removeBooking: function(index) {
           this.workingday.booking.splice(index, 1)
+          if (this.workingday.booking.length==0) {
+            addDefaultBooking(this.workingday)
+          }
         },
         addBooking: function() {
           console.log("addBooking")
-          const b = {
-            // _taskid:0,
-            _duration: "PT0H",
-            description:"",
-            _billable: "no"
-          }
-          if (!this.workingday.booking) {
-            Vue.set(this.workingday, 'booking', [b])
-          } else {
-            this.workingday.booking.push(b)
-          }
-
+          addDefaultBooking(this.workingday)
         }
       }
     })
