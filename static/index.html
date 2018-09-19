@@ -20,6 +20,7 @@
   <!-- local dependencies -->
   <script src="xml2json.js"></script>
   <script src="luxon.js"></script>
+  <script src="js-deep-filter.js"></script>
   
   <title>Timetracking - Work Day Time Log</title>
   <link href="styles.css" rel="stylesheet" type="text/css"/>
@@ -146,6 +147,14 @@
     // page scope unique key generator
     var pskey = 0
     
+    const x2js = new X2JS({
+      
+      arrayAccessFormPaths : [
+        "workingday.workingtime", "workingday.break", "workingday.booking"
+      ]
+      // TODO: check if "datetimeAccessFormPaths : []" can be used instead of luxon conversion in model
+    });
+    
     function durationAsHours(s) {
       const d = luxon.Duration.fromISO(s)
       if (!d) return d
@@ -221,6 +230,11 @@
         }
     })
         
+    const server = axios.create({
+      timeout: 1000,
+      headers: {'Content-Type': 'application/xml; charset=UTF-8'}
+      
+    });
 
     const vm = new Vue({
       el: '#app',
@@ -256,14 +270,9 @@
           const urlDate = (this.workingday && this.workingday._date) ? ("/" + this.workingday._date) : ""
           this.fetchState = "fetching.."
           const self = this
-          axios.get('../api/timetrack' + urlDate)
+          server.get('../api/timetrack' + urlDate)
             .then(function (response) {
               console.log(response);
-              const x2js = new X2JS({
-                arrayAccessFormPaths : [
-                  "workingday.workingtime", "workingday.break", "workingday.booking"
-                ]
-              });
               console.log("json model");
               const d = x2js.xml_str2json(response.data).workingday;
               if (! d.workingtime) {
@@ -286,8 +295,48 @@
             });
         },
         submitWorkingtimes: function () {
-          // TODO implement
           console.log("submitWorkingTimes (not yet implemented)")
+          const outjs = deepFilter(this.workingday, function(value, prop, subject) {
+            return prop !== 'key'
+          })
+          const xmlDocStr = x2js.json2xml_str(
+            {
+              timetrack: {
+                workingday: outjs
+              }
+            }
+          );
+          console.log(xmlDocStr);
+          this.fetchState = "posting.."
+          const self = this
+          server.post('../api/timetrack', xmlDocStr)
+            .then(function (response) {
+              console.log(response);
+              self.fetchState = "posted!";
+            })
+            .catch(function (error) {
+              if (error.response) {
+                // The request was made and the server responded with a status code
+                // that falls out of the range of 2xx
+                console.log(error.response.data);
+                console.log(error.response.status);
+                console.log(error.response.headers);
+                self.fetchState = "ERROR " + error.response.status + ": " + error.response.data;
+              } else if (error.request) {
+                // The request was made but no response was received
+                // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+                // http.ClientRequest in node.js
+                console.log(error.request);
+                self.fetchState = "ERROR : Failed contacting server";
+              } else {
+                // Something happened in setting up the request that triggered an Error
+                console.log('Error', error.message);
+                self.fetchState = "ERROR : Failed setting up server request";
+              }
+          });
+          
+          
+          
         },
         addWorkingTime: function() {
           console.log("addWorkingTime")
