@@ -48,10 +48,10 @@
       <div v-for="wt in workingday.workingtime" :key="wt.key">
         <mdc-layout-grid>
           <mdc-layout-cell span=1>
-            <mdc-textfield v-model="wt._start" label="begin" type="text" ></mdc-textfield>
+            <mdc-textfield v-model="wt._start" label="begin" type="time" ></mdc-textfield>
           </mdc-layout-cell>
           <mdc-layout-cell span=1>
-            <mdc-textfield v-model="wt._end" label="end" type="text" ></mdc-textfield>
+            <mdc-textfield v-model="wt._end" label="end" type="time" ></mdc-textfield>
           </mdc-layout-cell>
           <mdc-layout-cell span=1>
             <mdc-duration-textfield v-model="wt._duration" ></mdc-duration-textfield>
@@ -74,10 +74,10 @@
       <div v-for="b in workingday.break" :key="b.key">
         <mdc-layout-grid>
           <mdc-layout-cell span=1>
-            <mdc-textfield v-model="b._start" label="begin" type="text" ></mdc-textfield>
+            <mdc-textfield v-model="b._start" label="begin" type="time" ></mdc-textfield>
           </mdc-layout-cell>
           <mdc-layout-cell span=1>
-            <mdc-textfield v-model="b._end" label="end" type="text" ></mdc-textfield>
+            <mdc-textfield v-model="b._end" label="end" type="time" ></mdc-textfield>
           </mdc-layout-cell>
           <mdc-layout-cell span=1>
             <mdc-duration-textfield v-model="b._duration" ></mdc-duration-textfield>
@@ -104,10 +104,10 @@
             </mdc-select>
           </mdc-layout-cell>
           <mdc-layout-cell span=1>
-            <mdc-textfield v-model="booking._start" label="begin" type="text" ></mdc-textfield>
+            <mdc-textfield v-model="booking._start" label="begin" type="time" ></mdc-textfield>
           </mdc-layout-cell>
           <mdc-layout-cell span=1>
-            <mdc-textfield v-model="booking._end" label="end" type="text" ></mdc-textfield>
+            <mdc-textfield v-model="booking._end" label="end" type="time" ></mdc-textfield>
           </mdc-layout-cell>
           <mdc-layout-cell span=1>
             <mdc-duration-textfield v-model="booking._duration"></mdc-duration-textfield>
@@ -195,8 +195,7 @@
     function addDefaultBooking(wd) {
       const b = {
         _taskId: "1",
-        _start: "10:00",
-        _duration: "PT0H30M", 
+        _duration: "PT0H", 
         _billable: "depends",
         description: "",
         key: pskey++
@@ -208,7 +207,7 @@
       wd.booking.push(b)
     }
     
-    // TODO: validate on change, handle validation errors correctly
+    // TODO: handle validation errors correctly
     Vue.component('mdc-duration-textfield', {
       props: ['value'],
       template:
