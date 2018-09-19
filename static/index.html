@@ -48,16 +48,16 @@
       <div v-for="wt in workingday.workingtime" :key="wt.key">
         <mdc-layout-grid>
           <mdc-layout-cell span=1>
-            <mdc-textfield v-model="wt._start" label="begin" value="10:00" type="text" ></mdc-textfield>
+            <mdc-textfield v-model="wt._start" label="begin" type="text" ></mdc-textfield>
           </mdc-layout-cell>
           <mdc-layout-cell span=1>
-            <mdc-textfield v-model="wt._end" label="end" value="19:00" type="text" ></mdc-textfield>
+            <mdc-textfield v-model="wt._end" label="end" type="text" ></mdc-textfield>
           </mdc-layout-cell>
           <mdc-layout-cell span=1>
             <mdc-duration-textfield v-model="wt._duration" ></mdc-duration-textfield>
           </mdc-layout-cell>
            <mdc-layout-cell span=8>
-            <mdc-textfield v-model="wt.description" label="comment" value="" type="text" multiline rows="1" cols="100"></mdc-textfield>
+            <mdc-textfield v-model="wt.description" label="comment" type="text" multiline rows="1" cols="100"></mdc-textfield>
           </mdc-layout-cell>
           <mdc-layout-cell span=1>
             <mdc-fab @click="removeWorkingTime(wt)" icon="delete"></mdc-fab>        
@@ -74,16 +74,16 @@
       <div v-for="b in workingday.break" :key="b.key">
         <mdc-layout-grid>
           <mdc-layout-cell span=1>
-            <mdc-textfield v-model="b._start" label="begin" value="" type="text" ></mdc-textfield>
+            <mdc-textfield v-model="b._start" label="begin" type="text" ></mdc-textfield>
           </mdc-layout-cell>
           <mdc-layout-cell span=1>
-            <mdc-textfield v-model="b._end" label="end" value="" type="text" ></mdc-textfield>
+            <mdc-textfield v-model="b._end" label="end" type="text" ></mdc-textfield>
           </mdc-layout-cell>
           <mdc-layout-cell span=1>
             <mdc-duration-textfield v-model="b._duration" ></mdc-duration-textfield>
           </mdc-layout-cell>
           <mdc-layout-cell span=8>
-            <mdc-textfield v-model="b.description" label="comment" value="" type="text" multiline rows="1" cols="100"></mdc-textfield>
+            <mdc-textfield v-model="b.description" label="comment" type="text" multiline rows="1" cols="100"></mdc-textfield>
           </mdc-layout-cell>
           <mdc-layout-cell span=1>
             <mdc-fab @click="removeBreak(b)" icon="delete"></mdc-fab>
@@ -104,10 +104,10 @@
             </mdc-select>
           </mdc-layout-cell>
           <mdc-layout-cell span=1>
-            <mdc-textfield v-model="booking._start" label="begin" value="" type="text" ></mdc-textfield>
+            <mdc-textfield v-model="booking._start" label="begin" type="text" ></mdc-textfield>
           </mdc-layout-cell>
           <mdc-layout-cell span=1>
-            <mdc-textfield v-model="booking._end" label="end" value="" type="text" ></mdc-textfield>
+            <mdc-textfield v-model="booking._end" label="end" type="text" ></mdc-textfield>
           </mdc-layout-cell>
           <mdc-layout-cell span=1>
             <mdc-duration-textfield v-model="booking._duration"></mdc-duration-textfield>
@@ -288,7 +288,6 @@
           server.get('../api/timetrack' + urlDate)
             .then(function (response) {
               console.log(response);
-              console.log("json model");
               const d = x2js.xml_str2json(response.data).workingday;
               if (! d.workingtime) {
                 addDefaultWorkingTime(d);
