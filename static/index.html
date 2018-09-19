@@ -43,7 +43,7 @@
       <h2>Working Time</h2>
       <!-- TODO: update duration on end change (all 3 items) -->
       <!-- TODO: update end on duration change (all 3 items) -->
-      <div v-for="(wt, index) in workingday.workingtime" :key="wt.key">
+      <div v-for="wt in workingday.workingtime" :key="wt.key">
         <mdc-layout-grid>
           <mdc-layout-cell span=1>
             <mdc-textfield v-model="wt._start" label="begin" value="10:00" type="text" ></mdc-textfield>
@@ -58,7 +58,7 @@
             <mdc-textfield v-model="wt.description" label="comment" value="" type="text" multiline rows="1" cols="100"></mdc-textfield>
           </mdc-layout-cell>
           <mdc-layout-cell span=1>
-            <mdc-fab @click="removeWorkingTime(index)" icon="delete"></mdc-fab>        
+            <mdc-fab @click="removeWorkingTime(wt)" icon="delete"></mdc-fab>        
           </mdc-layout-cell>
         </mdc-layout-grid>
       </div>
@@ -69,7 +69,7 @@
         </mdc-layout-cell>
       </mdc-layout-grid>
       <h2>Breaks</h2>
-      <div v-for="(b, index) in workingday.break" :key="b.key">
+      <div v-for="b in workingday.break" :key="b.key">
         <mdc-layout-grid>
           <mdc-layout-cell span=1>
             <mdc-textfield v-model="b._start" label="begin" value="" type="text" ></mdc-textfield>
@@ -84,7 +84,7 @@
             <mdc-textfield v-model="b.description" label="comment" value="" type="text" multiline rows="1" cols="100"></mdc-textfield>
           </mdc-layout-cell>
           <mdc-layout-cell span=1>
-            <mdc-fab @click="removeBreak(index)" icon="delete"></mdc-fab>
+            <mdc-fab @click="removeBreak(b)" icon="delete"></mdc-fab>
           </mdc-layout-cell>
       </div>
       <mdc-layout-grid>
@@ -94,7 +94,7 @@
         </mdc-layout-cell>
       </mdc-layout-grid>
       <h2>Bookings</h2>
-      <div v-for="(booking, index) in workingday.booking" :key="booking.key">
+      <div v-for="booking in workingday.booking" :key="booking.key">
         <mdc-layout-grid>
           <mdc-layout-cell span=2>
             <mdc-select v-model="booking._taskId" label="Task">
@@ -121,7 +121,7 @@
             <mdc-textfield v-model="booking.description" label="description" value="Designed UI for time tracker" type="text" multiline rows="1" cols="100"></mdc-textfield>
           </mdc-layout-cell>
           <mdc-layout-cell span=1>
-            <mdc-fab @click="removeBooking(index)" icon="delete"></mdc-fab>
+            <mdc-fab @click="removeBooking(booking)" icon="delete"></mdc-fab>
           </mdc-layout-cell>
       </div>
       <mdc-layout-grid>
@@ -293,9 +293,8 @@
           console.log("addWorkingTime")
           addDefaultWorkingTime(this.workingday)
         },
-        // TODO: for alle remove.. functions, use the key instead the index
-        removeWorkingTime: function(index) {
-          this.workingday.workingtime.splice(index, 1)
+        removeWorkingTime: function(wt) {
+          this.workingday.workingtime.splice(this.workingday.workingtime.indexOf(wt), 1)
           if (this.workingday.workingtime.length==0) {
             addDefaultWorkingTime(this.workingday)
           }
@@ -304,14 +303,14 @@
           console.log("addBreak")
           addDefaultBreak(this.workingday)
         },
-        removeBreak: function(index) {
-          this.workingday.break.splice(index, 1)
+        removeBreak: function(b) {
+          this.workingday.break.splice(this.workingday.break.indexOf(b), 1)
           if (this.workingday.break.length==0) {
             addDefaultBreak(this.workingday)
           }
         },
-        removeBooking: function(index) {
-          this.workingday.booking.splice(index, 1)
+        removeBooking: function(b) {
+          this.workingday.booking.splice(this.workingday.booking.indexOf(b), 1)
           if (this.workingday.booking.length==0) {
             addDefaultBooking(this.workingday)
           }
