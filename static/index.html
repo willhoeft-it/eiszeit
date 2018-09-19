@@ -29,11 +29,11 @@
 <body>
   <div class="container">
     <div id="app">
+      <!-- TODO: switch to https://vuetifyjs.com -->
       <!-- TODO: use material typography: mdc-text, mdc-headline, etc. -->
       <h2>User: Jörn Willhöft</h2>
       <mdc-layout-grid>
         <mdc-layout-cell span=2>
-          <!-- TODO: change to a date/time picker component, e.g. https://github.com/mariomka/vue-datetime (no more timepicker?!)-->
           <input v-model="workingday._date" @change="getWorkingtimes()" type="date" overflow="hidden" text-overflow="ellipsis"/>
         </mdc-layout-cell>
         <mdc-layout-cell span=4>
@@ -43,18 +43,16 @@
         </mdc-layout-cell>
       </mdc-layout-grid>
       <h2>Working Time</h2>
-      <!-- TODO: update duration on end change (all 3 items) -->
-      <!-- TODO: update end on duration change (all 3 items) -->
       <div v-for="wt in workingday.workingtime" :key="wt.key">
         <mdc-layout-grid>
           <mdc-layout-cell span=1>
-            <mdc-textfield v-model="wt._start" label="begin" type="time" ></mdc-textfield>
+            <mdc-textfield v-model="wt._start" @change.native="updateOnTimeChange(wt)" label="begin" type="time" ></mdc-textfield>
           </mdc-layout-cell>
           <mdc-layout-cell span=1>
-            <mdc-textfield v-model="wt._end" label="end" type="time" ></mdc-textfield>
+            <mdc-textfield v-model="wt._end" @change.native="updateOnTimeChange(wt)" label="end" type="time" ></mdc-textfield>
           </mdc-layout-cell>
           <mdc-layout-cell span=1>
-            <mdc-duration-textfield v-model="wt._duration" ></mdc-duration-textfield>
+            <mdc-duration-textfield v-model="wt._duration" @change.native="updateOnDurationChange(wt)" ></mdc-duration-textfield>
           </mdc-layout-cell>
            <mdc-layout-cell span=8>
             <mdc-textfield v-model="wt.description" label="comment" type="text" multiline rows="1" cols="100"></mdc-textfield>
@@ -74,13 +72,13 @@
       <div v-for="b in workingday.break" :key="b.key">
         <mdc-layout-grid>
           <mdc-layout-cell span=1>
-            <mdc-textfield v-model="b._start" label="begin" type="time" ></mdc-textfield>
+            <mdc-textfield v-model="b._start" label="begin" type="time" @change.native="updateOnTimeChange(wt)"></mdc-textfield>
           </mdc-layout-cell>
           <mdc-layout-cell span=1>
-            <mdc-textfield v-model="b._end" label="end" type="time" ></mdc-textfield>
+            <mdc-textfield v-model="b._end" label="end" type="time" @change.native="updateOnTimeChange(wt)"></mdc-textfield>
           </mdc-layout-cell>
           <mdc-layout-cell span=1>
-            <mdc-duration-textfield v-model="b._duration" ></mdc-duration-textfield>
+            <mdc-duration-textfield v-model="b._duration" @change.native="updateOnDurationChange(wt)"></mdc-duration-textfield>
           </mdc-layout-cell>
           <mdc-layout-cell span=8>
             <mdc-textfield v-model="b.description" label="comment" type="text" multiline rows="1" cols="100"></mdc-textfield>
@@ -104,13 +102,13 @@
             </mdc-select>
           </mdc-layout-cell>
           <mdc-layout-cell span=1>
-            <mdc-textfield v-model="booking._start" label="begin" type="time" ></mdc-textfield>
+            <mdc-textfield v-model="booking._start" label="begin" type="time" @change.native="updateOnTimeChange(wt)"></mdc-textfield>
           </mdc-layout-cell>
           <mdc-layout-cell span=1>
-            <mdc-textfield v-model="booking._end" label="end" type="time" ></mdc-textfield>
+            <mdc-textfield v-model="booking._end" label="end" type="time" @change.native="updateOnTimeChange(wt)"></mdc-textfield>
           </mdc-layout-cell>
           <mdc-layout-cell span=1>
-            <mdc-duration-textfield v-model="booking._duration"></mdc-duration-textfield>
+            <mdc-duration-textfield v-model="booking._duration" @change.native="updateOnDurationChange(wt)"></mdc-duration-textfield>
           </mdc-layout-cell>
           <mdc-layout-cell span=1>
             <mdc-select v-model="booking._billable" label="billable">
@@ -120,7 +118,7 @@
             </mdc-select>
           </mdc-layout-cell>
           <mdc-layout-cell span=5>
-            <mdc-textfield v-model="booking.description" label="description" value="Designed UI for time tracker" type="text" multiline rows="1" cols="100"></mdc-textfield>
+            <mdc-textfield v-model="booking.description" label="description" type="text" multiline rows="1" cols="100"></mdc-textfield>
           </mdc-layout-cell>
           <mdc-layout-cell span=1>
             <mdc-fab @click="removeBooking(booking)" icon="delete"></mdc-fab>
@@ -346,6 +344,22 @@
               }
           });
           
+        },
+        updateOnTimeChange: function(wt) {
+          if (wt._end && wt._start) {
+            const endDt = luxon.DateTime.fromISO(this.workingday._date + "T" + wt._end)
+            const startDt = luxon.DateTime.fromISO(this.workingday._date + "T" + wt._start)
+            wt._duration = endDt.diff(startDt, ['hours', 'minutes']).toISO()
+            console.log("updateOnEndChange: " + endDt.toISO() + " - " + startDt.toISO() + " = " + wt._duration)
+          }
+        },
+        updateOnDurationChange: function(wt) {
+          if (wt._duration && wt._start) {
+            const duration = luxon.Duration.fromISO(wt._duration)
+            const startDt = luxon.DateTime.fromISO(this.workingday._date + "T" + wt._start)
+            wt._end = startDt.plus(duration).toFormat("HH:mm")
+            console.log("updateOnDurationChange: " + startDt.toISO() + " + " + wt._duration + " = " + wt._end)
+          }
         },
         addWorkingTime: function() {
           console.log("addWorkingTime")
