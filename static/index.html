@@ -34,11 +34,11 @@
       <mdc-layout-grid>
         <mdc-layout-cell span=2>
           <!-- TODO: change to a date/time picker component, e.g. https://github.com/mariomka/vue-datetime (no more timepicker?!)-->
-          <input v-model="workingday._date" value="" type="date" placeholder="MM/DD/YYYY" overflow="hidden" text-overflow="ellipsis"/>
+          <input v-model="workingday._date" @change="getWorkingtimes()" type="date" overflow="hidden" text-overflow="ellipsis"/>
         </mdc-layout-cell>
         <mdc-layout-cell span=1>
-          <!-- TODO: calculate unbooked time -->
-          <mdc-textfield label="unbooked time" value="00:00" type="text" readonly disabled></mdc-textfield>
+          <!-- TODO: special handling of non-zero, zero and negative values: "unbooked", "OK", "overbooked"  -->
+          <mdc-textfield v-model="unbookedTime" label="unbooked time" type="text" readonly disabled></mdc-textfield>
         </mdc-layout-cell>
       </mdc-layout-grid>
       <h2>Working Time</h2>
@@ -135,8 +135,6 @@
         <mdc-button @click="submitWorkingtimes" raised>submit</mdc-button>
         <mdc-button @click="getWorkingtimes">reset</mdc-button>
       </div>
-      <h4>JSON Data Model</h4>
-      <!--<pre v-if="workingday" v-html="prettyJSON(workingday)"></pre> -->
       <div>
         {{fetchState}}
       </div>
@@ -209,13 +207,13 @@
       wd.booking.push(b)
     }
     
-    // TODO: validate on change, not input, handle validation errors correctly
+    // TODO: validate on change, handle validation errors correctly
     Vue.component('mdc-duration-textfield', {
       props: ['value'],
       template:
         `<mdc-textfield
           v-bind:value="durationAsHours(value)"
-          v-on:input="updateValue($event)"
+          @change.native="updateValue($event)"
           label="duration"
           type="text" >
         </mdc-textfield>`,
@@ -223,8 +221,9 @@
           // Instead of updating the value directly, this
           // method is used to format and place constraints
           // on the input's value
-          updateValue: function (value) {
+          updateValue: function (event) {
             // Emit the number value through the input event
+            const value = event.target.value
             this.$emit('input', hoursAsDuration(value))
           }
         }
@@ -240,8 +239,7 @@
       el: '#app',
       data: {
         fetchState: "nothing to do",
-        // TODO: check/fix console error "workingday is null"
-        workingday: null,
+        workingday: {},
         // TODO: load tasks for user and date dynamically
         tasks: [{
           _id: 1,
@@ -260,6 +258,22 @@
           _title: "Long example dummmy task description",
           _billableDefault: "depends"
         } ]
+      },
+      computed: {
+        unbookedTime() {
+          if (! this.workingday.workingtime)
+            return "--:--"
+          const wtsum = this.workingday.workingtime.reduce((total, wt) => {
+            return total.plus(luxon.Duration.fromISO(wt._duration))
+          }, luxon.Duration.fromISO('PT0H'));
+          const netwtsum = (this.workingday.break) ? this.workingday.break.reduce((total, b) => {
+            return total.minus(luxon.Duration.fromISO(b._duration))
+          }, wtsum) : wtsum;
+          const unbooked = (this.workingday.booking) ? this.workingday.booking.reduce((total, b) => {
+            return total.minus(luxon.Duration.fromISO(b._duration))
+          }, netwtsum) : netwtsum;
+          return durationAsHours(unbooked);
+        }
       },
       created: function () {
         this.getWorkingtimes()
@@ -332,8 +346,6 @@
                 self.fetchState = "ERROR : Failed setting up server request";
               }
           });
-          
-          
           
         },
         addWorkingTime: function() {
