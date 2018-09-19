@@ -36,9 +36,10 @@
           <!-- TODO: change to a date/time picker component, e.g. https://github.com/mariomka/vue-datetime (no more timepicker?!)-->
           <input v-model="workingday._date" @change="getWorkingtimes()" type="date" overflow="hidden" text-overflow="ellipsis"/>
         </mdc-layout-cell>
-        <mdc-layout-cell span=1>
-          <!-- TODO: special handling of non-zero, zero and negative values: "unbooked", "OK", "overbooked"  -->
-          <mdc-textfield v-model="unbookedTime" label="unbooked time" type="text" readonly disabled></mdc-textfield>
+        <mdc-layout-cell span=4>
+          <div v-if="unbookedTime.valueOf() > 0">{{durationAsHours(unbookedTime)}} unbooked time</div>
+          <div v-else-if="unbookedTime.valueOf() < 0">{{durationAsHours(unbookedTime)}} overbooked time</div>
+          <div v-else>OK!</div>
         </mdc-layout-cell>
       </mdc-layout-grid>
       <h2>Working Time</h2>
@@ -262,7 +263,7 @@
       computed: {
         unbookedTime() {
           if (! this.workingday.workingtime)
-            return "--:--"
+            return luxon.Duration.fromISO('PT0H')
           const wtsum = this.workingday.workingtime.reduce((total, wt) => {
             return total.plus(luxon.Duration.fromISO(wt._duration))
           }, luxon.Duration.fromISO('PT0H'));
@@ -272,7 +273,7 @@
           const unbooked = (this.workingday.booking) ? this.workingday.booking.reduce((total, b) => {
             return total.minus(luxon.Duration.fromISO(b._duration))
           }, netwtsum) : netwtsum;
-          return durationAsHours(unbooked);
+          return unbooked;
         }
       },
       created: function () {
