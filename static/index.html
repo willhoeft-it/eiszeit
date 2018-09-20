@@ -26,28 +26,28 @@
 <body>
   <div id="app">
     <v-app><v-content>
-      <v-container grid-list-md text-xs-center><v-layout row wrap>
+      <v-container grid-list-md><v-layout row wrap>
       <v-flex xs2>
         <h2>User: Jörn Willhöft</h2>
         <input v-model="workingday._date" @change="getWorkingtimes()" type="date" overflow="hidden" text-overflow="ellipsis"/>
       </v-flex>
-      <!-- TODO: change to alert -->
-      <v-flex xs4>
-        <div v-if="unbookedTime.valueOf() > 0">{{durationAsHours(unbookedTime)}} unbooked time</div>
-        <div v-else-if="unbookedTime.valueOf() < 0">{{durationAsHours(unbookedTime)}} overbooked time</div>
-        <div v-else>OK!</div>
-      </v-flex>
+
       <v-flex xs12>
         <h2>Working Time</h2>
+      </v-flex>
+      <v-flex xs12>
+        <v-alert :value="unbookedTime.valueOf() > 0" type="warning" outline>{{durationAsHours(unbookedTime)}} unbooked time</v-alert>
+        <v-alert :value="unbookedTime.valueOf() < 0" type="warning" outline>{{durationAsHours(unbookedTime)}} overbooked time</v-alert>
+        <v-alert :value="unbookedTime.valueOf() == 0" type="success" outline>All day booked!</v-alert>
       </v-flex>
       
       <template v-for="wt in workingday.workingtime" :key="wt.key">
         <v-flex xs1>
           <!-- TODO: combine with time-picker in a dedicated component and reuse-->
-          <v-text-field v-model="wt._start" @change.native="updateOnTimeChange(wt)" label="begin" type="time" ></v-text-field>
+          <v-text-field v-model="wt._start" @blur="updateOnTimeChange(wt)" label="begin" type="time" ></v-text-field>
         </v-flex>
         <v-flex xs1>
-          <v-text-field v-model="wt._end" @change.native="updateOnTimeChange(wt)" label="end" type="time" ></v-text-field>
+          <v-text-field v-model="wt._end" @blur="updateOnTimeChange(wt)" label="end" type="time" ></v-text-field>
         </v-flex>
         <v-flex xs1>
           <duration-textfield v-model="wt._duration" @change.native="updateOnDurationChange(wt)" ></duration-textfield>
@@ -69,10 +69,10 @@
       </v-flex>
       <template v-for="b in workingday.break" :key="b.key">
         <v-flex xs1>
-          <v-text-field v-model="b._start" label="begin" type="time" @change.native="updateOnTimeChange(b)"></v-text-field>
+          <v-text-field v-model="b._start" label="begin" type="time" @blur="updateOnTimeChange(b)"></v-text-field>
         </v-flex>
         <v-flex xs1>
-          <v-text-field v-model="b._end" label="end" type="time" @change.native="updateOnTimeChange(b)"></v-text-field>
+          <v-text-field v-model="b._end" label="end" type="time" @blur="updateOnTimeChange(b)"></v-text-field>
         </v-flex>
         <v-flex xs1>
           <duration-textfield v-model="b._duration" @change.native="updateOnDurationChange(b)"></duration-textfield>
@@ -98,10 +98,10 @@
           </v-select>
         </v-flex>
         <v-flex xs1>
-          <v-text-field v-model="booking._start" label="begin" type="time" @change.native="updateOnTimeChange(booking)"></v-text-field>
+          <v-text-field v-model="booking._start" label="begin" type="time" @blur="updateOnTimeChange(booking)"></v-text-field>
         </v-flex>
         <v-flex xs1>
-          <v-text-field v-model="booking._end" label="end" type="time" @change.native="updateOnTimeChange(booking)"></v-text-field>
+          <v-text-field v-model="booking._end" label="end" type="time" @blur="updateOnTimeChange(booking)"></v-text-field>
         </v-flex>
         <v-flex xs1>
           <duration-textfield v-model="booking._duration" @change.native="updateOnDurationChange(booking)"></duration-textfield>
@@ -351,6 +351,7 @@
           }
         },
         updateOnDurationChange: function(wt) {
+          console.log("updateOnDurationChange: " + wt._duration + " / " + wt._start)
           if (wt._duration && wt._start) {
             const duration = luxon.Duration.fromISO(wt._duration)
             const startDt = luxon.DateTime.fromISO(this.workingday._date + "T" + wt._start)
