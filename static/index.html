@@ -93,9 +93,19 @@
         <h2>Bookings</h2>
       </v-flex>
       <template v-for="booking in workingday.booking" :key="booking.key">
-        <v-flex xs2>
-          <!-- TODO: add the task-path to selection menu and when selected -->
-          <v-select v-model="booking._taskId" label="Task" :items="tasks.task" item-text="_title" item-value="_id" @input="setBillableToDefault(booking)">
+        <v-flex xs3>
+          <v-select v-model="booking._taskId" label="Task" :items="tasks.task" item-text="_title" item-value="_id"  @input="setBillableToDefault(booking)">
+            <template slot="label"> 
+              <span v-if="! booking._taskId" class="caption">Task</span>
+              <span v-else class="caption">{{ taskPathString(booking._taskId) }}</span>
+            </template>
+
+            <template slot="item" slot-scope="{ item }">
+              <v-list-tile-content>
+                <v-list-tile-sub-title>{{ taskPathString(item._id) }}</v-list-tile-sub-title>
+                <v-list-tile-title>{{ item._title }}</v-list-tile-title>
+              </v-list-tile-content>
+            </template>
           </v-select>
         </v-flex>
         <v-flex xs1>
@@ -111,7 +121,7 @@
           <v-select v-model="booking._billable" label="billable" :items="billableOptions">
           </v-select>
         </v-flex>
-        <v-flex xs5>
+        <v-flex xs4>
           <v-textarea v-model="booking.description" label="description" auto-grow rows="1"></v-textarea>
         </v-flex>
         <v-flex xs1>
@@ -162,7 +172,7 @@
       if (!s) return null
       return s.replace(/(\d?\d):(\d?\d).*/, "PT$1H$2M")
     }
-    
+       
     function addDefaultWorkingTime(wd) {
       const wt = {
         _start: "10:00",
@@ -192,7 +202,6 @@
     
     function addDefaultBooking(wd) {
       const b = {
-        _taskId: "1",
         _duration: "PT0H", 
         _billable: "depends",
         description: "",
@@ -399,7 +408,13 @@
             return value._id == booking._taskId
           })
           booking._billable = task._billableDefault
-          
+        },
+        taskPathString: function(taskId) {
+          return this.tasks.task.find((t) => {
+            return t._id == taskId
+          }).path.reduce((s, p, i, arr) => {
+            return s + p._title + ((i < arr.length - 1) ? " » " : "")
+          }, "")
         }
       }
     })
