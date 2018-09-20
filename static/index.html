@@ -28,8 +28,8 @@
     <v-app><v-content>
       <v-container grid-list-md><v-layout row wrap>
       <v-flex xs2>
-        <h2>User: Jörn Willhöft</h2>
-        <input v-model="workingday._date" @change="getWorkingtimes()" type="date" overflow="hidden" text-overflow="ellipsis"/>
+        <h2>User: {{staffmember.givenName}} {{staffmember.name}}</h2>
+        <input v-model="workingday._date" @change="loadData" type="date" overflow="hidden" text-overflow="ellipsis"/>
       </v-flex>
 
       <v-flex xs12>
@@ -94,7 +94,8 @@
       </v-flex>
       <template v-for="booking in workingday.booking" :key="booking.key">
         <v-flex xs2>
-          <v-select v-model="booking._taskId" label="Task" :items="tasks" item-text="_title" item-value="_id" @input="setBillableToDefault(booking)">
+          <!-- TODO: add the task-path to selection menu and when selected -->
+          <v-select v-model="booking._taskId" label="Task" :items="tasks.task" item-text="_title" item-value="_id" @input="setBillableToDefault(booking)">
           </v-select>
         </v-flex>
         <v-flex xs1>
@@ -124,7 +125,7 @@
       </v-flex>
       <v-flex xs12>
         <v-btn @click="submitWorkingtimes" raised>submit</v-btn>
-        <v-btn @click="getWorkingtimes">reset</v-btn>
+        <v-btn @click="loadData">reset</v-btn>
       </v-flex>
       <v-flex xs12>
         <!-- TODO: use a snackbar for infos-->
@@ -137,9 +138,14 @@
   <script>
     // page scope unique key generator
     var pskey = 0
+
+    const x2jsTasks = new X2JS({
+      arrayAccessFormPaths : [
+        "tasks.task", "tasks.task.path"
+      ]
+    });
     
-    const x2js = new X2JS({
-      
+    const x2jsTimetrack = new X2JS({
       arrayAccessFormPaths : [
         "workingday.workingtime", "workingday.break", "workingday.booking"
       ]
@@ -232,24 +238,14 @@
       data: {
         fetchState: "nothing to do",
         workingday: {},
-        // TODO: load tasks for user and date dynamically
-        tasks: [{
-          _id: "1",
-          _title: "UI design",
-          _billableDefault: "yes"
-        }, {
-          _id: "2",
-          _title: "Implementation",
-          _billableDefault: "yes"
-        }, {
-          _id: "3",
-          _title: "Akquisition",
-          _billableDefault: "no"
-        }, {
-          _id: "4",
-          _title: "Long example dummmy task description",
-          _billableDefault: "depends"
-        } ],
+        staffmember: {
+          _id: "joern",
+          name: "Willhöft",
+          givenName: "Jörn"
+        },
+        tasks: {
+          task: []
+        },
         billableOptions: [
           'yes', 'no', 'depends'
         ]
@@ -260,6 +256,7 @@
             return luxon.Duration.fromISO('PT0H')
           const wtsum = this.workingday.workingtime.reduce((total, wt) => {
             return total.plus(luxon.Duration.fromISO(wt._duration))
+            
           }, luxon.Duration.fromISO('PT0H'));
           const netwtsum = (this.workingday.break) ? this.workingday.break.reduce((total, b) => {
             return total.minus(luxon.Duration.fromISO(b._duration))
@@ -271,43 +268,50 @@
         }
       },
       created: function () {
-        this.getWorkingtimes()
+        this.loadData();
       },
       methods: {
-        getWorkingtimes: function () {
-          console.log("getWorkingtimes")
+        loadData: function() {
+          console.log("loadData")
           const urlDate = (this.workingday && this.workingday._date) ? ("/" + this.workingday._date) : ""
           this.fetchState = "fetching.."
           const self = this
-          server.get('../api/timetrack' + urlDate)
-            .then(function (response) {
-              console.log(response);
-              const d = x2js.xml_str2json(response.data).workingday;
-              if (! d.workingtime) {
-                addDefaultWorkingTime(d);
-              }
-              if (! d.break) {
-                addDefaultBreak(d);
-              }
-              if (! d.booking) {
-                addDefaultBooking(d);
-              }
-              
-              self.workingday = d;
-              console.log(self.workingday);
-              self.fetchState = "fetched!";
-            })
-            .catch(function (error) {
-              console.log(error);
-              self.fetchState = "ERROR: " + error
-            });
+          axios.all([
+            server.get('../api/tasks/' + this.staffmember._id),
+            server.get('../api/timetrack' + urlDate),
+          ]).then(axios.spread(function(taskResponse, timetrackResponse) {
+            console.log("tasks:")
+            console.log(taskResponse);
+            const t = x2jsTasks.xml_str2json(taskResponse.data).tasks;
+            self.tasks = t
+            console.log("timetrack:")
+            console.log(timetrackResponse);
+            const d = x2jsTimetrack.xml_str2json(timetrackResponse.data).workingday;
+            if (! d.workingtime) {
+              addDefaultWorkingTime(d);
+            }
+            if (! d.break) {
+              addDefaultBreak(d);
+            }
+            if (! d.booking) {
+              addDefaultBooking(d);
+            }
+            self.workingday = d;
+            console.log(self.workingday);
+            self.fetchState = "fetched!";
+          }))
+          .catch(function (error) {
+            // TODO: handle errors generically as in POST + alert/snackbar/..-dialog
+            console.log(error);
+            self.fetchState = "ERROR: " + error
+          });
         },
         submitWorkingtimes: function () {
           console.log("submitWorkingTimes")
           const outjs = deepFilter(this.workingday, function(value, prop, subject) {
             return prop !== 'key'
           })
-          const xmlDocStr = x2js.json2xml_str(
+          const xmlDocStr = x2jsTimetrack.json2xml_str(
             {
               workingday: outjs
             }
@@ -391,7 +395,7 @@
         },
         setBillableToDefault: function(booking) {
           if (! booking._taskId) return;
-          const task = this.tasks.find((value, index, array) => {
+          const task = this.tasks.task.find((value, index, array) => {
             return value._id == booking._taskId
           })
           booking._billable = task._billableDefault
