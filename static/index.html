@@ -137,11 +137,13 @@
         <v-btn @click="submitWorkingtimes" raised>submit</v-btn>
         <v-btn @click="loadData">reset</v-btn>
       </v-flex>
-      <v-flex xs12>
-        <!-- TODO: use a snackbar for infos-->
-        {{fetchState}}
-      </v-flex>
       </v-layout></v-container>
+        <v-snackbar v-model="snackbar.show" :color="snackbar.level" :multi-line="snackbar.level === 'error'" bottom :timeout="(snackbar.level === 'error') ? 0 : 2000">
+        {{ snackbar.message }}
+        <v-btn flat @click="snackbar.show = false">
+          Close
+        </v-btn>
+      </v-snackbar>
     </v-content></v-app>
   </div>
 
@@ -245,7 +247,11 @@
     const vm = new Vue({
       el: '#app',
       data: {
-        fetchState: "nothing to do",
+        snackbar: {
+          message: "",
+          level: "info",
+          show: false
+        },
         workingday: {},
         staffmember: {
           _id: "joern",
@@ -280,10 +286,14 @@
         this.loadData();
       },
       methods: {
+        showMessage: function(text, level) {
+          this.snackbar.message = text;
+          this.snackbar.level = level;
+          this.snackbar.show = true;
+        },
         loadData: function() {
           console.log("loadData")
           const urlDate = (this.workingday && this.workingday._date) ? ("/" + this.workingday._date) : ""
-          this.fetchState = "fetching.."
           const self = this
           axios.all([
             server.get('../api/tasks/' + this.staffmember._id),
@@ -307,12 +317,12 @@
             }
             self.workingday = d;
             console.log(self.workingday);
-            self.fetchState = "fetched!";
+            self.showMessage('fetched!', 'info')
           }))
           .catch(function (error) {
             // TODO: handle errors generically as in POST + alert/snackbar/..-dialog
             console.log(error);
-            self.fetchState = "ERROR: " + error
+            self.showMessage("ERROR: " + error, 'error')
           });
         },
         submitWorkingtimes: function () {
@@ -326,12 +336,11 @@
             }
           );
           console.log(xmlDocStr);
-          this.fetchState = "posting.."
           const self = this
           server.post('../api/timetrack', xmlDocStr)
             .then(function (response) {
               console.log(response);
-              self.fetchState = "posted!";
+              self.showMessage("posted!", 'success')
             })
             .catch(function (error) {
               if (error.response) {
@@ -340,17 +349,17 @@
                 console.log(error.response.data);
                 console.log(error.response.status);
                 console.log(error.response.headers);
-                self.fetchState = "ERROR " + error.response.status + ": " + error.response.data;
+                self.showMessage("ERROR " + error.response.status + ": " + error.response.data, 'error')
               } else if (error.request) {
                 // The request was made but no response was received
                 // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
                 // http.ClientRequest in node.js
                 console.log(error.request);
-                self.fetchState = "ERROR : Failed contacting server";
+                self.showMessage("ERROR : Failed contacting server", 'error')
               } else {
                 // Something happened in setting up the request that triggered an Error
                 console.log('Error', error.message);
-                self.fetchState = "ERROR : Failed setting up server request";
+                self.showMessage("ERROR : Failed setting up server request", 'error')
               }
           });
           
