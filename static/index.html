@@ -25,9 +25,44 @@
 </head>
 <body>
   <div id="app">
-    <v-app><v-content>
+    <v-app>
+      <v-navigation-drawer v-model="drawer" fixed app >
+        <v-list dense>
+          <v-list-tile @click="page='homePage'">
+            <v-list-tile-action>
+              <v-icon>home</v-icon>
+            </v-list-tile-action>
+            <v-list-tile-content>
+              <v-list-tile-title>dashboard</v-list-tile-title>
+            </v-list-tile-content>
+          </v-list-tile>
+          <v-list-tile @click="page='dailyBookingPage'">
+            <v-list-tile-action>
+              <v-icon>book</v-icon>
+            </v-list-tile-action>
+            <v-list-tile-content>
+              <v-list-tile-title>daily booking</v-list-tile-title>
+            </v-list-tile-content>
+          </v-list-tile>
+          <v-list-tile @click="page='taskManagingPage'">
+            <v-list-tile-action>
+              <v-icon>list</v-icon>
+            </v-list-tile-action>
+            <v-list-tile-content>
+              <v-list-tile-title>task managing</v-list-tile-title>
+            </v-list-tile-content>
+          </v-list-tile>
+        </v-list>
+      </v-navigation-drawer>      
+      <v-toolbar dark fixed app>
+        <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
+        <v-toolbar-title>Timetracking</v-toolbar-title>
+      </v-toolbar>
+      
+      <!-- BEGIN dailyBookingPage -->
+      <v-content v-if="page === 'dailyBookingPage'">
       <v-container grid-list-md><v-layout row wrap>
-      <v-flex xs2>
+      <v-flex xs6>
         <h2>User: {{staffmember.givenName}} {{staffmember.name}}</h2>
         <input v-model="workingday._date" @change="loadData" type="date" overflow="hidden" text-overflow="ellipsis"/>
       </v-flex>
@@ -65,7 +100,7 @@
           <v-btn @click="addWorkingTime"><v-icon>add</v-icon></v-btn>
       </v-flex>
       <v-flex xs12>
-        <h2>Breaks</h2>
+        <h3>Breaks</h3>
       </v-flex>
       <template v-for="b in workingday.break" :key="b.key">
         <v-flex xs1>
@@ -138,13 +173,34 @@
         <v-btn @click="loadData">reset</v-btn>
       </v-flex>
       </v-layout></v-container>
-        <v-snackbar v-model="snackbar.show" :color="snackbar.level" :multi-line="snackbar.level === 'error'" bottom :timeout="(snackbar.level === 'error') ? 0 : 2000">
-        {{ snackbar.message }}
-        <v-btn flat @click="snackbar.show = false">
-          Close
-        </v-btn>
-      </v-snackbar>
-    </v-content></v-app>
+    </v-content>
+    <!-- END dailyBookingPage -->
+    
+    <!-- BEGIN taskManagingPage -->
+    <v-content v-if="page === 'taskManagingPage'">
+      <v-container grid-list-md><v-layout row wrap>
+      <v-flex xs6>
+        <h2>Task Managing</h2>
+      </v-flex>
+
+      <v-flex xs12>
+        <v-btn @click="" raised>submit</v-btn>
+        <v-btn @click="">reset</v-btn>
+      </v-flex>
+      </v-layout></v-container>
+    </v-content>
+    <!-- END taskManagingPage -->
+
+    <v-snackbar v-model="snackbar.show" :color="snackbar.level" :multi-line="snackbar.level === 'error'" bottom :timeout="(snackbar.level === 'error') ? 0 : 2000">
+    {{ snackbar.message }}
+      <v-btn flat @click="snackbar.show = false">
+        Close
+      </v-btn>
+    </v-snackbar>
+    <v-footer dark app>
+      <span class="white--text">&copy; 2018 - Willhöft IT-Beratung GmbH</span>
+    </v-footer>
+    </v-app>
   </div>
 
   <script>
@@ -175,46 +231,12 @@
       return s.replace(/(\d?\d):(\d?\d).*/, "PT$1H$2M")
     }
        
-    function addDefaultWorkingTime(wd) {
-      const wt = {
-        _start: "10:00",
-        _duration: "PT9H30M", 
-        description: "",
-        key: pskey++
-      }
-      if (! wd.workingtime) {
-        console.log("creating workingtime array")
-        wd.workingtime = []
-      }
-      wd.workingtime.push(wt)
-    }
-    
-    function addDefaultBreak(wd) {
-      const b = {
-        _duration: "PT0H30M", 
-        description: "",
-        key: pskey++
-      }
-      if (! wd.break) {
-        console.log("creating break array")
-        wd.break = []
-      }
-      wd.break.push(b)
-    }
-    
-    function addDefaultBooking(wd) {
-      const b = {
-        _duration: "PT0H", 
-        _billable: "depends",
-        description: "",
-        key: pskey++
-      }
-      if (! wd.booking) {
-        console.log("creating booking array")
-        wd.booking = []
-      }
-      wd.booking.push(b)
-    }
+    const server = axios.create({
+      timeout: 1000,
+      headers: {'Content-Type': 'application/xml; charset=UTF-8'}
+      
+    });
+
     
     // TODO: handle validation errors correctly
     Vue.component('duration-textfield', {
@@ -238,15 +260,12 @@
         }
     })
         
-    const server = axios.create({
-      timeout: 1000,
-      headers: {'Content-Type': 'application/xml; charset=UTF-8'}
-      
-    });
 
     const vm = new Vue({
       el: '#app',
       data: {
+        page: 'taskManagingPage',
+        drawer: false,
         snackbar: {
           message: "",
           level: "info",
@@ -307,13 +326,13 @@
             console.log(timetrackResponse);
             const d = x2jsTimetrack.xml_str2json(timetrackResponse.data).workingday;
             if (! d.workingtime) {
-              addDefaultWorkingTime(d);
+              self.addDefaultWorkingTime(d);
             }
             if (! d.break) {
-              addDefaultBreak(d);
+              self.addDefaultBreak(d);
             }
             if (! d.booking) {
-              addDefaultBooking(d);
+              self.addDefaultBooking(d);
             }
             self.workingday = d;
             console.log(self.workingday);
@@ -362,7 +381,6 @@
                 self.showMessage("ERROR : Failed setting up server request", 'error')
               }
           });
-          
         },
         updateOnTimeChange: function(wt) {
           if (wt._end && wt._start) {
@@ -381,35 +399,73 @@
             console.log("updateOnDurationChange: " + startDt.toISO() + " + " + wt._duration + " = " + wt._end)
           }
         },
+        addDefaultWorkingTime: function(wd) {
+          const wt = {
+            _start: "10:00",
+            _duration: "PT9H30M", 
+            description: "",
+            key: pskey++
+          }
+          if (! wd.workingtime) {
+            console.log("creating workingtime array")
+            wd.workingtime = []
+          }
+          wd.workingtime.push(wt)
+        },
+        addDefaultBreak: function(wd) {
+          const b = {
+            _duration: "PT0H30M", 
+            description: "",
+            key: pskey++
+          }
+          if (! wd.break) {
+            console.log("creating break array")
+            wd.break = []
+          }
+          wd.break.push(b)
+        },
+        addDefaultBooking: function(wd) {
+          const b = {
+            _duration: "PT0H", 
+            _billable: "depends",
+            description: "",
+            key: pskey++
+          }
+          if (! wd.booking) {
+            console.log("creating booking array")
+            wd.booking = []
+          }
+          wd.booking.push(b)
+        },
         addWorkingTime: function() {
           console.log("addWorkingTime")
-          addDefaultWorkingTime(this.workingday)
+          this.addDefaultWorkingTime(this.workingday)
         },
         removeWorkingTime: function(wt) {
           this.workingday.workingtime.splice(this.workingday.workingtime.indexOf(wt), 1)
           if (this.workingday.workingtime.length==0) {
-            addDefaultWorkingTime(this.workingday)
+            this.addDefaultWorkingTime(this.workingday)
           }
         },
         addBreak: function() {
           console.log("addBreak")
-          addDefaultBreak(this.workingday)
+          this.addDefaultBreak(this.workingday)
         },
         removeBreak: function(b) {
           this.workingday.break.splice(this.workingday.break.indexOf(b), 1)
           if (this.workingday.break.length==0) {
-            addDefaultBreak(this.workingday)
+            this.addDefaultBreak(this.workingday)
           }
         },
         removeBooking: function(b) {
           this.workingday.booking.splice(this.workingday.booking.indexOf(b), 1)
           if (this.workingday.booking.length==0) {
-            addDefaultBooking(this.workingday)
+            this.addDefaultBooking(this.workingday)
           }
         },
         addBooking: function() {
           console.log("addBooking")
-          addDefaultBooking(this.workingday)
+          this.addDefaultBooking(this.workingday)
         },
         setBillableToDefault: function(booking) {
           if (! booking._taskId) return;
