@@ -117,6 +117,7 @@
 
 
 <script>
+  import Vue from 'vue'
   import DurationTextfield from '@/components/DurationTextfield.vue'
   import luxon from 'luxon'
   import axios from 'axios'
@@ -154,8 +155,7 @@
   });
   
   
-  export default {
-    el: 'daily-booking-page',
+  export default Vue.component('daily-booking-page', {
     data: function() {
       return {
         staffmember: {
@@ -363,5 +363,5 @@
         }, "")
       }
     }
-  }
+  })
 </script>
