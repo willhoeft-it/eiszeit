@@ -1,4 +1,5 @@
 <template>
+ 
   <v-content><v-container grid-list-md><v-layout row wrap>
     <v-flex xs6>
       <h2>User: {{staffmember.givenName}} {{staffmember.name}}</h2>
@@ -14,7 +15,7 @@
       <v-alert :value="unbookedTime.valueOf() == 0" type="success" outline>All day booked!</v-alert>
     </v-flex>
     
-    <template v-for="wt in workingday.workingtime" :key="wt.key">
+    <v-content v-for="wt in workingday.workingtime" :key="wt.key">
       <v-flex xs1>
         <!-- TODO: combine with time-picker in a dedicated component and reuse-->
         <v-text-field v-model="wt._start" @blur="updateOnTimeChange(wt)" label="begin" type="time" ></v-text-field>
@@ -31,7 +32,7 @@
       <v-flex xs1>
         <v-btn @click="removeWorkingTime(wt)"><v-icon>delete</v-icon></v-btn>
       </v-flex>
-    </template>
+    </v-content>
     <v-flex xs11></v-flex>
     <v-flex xs1>
       <!-- TODO: use a "floating button" here that actually floats -->
@@ -40,7 +41,7 @@
     <v-flex xs12>
       <h3>Breaks</h3>
     </v-flex>
-    <template v-for="b in workingday.break" :key="b.key">
+    <v-content v-for="b in workingday.break" :key="b.key">
       <v-flex xs1>
         <v-text-field v-model="b._start" label="begin" type="time" @blur="updateOnTimeChange(b)"></v-text-field>
       </v-flex>
@@ -56,7 +57,7 @@
       <v-flex xs1>
         <v-btn @click="removeBreak(b)"><v-icon>delete</v-icon></v-btn>
       </v-flex>
-    </template>
+    </v-content>
     <v-flex xs11></v-flex>
     <v-flex xs1>
       <!-- TODO: use a "floating button" here that actually floats -->
@@ -65,7 +66,7 @@
     <v-flex xs12>
       <h2>Bookings</h2>
     </v-flex>
-    <template v-for="booking in workingday.booking" :key="booking.key">
+    <v-content v-for="booking in workingday.booking" :key="booking.key">
       <v-flex xs3>
         <v-select v-model="booking._taskId" label="Task" :items="tasks.task" item-text="_title" item-value="_id"  @input="setBillableToDefault(booking)">
           <template slot="label"> 
@@ -100,7 +101,7 @@
       <v-flex xs1>
         <v-btn @click="removeBooking(booking)"><v-icon>delete</v-icon></v-btn>
       </v-flex>
-    </template>
+    </v-content>
     <v-flex xs11></v-flex>
     <v-flex xs1>
       <!-- TODO: use a "floating button" here that actually floats -->
@@ -116,18 +117,57 @@
 
 
 <script>
-  import duration-textfield from '@/components/duration-textfield.vue'
+  import DurationTextfield from '@/components/DurationTextfield.vue'
+  import luxon from 'luxon'
+  import axios from 'axios'
+  
+  // page scope unique key generator
+  var pskey = 0
+
+  const x2jsTasks = new X2JS({
+    arrayAccessFormPaths : [
+      "tasks.task", "tasks.task.path"
+    ]
+  });
+  
+  const x2jsTimetrack = new X2JS({
+    arrayAccessFormPaths : [
+      "workingday.workingtime", "workingday.break", "workingday.booking"
+    ]
+    // TODO: check if "datetimeAccessFormPaths : []" can be used instead of luxon conversion in model
+  });
+  
+  function durationAsHours(s) {
+    const d = luxon.Duration.fromISO(s)
+    if (!d) return d
+    return d.toFormat("hh:mm")
+  }
+  
+  function hoursAsDuration(s) {
+    if (!s) return null
+    return s.replace(/(\d?\d):(\d?\d).*/, "PT$1H$2M")
+  }
+      
+  const server = axios.create({
+    timeout: 1000,
+    headers: {'Content-Type': 'application/xml; charset=UTF-8'}
+  });
+  
+  
   export default {
-    data: {
-      staffmember: {
-        _id: "joern",
-        name: "Willhöft",
-        givenName: "Jörn"
-      },
-      workingday: {},
-      tasks: {
-        task: []
-      },
+    el: 'daily-booking-page',
+    data: function() {
+      return {
+        staffmember: {
+          _id: "joern",
+          name: "Willhöft",
+          givenName: "Jörn"
+        },
+        workingday: {},
+        tasks: {
+          task: []
+        },
+      };
     },
     computed: {
       unbookedTime() {
@@ -154,6 +194,7 @@
         console.log("loadData")
         const urlDate = (this.workingday && this.workingday._date) ? ("/" + this.workingday._date) : ""
         const self = this
+        const app = this.$parent
         axios.all([
           server.get('../api/tasks/' + this.staffmember._id),
           server.get('../api/timetrack' + urlDate),
@@ -181,7 +222,7 @@
         .catch(function (error) {
           // TODO: handle errors generically as in POST + alert/snackbar/..-dialog
           console.log(error);
-          self.showMessage("ERROR: " + error, 'error')
+          app.showMessage("ERROR: " + error, 'error')
         });
       },
       submitWorkingtimes: function () {
@@ -195,11 +236,11 @@
           }
         );
         console.log(xmlDocStr);
-        const self = this
+        const app = this.$parent
         server.post('../api/timetrack', xmlDocStr)
           .then(function (response) {
             console.log(response);
-            self.showMessage("posted!", 'success')
+            app.showMessage("posted!", 'success')
           })
           .catch(function (error) {
             if (error.response) {
@@ -208,17 +249,17 @@
               console.log(error.response.data);
               console.log(error.response.status);
               console.log(error.response.headers);
-              self.showMessage("ERROR " + error.response.status + ": " + error.response.data, 'error')
+              app.showMessage("ERROR " + error.response.status + ": " + error.response.data, 'error')
             } else if (error.request) {
               // The request was made but no response was received
               // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
               // http.ClientRequest in node.js
               console.log(error.request);
-              self.showMessage("ERROR : Failed contacting server", 'error')
+              app.showMessage("ERROR : Failed contacting server", 'error')
             } else {
               // Something happened in setting up the request that triggered an Error
               console.log('Error', error.message);
-              self.showMessage("ERROR : Failed setting up server request", 'error')
+              app.showMessage("ERROR : Failed setting up server request", 'error')
             }
         });
       },
@@ -309,7 +350,7 @@
       },
       setBillableToDefault: function(booking) {
         if (! booking._taskId) return;
-        const task = this.tasks.task.find((value, index, array) => {
+        const task = this.tasks.task.find((value) => {
           return value._id == booking._taskId
         })
         booking._billable = task._billableDefault
@@ -322,5 +363,5 @@
         }, "")
       }
     }
-  })
+  }
 </script>
