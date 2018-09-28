@@ -118,20 +118,23 @@
 
 <script>
   import Vue from 'vue'
+  // eslint-disable-next-line
   import DurationTextfield from '@/components/DurationTextfield.vue'
   import {DateTime, Duration} from 'luxon'
   import axios from 'axios'
   import dateUtils from '@/utils/dateUtils.js'
+  import pageMixin from '@/views/PageMixin.js'
   
   // page scope unique key generator
   var pskey = 0
 
+  // eslint-disable-next-line
   const x2jsTasks = new X2JS({
     arrayAccessFormPaths : [
       "tasks.task", "tasks.task.path"
     ]
   });
-  
+  // eslint-disable-next-line
   const x2jsTimetrack = new X2JS({
     arrayAccessFormPaths : [
       "workingday.workingtime", "workingday.break", "workingday.booking"
@@ -145,21 +148,13 @@
   });
   
   export default Vue.component('daily-booking-page', {
-    mixins: [dateUtils],
+    mixins: [dateUtils, pageMixin],
     data: function() {
       return {
-        staffmember: {
-          _id: "joern",
-          name: "Willhöft",
-          givenName: "Jörn"
-        },
         workingday: {},
         tasks: {
           task: []
-        },
-        billableOptions: [
-          'yes', 'no', 'depends'
-        ]
+        }
       };
     },
     computed: {
@@ -183,9 +178,6 @@
       this.loadData();
     },
     methods: {
-      showMessage: function(text, level) {
-        this.$emit('pageMessageEvent', {text, level})
-      },
       loadData: function() {
         console.log("loadData")
         const urlDate = (this.workingday && this.workingday._date) ? ("/" + this.workingday._date) : ""
@@ -222,6 +214,7 @@
       },
       submitWorkingtimes: function () {
         console.log("submitWorkingTimes")
+        // eslint-disable-next-line
         const outjs = deepFilter(this.workingday, function(_, prop) {
           return prop !== 'key'
         })

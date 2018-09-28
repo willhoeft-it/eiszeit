@@ -45,18 +45,8 @@
         <!-- END dailyBookingPage -->
         
         <!-- BEGIN taskManagingPage -->
-        <v-content v-if="page === 'taskManagingPage'">
-          <v-container grid-list-md><v-layout row wrap>
-          <v-flex xs6>
-            <h2>Task Managing</h2>
-          </v-flex>
-
-          <v-flex xs12>
-            <v-btn raised>submit</v-btn>
-            <v-btn>reset</v-btn>
-          </v-flex>
-          </v-layout></v-container>
-        </v-content>
+        <task-managing-page v-if="page === 'taskManagingPage'" v-on:pageMessageEvent="showMessage">
+        </task-managing-page>
         <!-- END taskManagingPage -->
 
         <v-snackbar v-model="snackbar.show" :color="snackbar.level" :multi-line="snackbar.level === 'error'" bottom :timeout="(snackbar.level === 'error') ? 0 : 2000">
@@ -74,7 +64,10 @@
 </template>
 
 <script>
+  // eslint-disable-next-line
   import DailyBookingPage from '@/views/DailyBookingPage.vue'
+  // eslint-disable-next-line
+  import TaskManagingPage from '@/views/TaskManagingPage.vue'
   
   export default {
     data: function() {
