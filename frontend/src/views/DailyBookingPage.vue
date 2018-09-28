@@ -188,11 +188,13 @@
       this.loadData();
     },
     methods: {
+      showMessage: function(text, level) {
+        this.$emit('pageMessageEvent', {text, level})
+      },
       loadData: function() {
         console.log("loadData")
         const urlDate = (this.workingday && this.workingday._date) ? ("/" + this.workingday._date) : ""
         const self = this
-        const app = this.$parent
         axios.all([
           server.get('../api/tasks/' + this.staffmember._id),
           server.get('../api/timetrack' + urlDate),
@@ -215,12 +217,12 @@
           }
           self.workingday = d;
           console.log(self.workingday);
-          app.showMessage('fetched!', 'info')
+          self.showMessage('fetched!', 'info')
         }))
         .catch(function (error) {
           // TODO: handle errors generically as in POST + alert/snackbar/..-dialog
           console.log(error);
-          app.showMessage("ERROR: " + error, 'error')
+          self.showMessage("ERROR: " + error, 'error')
         });
       },
       submitWorkingtimes: function () {
@@ -234,11 +236,11 @@
           }
         );
         console.log(xmlDocStr);
-        const app = this.$parent
+        const self = this
         server.post('../api/timetrack', xmlDocStr)
           .then(function (response) {
             console.log(response);
-            app.showMessage("posted!", 'success')
+            self.showMessage("posted!", 'success')
           })
           .catch(function (error) {
             if (error.response) {
@@ -247,17 +249,17 @@
               console.log(error.response.data);
               console.log(error.response.status);
               console.log(error.response.headers);
-              app.showMessage("ERROR " + error.response.status + ": " + error.response.data, 'error')
+              self.showMessage("ERROR " + error.response.status + ": " + error.response.data, 'error')
             } else if (error.request) {
               // The request was made but no response was received
               // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
               // http.ClientRequest in node.js
               console.log(error.request);
-              app.showMessage("ERROR : Failed contacting server", 'error')
+              self.showMessage("ERROR : Failed contacting server", 'error')
             } else {
               // Something happened in setting up the request that triggered an Error
               console.log('Error', error.message);
-              app.showMessage("ERROR : Failed setting up server request", 'error')
+              self.showMessage("ERROR : Failed setting up server request", 'error')
             }
         });
       },

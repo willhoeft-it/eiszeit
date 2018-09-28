@@ -40,7 +40,7 @@
         </v-toolbar>
         
         <!-- BEGIN dailyBookingPage -->
-        <daily-booking-page v-if="page === 'dailyBookingPage'">
+        <daily-booking-page v-if="page === 'dailyBookingPage'" v-on:pageMessageEvent="showMessage">
         </daily-booking-page>
         <!-- END dailyBookingPage -->
         
@@ -78,20 +78,20 @@
   
   export default {
     data: function() {
-return {
-      page: 'taskManagingPage',
-      drawer: false,
-      snackbar: {
-        message: "",
-        level: "info",
-        show: false
-      }
-    };
-},
+      return {
+        page: 'taskManagingPage',
+        drawer: false,
+        snackbar: {
+          message: "",
+          level: "info",
+          show: false
+        }
+      };
+    },
     methods: {
-      showMessage: function(text, level) {
-        this.snackbar.message = text;
-        this.snackbar.level = level;
+      showMessage: function(event) {
+        this.snackbar.message = event.text;
+        this.snackbar.level = event.level;
         this.snackbar.show = true;
       }
     }
