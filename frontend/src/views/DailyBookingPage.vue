@@ -15,7 +15,7 @@
       <v-alert :value="unbookedTime.valueOf() == 0" type="success" outline>All day booked!</v-alert>
     </v-flex>
     
-    <v-content v-for="wt in workingday.workingtime" :key="wt.key">
+    <v-layout v-for="wt in workingday.workingtime" :key="wt.key">
       <v-flex xs1>
         <!-- TODO: combine with time-picker in a dedicated component and reuse-->
         <v-text-field v-model="wt._start" @blur="updateOnTimeChange(wt)" label="begin" type="time" ></v-text-field>
@@ -32,7 +32,7 @@
       <v-flex xs1>
         <v-btn @click="removeWorkingTime(wt)"><v-icon>delete</v-icon></v-btn>
       </v-flex>
-    </v-content>
+    </v-layout>
     <v-flex xs11></v-flex>
     <v-flex xs1>
       <!-- TODO: use a "floating button" here that actually floats -->
@@ -41,7 +41,7 @@
     <v-flex xs12>
       <h3>Breaks</h3>
     </v-flex>
-    <v-content v-for="b in workingday.break" :key="b.key">
+    <v-layout v-for="b in workingday.break" :key="b.key">
       <v-flex xs1>
         <v-text-field v-model="b._start" label="begin" type="time" @blur="updateOnTimeChange(b)"></v-text-field>
       </v-flex>
@@ -57,7 +57,7 @@
       <v-flex xs1>
         <v-btn @click="removeBreak(b)"><v-icon>delete</v-icon></v-btn>
       </v-flex>
-    </v-content>
+    </v-layout>
     <v-flex xs11></v-flex>
     <v-flex xs1>
       <!-- TODO: use a "floating button" here that actually floats -->
@@ -66,7 +66,7 @@
     <v-flex xs12>
       <h2>Bookings</h2>
     </v-flex>
-    <v-content v-for="booking in workingday.booking" :key="booking.key">
+    <v-layout v-for="booking in workingday.booking" :key="booking.key">
       <v-flex xs3>
         <v-select v-model="booking._taskId" label="Task" :items="tasks.task" item-text="_title" item-value="_id"  @input="setBillableToDefault(booking)">
           <template slot="label"> 
@@ -101,7 +101,7 @@
       <v-flex xs1>
         <v-btn @click="removeBooking(booking)"><v-icon>delete</v-icon></v-btn>
       </v-flex>
-    </v-content>
+    </v-layout>
     <v-flex xs11></v-flex>
     <v-flex xs1>
       <!-- TODO: use a "floating button" here that actually floats -->
@@ -119,7 +119,7 @@
 <script>
   import Vue from 'vue'
   import DurationTextfield from '@/components/DurationTextfield.vue'
-  import luxon from 'luxon'
+  import {DateTime, Duration} from 'luxon'
   import axios from 'axios'
   
   // page scope unique key generator
@@ -135,15 +135,10 @@
     arrayAccessFormPaths : [
       "workingday.workingtime", "workingday.break", "workingday.booking"
     ]
-    // TODO: check if "datetimeAccessFormPaths : []" can be used instead of luxon conversion in model
+    // TODO: check if "datetimeAccessFormPaths : []" can be used instead of conversion in model
   });
   
-  function durationAsHours(s) {
-    const d = luxon.Duration.fromISO(s)
-    if (!d) return d
-    return d.toFormat("hh:mm")
-  }
-  
+ 
   function hoursAsDuration(s) {
     if (!s) return null
     return s.replace(/(\d?\d):(\d?\d).*/, "PT$1H$2M")
@@ -167,21 +162,24 @@
         tasks: {
           task: []
         },
+        billableOptions: [
+          'yes', 'no', 'depends'
+        ]
       };
     },
     computed: {
       unbookedTime() {
         if (! this.workingday.workingtime)
-          return luxon.Duration.fromISO('PT0H')
+          return Duration.fromISO('PT0H')
         const wtsum = this.workingday.workingtime.reduce((total, wt) => {
-          return total.plus(luxon.Duration.fromISO(wt._duration))
+          return total.plus(Duration.fromISO(wt._duration))
           
-        }, luxon.Duration.fromISO('PT0H'));
+        }, Duration.fromISO('PT0H'));
         const netwtsum = (this.workingday.break) ? this.workingday.break.reduce((total, b) => {
-          return total.minus(luxon.Duration.fromISO(b._duration))
+          return total.minus(Duration.fromISO(b._duration))
         }, wtsum) : wtsum;
         const unbooked = (this.workingday.booking) ? this.workingday.booking.reduce((total, b) => {
-          return total.minus(luxon.Duration.fromISO(b._duration))
+          return total.minus(Duration.fromISO(b._duration))
         }, netwtsum) : netwtsum;
         return unbooked;
       }
@@ -265,8 +263,8 @@
       },
       updateOnTimeChange: function(wt) {
         if (wt._end && wt._start) {
-          const endDt = luxon.DateTime.fromISO(this.workingday._date + "T" + wt._end)
-          const startDt = luxon.DateTime.fromISO(this.workingday._date + "T" + wt._start)
+          const endDt = DateTime.fromISO(this.workingday._date + "T" + wt._end)
+          const startDt = DateTime.fromISO(this.workingday._date + "T" + wt._start)
           wt._duration = endDt.diff(startDt, ['hours', 'minutes']).toISO()
           console.log("updateOnEndChange: " + endDt.toISO() + " - " + startDt.toISO() + " = " + wt._duration)
         }
@@ -274,8 +272,8 @@
       updateOnDurationChange: function(wt) {
         console.log("updateOnDurationChange: " + wt._duration + " / " + wt._start)
         if (wt._duration && wt._start) {
-          const duration = luxon.Duration.fromISO(wt._duration)
-          const startDt = luxon.DateTime.fromISO(this.workingday._date + "T" + wt._start)
+          const duration = Duration.fromISO(wt._duration)
+          const startDt = DateTime.fromISO(this.workingday._date + "T" + wt._start)
           wt._end = startDt.plus(duration).toFormat("HH:mm")
           console.log("updateOnDurationChange: " + startDt.toISO() + " + " + wt._duration + " = " + wt._end)
         }
@@ -361,6 +359,11 @@
         }).path.reduce((s, p, i, arr) => {
           return s + p._title + ((i < arr.length - 1) ? " » " : "")
         }, "")
+      },
+      durationAsHours: function (s) {
+        const d = Duration.fromISO(s)
+        if (!d) return d
+        return d.toFormat("hh:mm")
       }
     }
   })

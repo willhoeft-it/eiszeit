@@ -85,10 +85,7 @@ return {
         message: "",
         level: "info",
         show: false
-      },
-      billableOptions: [
-        'yes', 'no', 'depends'
-      ]
+      }
     };
 },
     methods: {

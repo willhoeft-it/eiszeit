@@ -8,15 +8,16 @@
 </template>
 
 <script>
-  import luxon from 'luxon'
+  import Vue from 'vue'
+  import {Duration} from 'luxon'
 
   // TODO: handle validation errors correctly
-  export default {
+  export default Vue.component('duration-textfield', {
     props: ['value'],
       methods: {
         // TODO: methods should be reused with those in DailyBookingPage.vue
         durationAsHours: function(s) {
-          const d = luxon.Duration.fromISO(s)
+          const d = Duration.fromISO(s)
           if (!d) return d
           return d.toFormat("hh:mm")
         },
@@ -33,5 +34,5 @@
           this.$emit('input', this.hoursAsDuration(value))
         }
       }
-  }
+  })
 </script>
