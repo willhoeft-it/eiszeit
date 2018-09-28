@@ -1,10 +1,74 @@
 <template>
-   <v-content><v-container grid-list-md><v-layout row wrap>
+  <v-content><v-container grid-list-md><v-layout row wrap>
     <v-flex xs6>
       <h2>User: {{staffmember.givenName}} {{staffmember.name}}</h2>
     </v-flex>
     <v-flex xs12>
-      <h2>Tasks</h2>
+      <v-expansion-panel expand>
+        <v-expansion-panel-content v-for="pg in tasks.projectGroup" :key="pg.key">         
+          <div slot="header">
+            <div class="caption">Project Group</div>
+            <div>{{pg._title}}</div>
+          </div>
+          <v-expansion-panel expand inset>
+            <v-expansion-panel-content v-for="p in pg.project" :key="p.key">
+              <div slot="header">
+                <v-container fluid><v-layout row wrap>
+                  <v-flex>
+                    <div class="caption">Project</div>
+                    <div>{{p._title}}</div>
+                  </v-flex>
+                  <v-flex>
+                    <div class="text-xs-right">
+                      <v-chip v-for="m in p.member">{{m._staffmemberId}}</v-chip>
+                    </div>
+                  </v-flex>
+                </v-layout></v-container>
+              </div>
+              <v-expansion-panel expand inset>
+                <v-expansion-panel-content v-for="tg in p.taskGroup" :key="tg.key">
+                  <div slot="header">
+                    <div class="caption">Task Group</div>
+                    <div>{{tg._title}}</div>
+                  </div>
+                  <v-expansion-panel-content v-for="t in tg.task" :key="t.key">
+                    <div slot="header">
+                      <v-container fluid><v-layout row wrap>
+                        <v-flex>
+                          <div class="caption">Task</div>
+                          <div>{{t._title}}</div>
+                        </v-flex>
+                        <v-flex>
+                          <div class="text-xs-right">
+                            <v-chip v-for="m in t.member">{{m._staffmemberId}}</v-chip>
+                          </div>
+                        </v-flex>
+                      </v-layout></v-container>
+                    </div>
+                  </v-expansion-panel-content>
+                </v-expansion-panel-content>
+              </v-expansion-panel>
+              <v-expansion-panel expand inset>
+                <v-expansion-panel-content v-for="t in p.task" :key="t.key">
+                  <div slot="header">
+                    <v-container fluid><v-layout row wrap>
+                      <v-flex>
+                        <div class="caption">Task</div>
+                        <div>{{t._title}}</div>
+                      </v-flex>
+                      <v-flex>
+                        <div class="text-xs-right">
+                          <v-chip v-for="m in t.member">{{m._staffmemberId}}</v-chip>
+                        </div>
+                      </v-flex>
+                    </v-layout></v-container>
+                  </div>
+                </v-expansion-panel-content>
+              </v-expansion-panel>
+            </v-expansion-panel-content>
+          </v-expansion-panel>
+        </v-expansion-panel-content>
+      </v-expansion-panel>
     </v-flex>
   </v-layout></v-container></v-content>
 </template>
