@@ -1,3 +1,5 @@
+import axios from 'axios'
+
 export default {
     data: function() {
       return {
@@ -8,7 +10,11 @@ export default {
         },
         billableOptions: [
           'yes', 'no', 'depends'
-        ]
+        ],
+        server: axios.create({
+          timeout: 1000,
+          headers: {'Content-Type': 'application/xml; charset=UTF-8'}
+        })
       };
     },
     methods: {

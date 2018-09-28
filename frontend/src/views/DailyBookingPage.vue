@@ -126,7 +126,7 @@
   import pageMixin from '@/views/PageMixin.js'
   
   // page scope unique key generator
-  var pskey = 0
+  let pskey = 0
 
   // eslint-disable-next-line
   const x2jsTasks = new X2JS({
@@ -141,12 +141,7 @@
     ]
     // TODO: check if "datetimeAccessFormPaths : []" can be used instead of conversion in model
   });
-      
-  const server = axios.create({
-    timeout: 1000,
-    headers: {'Content-Type': 'application/xml; charset=UTF-8'}
-  });
-  
+       
   export default Vue.component('daily-booking-page', {
     mixins: [dateUtils, pageMixin],
     data: function() {
@@ -183,8 +178,8 @@
         const urlDate = (this.workingday && this.workingday._date) ? ("/" + this.workingday._date) : ""
         const self = this
         axios.all([
-          server.get('../api/tasks/' + this.staffmember._id),
-          server.get('../api/timetrack' + urlDate),
+          self.server.get('../api/tasks/' + this.staffmember._id),
+          self.server.get('../api/timetrack' + urlDate),
         ]).then(axios.spread(function(taskResponse, timetrackResponse) {
           console.log("tasks:")
           console.log(taskResponse);
@@ -225,7 +220,7 @@
         );
         console.log(xmlDocStr);
         const self = this
-        server.post('../api/timetrack', xmlDocStr)
+        self.server.post('../api/timetrack', xmlDocStr)
           .then(function (response) {
             console.log(response);
             self.showMessage("posted!", 'success')

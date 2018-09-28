@@ -76,6 +76,16 @@ declare
 (:~
  : tasks API
  :)
+
+declare
+  %rest:path("timetracking/api/tasks")
+  %rest:GET
+  %rest:produces("application/xml", "text/xml")
+  %output:method("xml")
+  %output:omit-xml-declaration("no")
+  function page:tasks-get() {
+    db:open("timetracking")/tasks[1]
+};
  
 declare
   %rest:path("timetracking/api/tasks/{$staffmemberId}")
