@@ -10,21 +10,13 @@
 <script>
   import Vue from 'vue'
   import {Duration} from 'luxon'
+  import dateUtils from '@/utils/dateUtils.js'
 
   // TODO: handle validation errors correctly
   export default Vue.component('duration-textfield', {
+    mixins: [dateUtils],
     props: ['value'],
       methods: {
-        // TODO: methods should be reused with those in DailyBookingPage.vue
-        durationAsHours: function(s) {
-          const d = Duration.fromISO(s)
-          if (!d) return d
-          return d.toFormat("hh:mm")
-        },
-        hoursAsDuration: function(s) {
-          if (!s) return null
-          return s.replace(/(\d?\d):(\d?\d).*/, "PT$1H$2M")
-        },
         // Instead of updating the value directly, this
         // method is used to format and place constraints
         // on the input's value

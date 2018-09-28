@@ -121,6 +121,7 @@
   import DurationTextfield from '@/components/DurationTextfield.vue'
   import {DateTime, Duration} from 'luxon'
   import axios from 'axios'
+  import dateUtils from '@/utils/dateUtils.js'
   
   // page scope unique key generator
   var pskey = 0
@@ -137,20 +138,14 @@
     ]
     // TODO: check if "datetimeAccessFormPaths : []" can be used instead of conversion in model
   });
-  
- 
-  function hoursAsDuration(s) {
-    if (!s) return null
-    return s.replace(/(\d?\d):(\d?\d).*/, "PT$1H$2M")
-  }
       
   const server = axios.create({
     timeout: 1000,
     headers: {'Content-Type': 'application/xml; charset=UTF-8'}
   });
   
-  
   export default Vue.component('daily-booking-page', {
+    mixins: [dateUtils],
     data: function() {
       return {
         staffmember: {
@@ -227,7 +222,7 @@
       },
       submitWorkingtimes: function () {
         console.log("submitWorkingTimes")
-        const outjs = deepFilter(this.workingday, function(value, prop, subject) {
+        const outjs = deepFilter(this.workingday, function(_, prop) {
           return prop !== 'key'
         })
         const xmlDocStr = x2jsTimetrack.json2xml_str(
@@ -361,11 +356,6 @@
         }).path.reduce((s, p, i, arr) => {
           return s + p._title + ((i < arr.length - 1) ? " » " : "")
         }, "")
-      },
-      durationAsHours: function (s) {
-        const d = Duration.fromISO(s)
-        if (!d) return d
-        return d.toFormat("hh:mm")
       }
     }
   })
