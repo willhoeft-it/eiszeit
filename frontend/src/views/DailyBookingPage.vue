@@ -272,7 +272,7 @@
         }
         if (! wd.workingtime) {
           console.log("creating workingtime array")
-          wd.workingtime = []
+          Vue.set(wd, "workingtime", [])
         }
         wd.workingtime.push(wt)
       },
@@ -284,7 +284,7 @@
         }
         if (! wd.break) {
           console.log("creating break array")
-          wd.break = []
+          Vue.set(wd, "break", [])
         }
         wd.break.push(b)
       },
@@ -297,7 +297,7 @@
         }
         if (! wd.booking) {
           console.log("creating booking array")
-          wd.booking = []
+          Vue.set(wd, "booking", [])
         }
         wd.booking.push(b)
       },
