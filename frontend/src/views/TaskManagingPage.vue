@@ -20,7 +20,7 @@
                   </v-flex>
                   <v-flex>
                     <div class="text-xs-right">
-                      <v-chip v-for="m in p.member">{{m._staffmemberId}}</v-chip>
+                      <v-chip v-for="m in p.member" :key="m.staffmemberId">{{m._staffmemberId}}</v-chip>
                     </div>
                   </v-flex>
                 </v-layout></v-container>
@@ -40,15 +40,15 @@
                         </v-flex>
                         <v-flex>
                           <div class="text-xs-right">
-                            <v-chip v-for="m in t.member">{{m._staffmemberId}}</v-chip>
-                            <v-btn @click.stop="removeTask(t)"><v-icon>delete</v-icon></v-btn>
+                            <v-chip v-for="m in t.member" :key="m.staffmemberId">{{m._staffmemberId}}</v-chip>
+                            <v-btn @click.stop="removeTask(tg.task, t)"><v-icon>delete</v-icon></v-btn>
                           </div>
                         </v-flex>
                       </v-layout></v-container>
                     </div>
                   </v-expansion-panel-content>
                   <v-btn @click="addTask(tg)">add task</v-btn>
-                  <v-btn @click="removeTaskGroup(tg)"><v-icon>delete</v-icon></v-btn>
+                  <v-btn @click="removeTaskGroup(p.taskGroup, tg)"><v-icon>delete</v-icon></v-btn>
                 </v-expansion-panel-content>
               </v-expansion-panel>
               <v-btn @click="addTaskGroup(p)">add task group</v-btn>
@@ -62,8 +62,8 @@
                       </v-flex>
                       <v-flex>
                         <div class="text-xs-right">
-                          <v-chip v-for="m in t.member">{{m._staffmemberId}}</v-chip>
-                          <v-btn @click.stop="removeTask(t)"><v-icon>delete</v-icon></v-btn>
+                          <v-chip v-for="m in t.member" :key="m.staffmemberId">{{m._staffmemberId}}</v-chip>
+                          <v-btn @click.stop="removeTask(p.task, t)"><v-icon>delete</v-icon></v-btn>
                         </div>
                       </v-flex>
                     </v-layout></v-container>
@@ -71,7 +71,7 @@
                 </v-expansion-panel-content>
               </v-expansion-panel>
               <v-btn @click="addTask(p)">add task</v-btn>
-              <v-btn @click="removeProject(p)"><v-icon>delete</v-icon></v-btn>
+              <v-btn @click="removeProject(pg.project, p)"><v-icon>delete</v-icon></v-btn>
             </v-expansion-panel-content>
           </v-expansion-panel>
           <v-btn @click="addProject(pg)">add project</v-btn>
@@ -87,6 +87,7 @@
   import Vue from 'vue'
   import pageMixin from '@/views/PageMixin.js'
   
+  // eslint-disable-next-line
   const x2jsTasks = new X2JS({
     arrayAccessFormPaths : [
       /.+.projectGroup/,
@@ -170,19 +171,19 @@
       },
       removeProjectGroup: function(pg) {
         console.log("removeProjectGroup")
-        // TODO: implement
+        this.tasks.projectGroup.splice(this.tasks.projectGroup.indexOf(pg), 1)
       },
-      removeProject: function(p) {
+      removeProject: function(pArr, p) {
         console.log("removeProject")
-        // TODO: implement
+        pArr.splice(pArr.indexOf(p), 1)
       },
-      removeTaskGroup: function(tg) {
+      removeTaskGroup: function(pArr, tg) {
         console.log("removeTaskGroup")
-        // TODO: implement
+        pArr.splice(pArr.indexOf(tg), 1)
       },
-      removeTask: function(t) {
+      removeTask: function(pArr, t) {
         console.log("removeTask")
-        // TODO: implement
+        pArr.splice(pArr.indexOf(t), 1)
       },
       loadData: function() {
         console.log("loadData")
