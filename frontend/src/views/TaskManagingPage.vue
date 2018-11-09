@@ -7,8 +7,42 @@
       <v-expansion-panel expand>
         <v-expansion-panel-content v-for="pg in tasks.projectGroup" :key="pg.key">         
           <div slot="header">
-            <div class="caption">Project Group</div>
-            <div>{{pg._title}}</div>
+            <v-container fluid><v-layout row wrap>
+              <v-flex>
+                <div class="caption">Project Group</div>
+                <div>{{pg._title}}</div>
+              </v-flex>
+              <v-flex>
+                <div class="text-xs-right">
+                  <!-- TODO: turn in component and focus on title. See https://github.com/vuetifyjs/vuetify/issues/1587
+                       TODO: close on enter -->
+                  <v-dialog v-model="pg.$dialog" persistent max-width="600px">
+                    <v-btn slot="activator"><v-icon>edit</v-icon></v-btn>
+                    <v-card>
+                      <v-card-title>
+                        <span class="headline">Project Group</span>
+                      </v-card-title>
+                      <v-card-text>
+                        <v-container grid-list-md>
+                          <v-layout wrap>
+                            <v-flex xs12>
+                              <v-text-field label="Title*" required v-model="pg._title"></v-text-field>
+                            </v-flex>
+                          </v-layout>
+                        </v-container>
+                        <small>*indicates required field</small>
+                      </v-card-text>
+                      <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn flat @click.native="pg.$dialog = false">Close</v-btn>
+                      </v-card-actions>
+                    </v-card>
+                  </v-dialog>
+                  <!-- end dialog -->
+                  <v-btn @click="removeProjectGroup(pg)"><v-icon>delete</v-icon></v-btn>
+                </div>
+              </v-flex>
+            </v-layout></v-container>
           </div>
           <v-expansion-panel expand inset>
             <v-expansion-panel-content v-for="p in pg.project" :key="p.key">
@@ -21,16 +55,73 @@
                   <v-flex>
                     <div class="text-xs-right">
                       <v-chip v-for="m in p.member" :key="m.staffmemberId">{{m._staffmemberId}}</v-chip>
+                      <v-dialog v-model="p.$dialog" persistent max-width="600px">
+                        <v-btn slot="activator"><v-icon>edit</v-icon></v-btn>
+                        <v-card>
+                          <v-card-title>
+                            <span class="headline">Project</span>
+                          </v-card-title>
+                          <v-card-text>
+                            <v-container grid-list-md>
+                              <v-layout wrap>
+                                <v-flex xs12>
+                                  <v-text-field label="Title*" required v-model="p._title"></v-text-field>
+                                </v-flex>
+                                <!-- TODO: add priority, status, members -->
+                              </v-layout>
+                            </v-container>
+                            <small>*indicates required field</small>
+                          </v-card-text>
+                          <v-card-actions>
+                            <v-spacer></v-spacer>
+                            <v-btn flat @click.native="p.$dialog = false">Close</v-btn>
+                          </v-card-actions>
+                        </v-card>
+                      </v-dialog>
+                      <v-btn @click="removeProject(pg.project, p)"><v-icon>delete</v-icon></v-btn>
                     </div>
+                    
                   </v-flex>
                 </v-layout></v-container>
               </div>
               <v-expansion-panel expand inset>
                 <v-expansion-panel-content v-for="tg in p.taskGroup" :key="tg.key">
                   <div slot="header">
-                    <div class="caption">Task Group</div>
-                    <div>{{tg._title}}</div>
+                    <v-container fluid><v-layout row wrap>
+                      <v-flex>
+                        <div class="caption">Task Group</div>
+                        <div>{{tg._title}}</div>
+                      </v-flex>
+                      <v-flex>
+                        <div class="text-xs-right">
+                          <v-dialog v-model="tg.$dialog" persistent max-width="600px">
+                            <v-btn slot="activator"><v-icon>edit</v-icon></v-btn>
+                            <v-card>
+                              <v-card-title>
+                                <span class="headline">Task Group</span>
+                              </v-card-title>
+                              <v-card-text>
+                                <v-container grid-list-md>
+                                  <v-layout wrap>
+                                    <v-flex xs12>
+                                      <v-text-field label="Title*" required v-model="tg._title"></v-text-field>
+                                    </v-flex>
+                                  </v-layout>
+                                </v-container>
+                                <small>*indicates required field</small>
+                              </v-card-text>
+                              <v-card-actions>
+                                <v-spacer></v-spacer>
+                                <v-btn flat @click.native="tg.$dialog = false">Close</v-btn>
+                              </v-card-actions>
+                            </v-card>
+                          </v-dialog>
+                          <v-btn @click="removeTaskGroup(p.taskGroup, tg)"><v-icon>delete</v-icon></v-btn>
+                        </div>                        
+                      </v-flex>
+                    </v-layout></v-container>
                   </div>
+                  
                   <v-expansion-panel-content v-for="t in tg.task" :key="t.key">
                     <div slot="header">
                       <v-container fluid><v-layout row wrap>
@@ -41,6 +132,29 @@
                         <v-flex>
                           <div class="text-xs-right">
                             <v-chip v-for="m in t.member" :key="m.staffmemberId">{{m._staffmemberId}}</v-chip>
+                            <v-dialog v-model="t.$dialog" persistent max-width="600px">
+                              <v-btn slot="activator"><v-icon>edit</v-icon></v-btn>
+                              <v-card>
+                                <v-card-title>
+                                  <span class="headline">Task</span>
+                                </v-card-title>
+                                <v-card-text>
+                                  <v-container grid-list-md>
+                                    <v-layout wrap>
+                                      <v-flex xs12>
+                                        <v-text-field label="Title*" required v-model="t._title"></v-text-field>
+                                      </v-flex>
+                                      <!-- TODO: add billableDefault, status, members -->
+                                    </v-layout>
+                                  </v-container>
+                                  <small>*indicates required field</small>
+                                </v-card-text>
+                                <v-card-actions>
+                                  <v-spacer></v-spacer>
+                                  <v-btn flat @click.native="t.$dialog = false">Close</v-btn>
+                                </v-card-actions>
+                              </v-card>
+                            </v-dialog>
                             <v-btn @click.stop="removeTask(tg.task, t)"><v-icon>delete</v-icon></v-btn>
                           </div>
                         </v-flex>
@@ -48,7 +162,6 @@
                     </div>
                   </v-expansion-panel-content>
                   <v-btn @click="addTask(tg)">add task</v-btn>
-                  <v-btn @click="removeTaskGroup(p.taskGroup, tg)"><v-icon>delete</v-icon></v-btn>
                 </v-expansion-panel-content>
               </v-expansion-panel>
               <v-btn @click="addTaskGroup(p)">add task group</v-btn>
@@ -63,6 +176,29 @@
                       <v-flex>
                         <div class="text-xs-right">
                           <v-chip v-for="m in t.member" :key="m.staffmemberId">{{m._staffmemberId}}</v-chip>
+                          <v-dialog v-model="t.$dialog" persistent max-width="600px">
+                            <v-btn slot="activator"><v-icon>edit</v-icon></v-btn>
+                            <v-card>
+                              <v-card-title>
+                                <span class="headline">Task</span>
+                              </v-card-title>
+                              <v-card-text>
+                                <v-container grid-list-md>
+                                  <v-layout wrap>
+                                    <v-flex xs12>
+                                      <v-text-field label="Title*" required v-model="t._title"></v-text-field>
+                                    </v-flex>
+                                    <!-- TODO: add billableDefault, status, members -->
+                                  </v-layout>
+                                </v-container>
+                                <small>*indicates required field</small>
+                              </v-card-text>
+                              <v-card-actions>
+                                <v-spacer></v-spacer>
+                                <v-btn flat @click.native="t.$dialog = false">Close</v-btn>
+                              </v-card-actions>
+                            </v-card>
+                          </v-dialog>
                           <v-btn @click.stop="removeTask(p.task, t)"><v-icon>delete</v-icon></v-btn>
                         </div>
                       </v-flex>
@@ -71,17 +207,17 @@
                 </v-expansion-panel-content>
               </v-expansion-panel>
               <v-btn @click="addTask(p)">add task</v-btn>
-              <v-btn @click="removeProject(pg.project, p)"><v-icon>delete</v-icon></v-btn>
             </v-expansion-panel-content>
           </v-expansion-panel>
           <v-btn @click="addProject(pg)">add project</v-btn>
-          <v-btn @click="removeProjectGroup(pg)"><v-icon>delete</v-icon></v-btn>
         </v-expansion-panel-content>
       </v-expansion-panel>
       <v-btn @click="addProjectGroup">add project group</v-btn>
     </v-flex>
   </v-layout></v-container></v-content>
 </template>
+
+<!-- TODO: save (and reload) buttons. Deep filter attributes with $-prefix on save.S -->
 
 <script>
   import Vue from 'vue'
