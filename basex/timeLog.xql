@@ -77,6 +77,10 @@ declare
  : tasks API
  :)
 
+(: TODO:
+    * return only active elements
+:)
+
 declare
   %rest:path("timetracking/api/tasks")
   %rest:GET
@@ -84,7 +88,39 @@ declare
   %output:method("xml")
   %output:omit-xml-declaration("no")
   function page:tasks-get() {
-    db:open("timetracking")/tasks[1]
+    let $db := db:open("timetracking")/taskRevisions
+    return $db/tasks[@rev=max(../tasks/@rev)]
+};
+
+(: 
+    Saves a new revision of the complete task hierarchy. Generates new ids for all new elements.
+
+TODO:
+    * validate input (later) 
+:)
+declare
+  %rest:path("timetracking/api/tasks")
+  %rest:POST("{$t}")
+  %rest:produces("application/xml", "text/xml")
+  %updating
+  %output:method("xml")
+  %output:omit-xml-declaration("no")
+  function page:tasks-post($t as document-node()) {
+    (: admin:write-log(concat('POST tasks:', serialize($t)), 'DEBUG') :)
+    let $db := db:open("timetracking")/taskRevisions
+    let $dbt := $db/tasks[@rev=max(../tasks/@rev)] ?: <tasks/>
+    return 
+        copy $tn := $t
+        modify (
+            replace value of node $tn/tasks/@rev with $dbt/@rev + 1,
+                (: adding @id to new elements :) 
+                let $maxId := max($db//*/@id)
+                for $e in $tn//(projectGroup, project, taskGroup, task)[not(@id)]
+                count $i
+                return insert node (attribute id {$maxId + $i}) into $e
+        )
+        return insert node $tn into $db
+             
 };
  
 declare
@@ -95,7 +131,9 @@ declare
   %output:omit-xml-declaration("no")
   function page:tasks-get-by-staffmember($staffmemberId as xs:string) {
     <tasks>{
-        for $t in (db:open("timetracking")/tasks//task[member[@staffmemberId=$staffmemberId] and not(ancestor-or-self::*[@status='closed'])]) return
+        let $db := db:open("timetracking")/taskRevisions
+        let $dbt := $db/tasks[@rev=max(../tasks/@rev)]
+        for $t in ($dbt//task[member[@staffmemberId=$staffmemberId] and not(ancestor-or-self::*[@status='closed'])]) return
           <task>
             { $t/@* }
             { 
