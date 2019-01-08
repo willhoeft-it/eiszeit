@@ -77,10 +77,6 @@ declare
  : tasks API
  :)
 
-(: TODO:
-    * return only active elements
-:)
-
 declare
   %rest:path("timetracking/api/tasks")
   %rest:GET
@@ -94,10 +90,8 @@ declare
 
 (: 
     Saves a new revision of the complete task hierarchy. Generates new ids for all new elements.
-
-TODO:
-    * validate input (later) 
 :)
+
 declare
   %rest:path("timetracking/api/tasks")
   %rest:POST("{$t}")
@@ -107,17 +101,22 @@ declare
   %output:omit-xml-declaration("no")
   function page:tasks-post($t as document-node()) {
     (: admin:write-log(concat('POST tasks:', serialize($t)), 'DEBUG') :)
+    let $xsdTasks := doc("tasks.xsd")
     let $db := db:open("timetracking")/taskRevisions
     let $dbt := $db/tasks[@rev=max(../tasks/@rev)] ?: <tasks/>
-    return 
+    return
         copy $tn := $t
         modify (
+            validate:xsd($t, $xsdTasks),
             replace value of node $tn/tasks/@rev with $dbt/@rev + 1,
                 (: adding @id to new elements :) 
                 let $maxId := max($db//*/@id)
-                for $e in $tn//(projectGroup, project, taskGroup, task)[not(@id)]
+                for $e in $tn//(projectGroup, project, taskGroup, task)[@status='new']
                 count $i
-                return insert node (attribute id {$maxId + $i}) into $e
+                return (
+                    replace value of node $e/@status with 'open',
+                    replace value of node $e/@id with $maxId + $i
+                )
         )
         return insert node $tn into $db
              
@@ -133,7 +132,7 @@ declare
     <tasks>{
         let $db := db:open("timetracking")/taskRevisions
         let $dbt := $db/tasks[@rev=max(../tasks/@rev)]
-        for $t in ($dbt//task[member[@staffmemberId=$staffmemberId] and not(ancestor-or-self::*[@status='closed'])]) return
+        for $t in ($dbt//task[member[@staffmemberId=$staffmemberId] and not(ancestor-or-self::*[@status='locked'])]) return
           <task>
             { $t/@* }
             { 

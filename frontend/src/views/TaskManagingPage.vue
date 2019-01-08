@@ -5,7 +5,7 @@
     </v-flex>
     <v-flex xs12>
       <v-expansion-panel expand>
-        <v-expansion-panel-content v-for="pg in tasks.projectGroup" :key="pg.key">         
+        <v-expansion-panel-content v-for="pg in tasks.projectGroup" :key="pg.$key">         
           <div slot="header">
             <v-container fluid><v-layout row wrap>
               <v-flex>
@@ -45,7 +45,7 @@
             </v-layout></v-container>
           </div>
           <v-expansion-panel expand inset>
-            <v-expansion-panel-content v-for="p in pg.project" :key="p.key">
+            <v-expansion-panel-content v-for="p in pg.project" :key="p.$key">
               <div slot="header">
                 <v-container fluid><v-layout row wrap>
                   <v-flex>
@@ -67,7 +67,7 @@
                                 <v-flex xs12>
                                   <v-text-field label="Title*" required v-model="p._title"></v-text-field>
                                 </v-flex>
-                                <!-- TODO: add priority, status, members -->
+                                <!-- TODO: add status, members -->
                               </v-layout>
                             </v-container>
                             <small>*indicates required field</small>
@@ -85,7 +85,7 @@
                 </v-layout></v-container>
               </div>
               <v-expansion-panel expand inset>
-                <v-expansion-panel-content v-for="tg in p.taskGroup" :key="tg.key">
+                <v-expansion-panel-content v-for="tg in p.taskGroup" :key="tg.$key">
                   <div slot="header">
                     <v-container fluid><v-layout row wrap>
                       <v-flex>
@@ -122,7 +122,7 @@
                     </v-layout></v-container>
                   </div>
                   
-                  <v-expansion-panel-content v-for="t in tg.task" :key="t.key">
+                  <v-expansion-panel-content v-for="t in tg.task" :key="t.$key">
                     <div slot="header">
                       <v-container fluid><v-layout row wrap>
                         <v-flex>
@@ -166,7 +166,7 @@
               </v-expansion-panel>
               <v-btn @click="addTaskGroup(p)">add task group</v-btn>
               <v-expansion-panel expand inset>
-                <v-expansion-panel-content v-for="t in p.task" :key="t.key">
+                <v-expansion-panel-content v-for="t in p.task" :key="t.$key">
                   <div slot="header">
                     <v-container fluid><v-layout row wrap>
                       <v-flex>
@@ -256,9 +256,11 @@
       addProjectGroup: function() {
         console.log("addProjectGroup")
         const pg = {
+          _status: "new",
+          _id: 0,
           _customerId: "",
           _title: "new project group",
-          key: pskey++
+          $key: pskey++
         }
         if (! this.tasks.projectGroup) {
           console.log("creating projectGroup array")
@@ -270,9 +272,9 @@
         console.log("addProject")
         const p = {
           _status: "new",
-          _priority: "normal",
+          _id: 0,
           _title: "new project",
-          key: pskey++
+          $key: pskey++
         }
         if (! pg.project) {
           console.log("creating project array")
@@ -283,8 +285,10 @@
       addTaskGroup: function(p) {
         console.log("addTaskGroup")
         const tg = {
+          _status: "new",
+          _id: 0,
           _title: "new task group",
-          key: pskey++
+          $key: pskey++
         }
         if (! p.taskGroup) {
           console.log("creating taskGroup array")
@@ -296,10 +300,11 @@
         // note: p may be a project or a task group
         console.log("addTask")
         const t = {
-          _id: "",
+          _status: "new",
+          _id: 0,
           _title: "new task",
           _billableDefault: "depends",
-          key: pskey++
+          $key: pskey++
         }
         if (! p.task) {
           console.log("creating task array")
@@ -367,7 +372,8 @@
         const self = this
         self.server.post('../api/tasks', xmlDocStr).then(function (response) {
           console.log(response);
-          self.showMessage("posted!", 'success')
+          self.showMessage("posted!", 'success');
+          self.loadData();
         }).catch(function (error) {
           if (error.response) {
             // The request was made and the server responded with a status code

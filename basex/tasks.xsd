@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+  <xs:element name="tasks">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="projectGroup"/>
+      </xs:sequence>
+      <xs:attribute name="rev" use="required" type="xs:integer"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="projectGroup">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="member"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="project"/>
+      </xs:sequence>
+      <xs:attribute name="id" use="required" type="xs:integer"/>
+      <xs:attribute name="customerId" use="required" type="xs:string"/>
+      <xs:attribute name="status" use="required" type="statusType"/>
+      <xs:attribute name="title" use="required" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="project">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="member"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="task"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="taskGroup"/>
+      </xs:sequence>
+      <xs:attribute name="id" use="required" type="xs:integer"/>
+      <xs:attribute name="status" use="required" type="statusType"/>
+      <xs:attribute name="title" use="required" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="taskGroup">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="task"/>
+      </xs:sequence>
+      <xs:attribute name="id" use="required" type="xs:integer"/>
+      <xs:attribute name="status" use="required" type="statusType"/>
+      <xs:attribute name="title" use="required" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="task">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="member"/>
+      </xs:sequence>
+      <xs:attribute name="id" use="required" type="xs:integer"/>
+      <xs:attribute name="status" use="required" type="statusType"/>
+      <xs:attribute name="billableDefault" use="required" type="billableType"/>
+      <xs:attribute name="title" use="required" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:simpleType name="billableType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="yes"/>
+      <xs:enumeration value="no"/>
+      <xs:enumeration value="depends"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="statusType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="new"/>
+      <xs:enumeration value="open"/>
+      <xs:enumeration value="locked"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="member">
+    <xs:complexType>
+      <xs:attribute name="staffmemberId" use="required" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>
