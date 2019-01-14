@@ -55,8 +55,7 @@ declare
 
 (: TODO: validate:
   * schema
-  * task ids / staff member
-  * 
+  * add staff member
 :)
 declare
   %rest:path("timetracking/api/timetrack")
@@ -166,13 +165,39 @@ declare
 
 
 
-(: TODO: implement Workingtime from / to :)
+(: TODO: finish this :)
 declare
-  %rest:path("timetracking/api/report/workingtime/{$dateFrom}/{$dateTo}")
+  %rest:path("timetracking/api/report/workingtime/{$dateFrom}/{$dateTo}/{$staffMemberId}")
   %rest:GET
   %rest:produces("application/xml", "text/xml")
   %output:method("xml")
   %output:omit-xml-declaration("no")
-  function page:timetrack-get-workingtime($dateFrom as xs:date, $dateTo as xs:date) {
-      <TODO /> 
+  function page:timetrack-get-workingtime($dateFrom as xs:date, $dateTo as xs:date, $staffMemberId as xs:string) {
+    (: TODO: add staffMemberId to query (when in model) :)
+    let $wtdays := db:open("timetracking")/timetrack/workingday[@date ge $dateFrom and @date lt $dateTo]
+    let $wtSum := sum($wtdays/workingtime/xs:dayTimeDuration(@duration))
+    let $breakSum := sum($wtdays/break/xs:dayTimeDuration(@duration))
+    return
+    <workingtimeSummary staffMemberId="{$staffMemberId}" dateFrom="{fn:adjust-date-to-timezone($dateFrom, [])}" dateTo="{fn:adjust-date-to-timezone($dateTo, [])}">
+      <daysBooked>{count($wtdays)}</daysBooked>
+      <workingtimeDurationSum>{$wtSum}</workingtimeDurationSum>
+      <breakDurationSum>{$breakSum}</breakDurationSum>
+      <bookings>
+        <billableDuration>{sum($wtdays/booking[@billable='yes']/xs:dayTimeDuration(@duration))}</billableDuration>
+        <notBillableDuration>{sum($wtdays/booking[@billable='no']/xs:dayTimeDuration(@duration))}</notBillableDuration>
+        <possiblyBillableDuration>{sum($wtdays/booking[@billable='depends']/xs:dayTimeDuration(@duration))}</possiblyBillableDuration>
+        <unbookedDuration>{$wtSum - $breakSum - sum($wtdays/booking/xs:dayTimeDuration(@duration))}</unbookedDuration>
+        <!-- TODO: finish this -->
+        <projectGroup id="" title="">
+          <billableDuration></billableDuration>
+          <notBillableDuration></notBillableDuration>
+          <possiblyBillableDuration></possiblyBillableDuration>
+          <project id="" title="">
+            <billableDuration></billableDuration>
+            <notBillableDuration></notBillableDuration>
+            <possiblyBillableDuration></possiblyBillableDuration>
+          </project>
+        </projectGroup>
+       </bookings>
+    </workingtimeSummary>
 };
