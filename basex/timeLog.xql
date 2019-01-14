@@ -144,3 +144,35 @@ declare
     </tasks>
     
 };
+
+
+(: Reports :)
+
+(: Bookings from / to :)
+declare
+  %rest:path("timetracking/api/report/bookings/{$dateFrom}/{$dateTo}")
+  %rest:GET
+  %rest:produces("application/xml", "text/xml")
+  %output:method("xml")
+  %output:omit-xml-declaration("no")
+  function page:timetrack-get-bookings($dateFrom as xs:date, $dateTo as xs:date) {
+      <bookings dateFrom="{fn:adjust-date-to-timezone($dateFrom, [])}" dateTo="{fn:adjust-date-to-timezone($dateTo, [])}">
+      {
+        for $t in (db:open("timetracking")/timetrack/workingday[@date>=$dateFrom and @date<$dateTo])/booking return
+                $t
+      }
+      </bookings> 
+};
+
+
+
+(: TODO: implement Workingtime from / to :)
+declare
+  %rest:path("timetracking/api/report/workingtime/{$dateFrom}/{$dateTo}")
+  %rest:GET
+  %rest:produces("application/xml", "text/xml")
+  %output:method("xml")
+  %output:omit-xml-declaration("no")
+  function page:timetrack-get-workingtime($dateFrom as xs:date, $dateTo as xs:date) {
+      <TODO /> 
+};
