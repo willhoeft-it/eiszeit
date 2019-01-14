@@ -187,8 +187,17 @@
                                   <v-layout wrap>
                                     <v-flex xs12>
                                       <v-text-field label="Title*" required v-model="t._title"></v-text-field>
+                                      <!-- TODO: finish member selectioin. fix :items => available items
+                                      <v-combobox v-model="t.member._staffmemberId" label="Members" chips clearable solo multiple>
+                                        <template slot="selection" slot-scope="t.member">
+                                          <v-chip close @input="remove(t.member)">
+                                            <strong>{{ t.member._staffmemberId }}</strong>
+                                          </v-chip>
+                                        </template>
+                                      </v-combobox>
+                                      -->
                                     </v-flex>
-                                    <!-- TODO: add billableDefault, status, members -->
+                                    <!-- TODO: add billableDefault, status -->
                                   </v-layout>
                                 </v-container>
                                 <small>*indicates required field</small>
@@ -322,6 +331,7 @@
       },
       removeTaskGroup: function(pArr, tg) {
         console.log("removeTaskGroup")
+        // TODO: fix bug: an empty (invalid) taskGroup element remains in the xml.
         pArr.splice(pArr.indexOf(tg), 1)
       },
       removeTask: function(pArr, t) {
