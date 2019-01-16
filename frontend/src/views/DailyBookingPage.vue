@@ -1,5 +1,6 @@
+/* @flow
 <template>
- 
+
   <v-content><v-container grid-list-md><v-layout row wrap>
     <v-flex xs6>
       <h2>User: {{staffmember.givenName}} {{staffmember.name}}</h2>
@@ -14,7 +15,7 @@
       <v-alert :value="unbookedTime.valueOf() < 0" type="warning" outline>{{durationAsHours(unbookedTime)}} overbooked time</v-alert>
       <v-alert :value="unbookedTime.valueOf() == 0" type="success" outline>All day booked!</v-alert>
     </v-flex>
-    
+
     <v-layout v-for="wt in workingday.workingtime" :key="wt.key">
       <v-flex xs1>
         <!-- TODO: combine with time-picker in a dedicated component and reuse-->
@@ -69,7 +70,7 @@
     <v-layout v-for="booking in workingday.booking" :key="booking.key">
       <v-flex xs3>
         <v-select v-model="booking._taskId" label="Task" :items="tasks.task" item-text="_title" item-value="_id"  @input="setBillableToDefault(booking)">
-          <template slot="label"> 
+          <template slot="label">
             <span v-if="! booking._taskId" class="caption">Task</span>
             <span v-else class="caption">{{ taskPathString(booking._taskId) }}</span>
           </template>
@@ -114,9 +115,9 @@
     </v-layout></v-container>
   </v-content>
 </template>
+*/
 
-
-<script>
+// <script>
   import Vue from 'vue'
   // eslint-disable-next-line
   import DurationTextfield from '@/components/DurationTextfield.vue'
@@ -124,7 +125,7 @@
   import axios from 'axios'
   import dateUtils from '@/utils/dateUtils.js'
   import pageMixin from '@/views/PageMixin.js'
-  
+
   // page scope unique key generator
   let pskey = 0
 
@@ -141,7 +142,7 @@
     ]
     // TODO: check if "datetimeAccessFormPaths : []" can be used instead of conversion in model
   });
-       
+
   export default Vue.component('daily-booking-page', {
     mixins: [dateUtils, pageMixin],
     data: function() {
@@ -158,7 +159,7 @@
           return Duration.fromISO('PT0H')
         const wtsum = this.workingday.workingtime.reduce((total, wt) => {
           return total.plus(Duration.fromISO(wt._duration))
-          
+
         }, Duration.fromISO('PT0H'));
         const netwtsum = (this.workingday.break) ? this.workingday.break.reduce((total, b) => {
           return total.minus(Duration.fromISO(b._duration))
@@ -266,7 +267,7 @@
       addDefaultWorkingTime: function(wd) {
         const wt = {
           _start: "10:00",
-          _duration: "PT9H30M", 
+          _duration: "PT9H30M",
           description: "",
           key: pskey++
         }
@@ -278,7 +279,7 @@
       },
       addDefaultBreak: function(wd) {
         const b = {
-          _duration: "PT0H30M", 
+          _duration: "PT0H30M",
           description: "",
           key: pskey++
         }
@@ -290,7 +291,7 @@
       },
       addDefaultBooking: function(wd) {
         const b = {
-          _duration: "PT0H", 
+          _duration: "PT0H",
           _billable: "depends",
           description: "",
           key: pskey++
@@ -347,4 +348,4 @@
       }
     }
   })
-</script>
+// </script>

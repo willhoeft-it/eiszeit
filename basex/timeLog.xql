@@ -27,7 +27,7 @@ function page:file(
 (:~
  : timetrack API
  :)
- 
+
 declare
   %rest:path("timetracking/api/timetrack/{$date}")
   %rest:GET
@@ -87,7 +87,7 @@ declare
     return $db/tasks[@rev=max(../tasks/@rev)]
 };
 
-(: 
+(:
     Saves a new revision of the complete task hierarchy. Generates new ids for all new elements.
 :)
 
@@ -108,7 +108,7 @@ declare
         modify (
             validate:xsd($t, $xsdTasks),
             replace value of node $tn/tasks/@rev with $dbt/@rev + 1,
-                (: adding @id to new elements :) 
+                (: adding @id to new elements :)
                 let $maxId := max($db//*/@id)
                 for $e in $tn//(projectGroup, project, taskGroup, task)[@status='new']
                 count $i
@@ -118,9 +118,9 @@ declare
                 )
         )
         return insert node $tn into $db
-             
+
 };
- 
+
 declare
   %rest:path("timetracking/api/tasks/{$staffmemberId}")
   %rest:GET
@@ -134,14 +134,14 @@ declare
         for $t in ($dbt//task[member[@staffmemberId=$staffmemberId] and not(ancestor-or-self::*[@status='locked'])]) return
           <task>
             { $t/@* }
-            { 
-              for $p in ($t/ancestor::*/@title) return 
+            {
+              for $p in ($t/ancestor::*/@title) return
                 <path title="{$p}" />
             }
           </task>
       }
     </tasks>
-    
+
 };
 
 
@@ -150,20 +150,51 @@ declare
 (: Bookings from / to :)
 declare
   %rest:path("timetracking/api/report/bookings/{$dateFrom}/{$dateTo}")
+  %rest:query-param("projectId", "{$projectId}")
+  %rest:query-param("staffmemberId", "{$staffmemberId}")
+  %rest:query-param("billable", "{$billable}")
+  %rest:query-param("sort", "{$sort}", "date")
   %rest:GET
   %rest:produces("application/xml", "text/xml")
   %output:method("xml")
   %output:omit-xml-declaration("no")
-  function page:timetrack-get-bookings($dateFrom as xs:date, $dateTo as xs:date) {
-      <bookings dateFrom="{fn:adjust-date-to-timezone($dateFrom, [])}" dateTo="{fn:adjust-date-to-timezone($dateTo, [])}">
+  function page:timetrack-get-bookings($dateFrom as xs:date, $dateTo as xs:date, $projectId as xs:integer?, $staffmemberId as xs:string?, $billable as xs:string?, $sort as xs:string*) {
+      <bookings>
       {
-        for $t in (db:open("timetracking")/timetrack/workingday[@date>=$dateFrom and @date<$dateTo])/booking return
-                $t
+        attribute dateFrom {fn:adjust-date-to-timezone($dateFrom, [])},
+        attribute dateTo {fn:adjust-date-to-timezone($dateTo, [])},
+        if ($projectId) then
+          attribute projectId {$projectId},
+        if ($staffmemberId) then
+          attribute staffmemberId {$staffmemberId},
+        if ($billable) then
+          attribute billable {$billable},
+
+        (: TODO: add staffMemberId to query (when in model) :)
+        let $db := db:open("timetracking")
+        let $wds := $db/timetrack/workingday[@date>=$dateFrom and @date<$dateTo]
+        let $tasks := page:tasks-get()
+        for $wd in ($wds), $b in ($wd/booking), $t in ($tasks//task[@id = $b/@taskId]), $p in ($t/ancestor::project)
+        order by
+          (if ($sort = 'date') then $wd/@date)
+        order by
+          (if ($sort = '-date') then $wd/@date) descending
+        return
+          <booking date="{$wd/@date}">
+          {
+            $b/(@duration, @billable),
+            <project>
+              { $p/(@id, @title) }
+            </project>,
+            <task>
+              { $t/(@id, @title) }
+            </task>,
+            $b/description
+          }
+          </booking>
       }
-      </bookings> 
+      </bookings>
 };
-
-
 
 (: TODO: finish this :)
 declare
