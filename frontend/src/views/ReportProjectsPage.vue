@@ -17,11 +17,12 @@
         :hide-actions="true"
       >
         <template slot="items" slot-scope="b">
-          <td>{{ b.project.title }}</td>
-          <td>{{ b.task.title }}</td>
-          <td class="text-xs-right">{{ b._duration }}</td>
-          <td class="text-xs-right">{{ b._billable }}</td>
-          <td>{{ b.description }}</td>
+          <td>{{ b.item._date }}</td>
+          <td>{{ b.item.project._title }}</td>
+          <td>{{ b.item.task._title }}</td>
+          <td class="text-xs-right">{{ b.item._duration }}</td>
+          <td class="text-xs-right">{{ b.item._billable }}</td>
+          <td>{{ b.item.description }}</td>
         </template>
       </v-data-table>
     </v-flex>
@@ -52,7 +53,38 @@
       return {
         bookings: {},
         tableHeaders: [
-          'Project', 'Task', 'Duration', 'Billable', 'Description'
+          {
+            text: 'Date',
+            align: 'left',
+            sortable: true,
+            value: 'date'
+          },
+          {
+            text: 'Project',
+            align: 'left',
+            sortable: true,
+            value: 'project'
+          },
+          { text: 'Task',
+            align: 'left',
+            sortable: true,
+            value: 'task'
+          },
+          { text: 'Duration',
+            align: 'right',
+            sortable: true,
+            value: '_duration'
+          },
+          { text: 'Billable',
+            align: 'right',
+            sortable: true,
+            value: '_billable'
+          },
+          { text: 'Description',
+            align: 'left',
+            sortable: false,
+            value: 'description'
+          }
         ]
       };
     },
