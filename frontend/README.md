@@ -1,5 +1,13 @@
 # timetracking
 
+## Project administration
+Overview and updates to all your Vue components
+
+```
+vue ui
+```
+
+
 ## Project setup
 ```
 npm install

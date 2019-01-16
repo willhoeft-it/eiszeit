@@ -11,10 +11,12 @@ So, time to switch to single file vue-components and simple build-chain.
 https://cli.vuejs.org/
 
 
+## ENOSPC no space left on device
+npm, atom etc. überwachen mitunter sehr viele Dateien. Das kann zu diesem irreführenden Fehler führen, auch wenn noch genug Plattenplatz vorhanden ist.
+So können die inotify watchers erhöht werden. Der Default von 64k scheint nicht zu reichen...
+
+https://github.com/guard/listen/wiki/Increasing-the-amount-of-inotify-watchers
+
+npm cache verify
 
 
-TODO: Build-Chain aufsetzen
-* Build nach dist konfigurieren und dokumentieren
-* Integration von statischen Dateien und timelog.xqr
-* Module für die einzelnen Seiten
-* Externe Dependencies in Konfiguration
