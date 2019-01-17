@@ -4,7 +4,8 @@
   <v-content><v-container grid-list-md><v-layout row wrap>
     <v-flex xs6>
       <h2>User: {{staffmember.givenName}} {{staffmember.name}}</h2>
-      <input v-model="bookings._dateFrom" @change="loadData" type="date" overflow="hidden" text-overflow="ellipsis"/>
+      <!-- TODO: this is not updated to today on load. Why? Need to switch to a month select anyway...-->
+      <input v-model="dateSelected" @change="loadData" type="date" overflow="hidden" text-overflow="ellipsis"/>
     </v-flex>
 
     <v-flex xs12>
@@ -36,7 +37,6 @@
   // eslint-disable-next-line
   import DurationTextfield from '@/components/DurationTextfield.vue'
   import {DateTime, Duration} from 'luxon'
-  import axios from 'axios'
   import dateUtils from '@/utils/dateUtils.js'
   import pageMixin from '@/views/PageMixin.js'
 
@@ -52,6 +52,7 @@
     data: function() {
       return {
         bookings: {},
+        dateSelected: this.dateToLocalISOString(new Date()),
         tableHeaders: [
           {
             text: 'Date',
@@ -89,20 +90,20 @@
       };
     },
     created: function () {
-      this.loadData();
+      this.loadData()
     },
     methods: {
       loadData: function() {
         console.log("loadData")
-        if ( ! (this.bookings && this.bookings._dateFrom && this.bookings._dateTo) ) {
-          const today = new Date()
-          const monthBegin = new Date(today.getFullYear(), today.getMonth(), 1)
-          const nextMonthBegin = new Date(monthBegin.getFullYear(), monthBegin.getMonth() + 1, 1)
-          console.log("begin: " + monthBegin + ", next: " + nextMonthBegin)
-          this.bookings = {
-            _dateFrom: this.dateToLocalISOString(monthBegin),
-            _dateTo: this.dateToLocalISOString(nextMonthBegin)
-          }
+        console.log("today string: " + this.dateSelected)
+        const today = new Date(this.dateSelected)
+        console.log("today: " + today)
+        const monthBegin = new Date(today.getFullYear(), today.getMonth(), 1)
+        const nextMonthBegin = new Date(monthBegin.getFullYear(), monthBegin.getMonth() + 1, 1)
+        console.log("begin: " + monthBegin + ", next: " + nextMonthBegin)
+        this.bookings = {
+          _dateFrom: this.dateToLocalISOString(monthBegin),
+          _dateTo: this.dateToLocalISOString(nextMonthBegin)
         }
         const urlDates = "/" + this.bookings._dateFrom + "/" + this.bookings._dateTo
         const self = this
