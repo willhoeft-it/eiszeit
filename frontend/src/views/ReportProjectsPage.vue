@@ -15,15 +15,28 @@
       <v-data-table
         :headers="tableHeaders"
         :items="bookings.booking"
-        :hide-actions="true"
       >
+        <!-- TODO: add project (and other) filters to header-->
+        <!-- TODO: fix sorters (serverside) -->
         <template slot="items" slot-scope="b">
+          <!-- TODO: add day of week -->
           <td>{{ b.item._date }}</td>
           <td>{{ b.item.project._title }}</td>
           <td>{{ b.item.task._title }}</td>
-          <td class="text-xs-right">{{ b.item._duration }}</td>
-          <td class="text-xs-right">{{ b.item._billable }}</td>
+          <td class="text-xs-right">{{ durationAsHours(b.item._duration) }}</td>
+          <td>{{ b.item._billable }}</td>
           <td>{{ b.item.description }}</td>
+        </template>
+        <template slot="footer">
+          <td :colspan="3">
+            <strong>Sum</strong>
+          </td>
+          <td class="text-xs-right">
+            <strong>{{ durationAsHours(totalDuration) }}</strong>
+          </td>
+          <td :colspan="2">
+            <strong>&nbsp;</strong>
+          </td>
         </template>
       </v-data-table>
     </v-flex>
@@ -53,32 +66,35 @@
       return {
         bookings: {},
         dateSelected: this.dateToLocalISOString(new Date()),
+        totalDuration: "PT0H",
         tableHeaders: [
           {
             text: 'Date',
             align: 'left',
-            sortable: true,
+            sortable: false,
+            class: Date,
             value: 'date'
           },
           {
             text: 'Project',
             align: 'left',
-            sortable: true,
+            sortable: false,
             value: 'project'
           },
           { text: 'Task',
             align: 'left',
-            sortable: true,
+            sortable: false,
             value: 'task'
           },
           { text: 'Duration',
             align: 'right',
-            sortable: true,
+            sortable: false,
             value: '_duration'
           },
           { text: 'Billable',
-            align: 'right',
-            sortable: true,
+            align: 'left',
+            sortable: false,
+            class: Boolean,
             value: '_billable'
           },
           { text: 'Description',
@@ -97,10 +113,8 @@
         console.log("loadData")
         console.log("today string: " + this.dateSelected)
         const today = new Date(this.dateSelected)
-        console.log("today: " + today)
         const monthBegin = new Date(today.getFullYear(), today.getMonth(), 1)
         const nextMonthBegin = new Date(monthBegin.getFullYear(), monthBegin.getMonth() + 1, 1)
-        console.log("begin: " + monthBegin + ", next: " + nextMonthBegin)
         this.bookings = {
           _dateFrom: this.dateToLocalISOString(monthBegin),
           _dateTo: this.dateToLocalISOString(nextMonthBegin)
@@ -110,8 +124,12 @@
         self.server.get('../api/report/bookings' + urlDates).then(function(reportResponse) {
           console.log("report:")
           console.log(reportResponse);
-          const b = x2jsBookings.xml_str2json(reportResponse.data).bookings;
-          self.bookings = b
+          const bs = x2jsBookings.xml_str2json(reportResponse.data).bookings;
+          self.totalDuration = (bs.booking) ? bs.booking.reduce((total, b) => {
+            return total.plus(Duration.fromISO(b._duration))
+          }, Duration.fromISO('PT0H')) : "PT0H";
+          self.bookings = bs
+
           self.showMessage('fetched!', 'info')
         }).catch(function (error) {
           // TODO: handle errors generically as in POST + alert/snackbar/..-dialog
