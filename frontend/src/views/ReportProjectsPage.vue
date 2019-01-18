@@ -19,8 +19,7 @@
         <!-- TODO: add project (and other) filters to header-->
         <!-- TODO: fix sorters (serverside) -->
         <template slot="items" slot-scope="b">
-          <!-- TODO: add day of week -->
-          <td>{{ b.item._date }}</td>
+          <td>{{ (new Date(b.item._date)).toLocaleDateString("de-de", { weekday: 'short', year: 'numeric', month: '2-digit', day: '2-digit' }) }}</td>
           <td>{{ b.item.project._title }}</td>
           <td>{{ b.item.task._title }}</td>
           <td class="text-xs-right">{{ durationAsHours(b.item._duration) }}</td>
