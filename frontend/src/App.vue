@@ -87,7 +87,7 @@
   export default {
     data: function() {
       return {
-        page: 'taskManagingPage',
+        page: 'reportProjectsPage',
         drawer: false,
         snackbar: {
           message: "",

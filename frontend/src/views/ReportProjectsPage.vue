@@ -9,19 +9,48 @@
     </v-flex>
 
     <v-flex xs12>
-      <h2>Report on projects</h2>
+      <h2>Monthly Project Report</h2>
     </v-flex>
     <v-flex xs12>
       <v-data-table
         :headers="tableHeaders"
-        :items="bookings.booking"
+        :pagination.sync="pagination"
+        :items="filteredBookings"
+        item-key="name"
+        class="elevation-1"
       >
-        <!-- TODO: add project (and other) filters to header-->
-        <!-- TODO: fix sorters (serverside) -->
+        <template slot="headers" slot-scope="props">
+          <tr>
+            <th
+              v-for="header in props.headers"
+              :key="header.text"
+              :class="['column sortable', pagination.descending ? 'desc' : 'asc', header.value === pagination.sortBy ? 'active' : '']"
+              @click="changeSort(header.value)"
+            >
+              <v-icon small>arrow_upward</v-icon>
+              {{ header.text }}
+            </th>
+          </tr>
+          <tr class="grey lighten-3">
+            <th
+              v-for="header in props.headers"
+              :key="header.text"
+            >
+              <div v-if="filters.hasOwnProperty(header.value)">
+                <v-select flat hide-details subheading multiple clearable :items="columnValueList(header.value)" v-model="filters[header.value]">
+                </v-select>
+              </div>
+            </th>
+          </tr>
+        </template>
+
+        <v-alert slot="no-results" :value="true" color="error" icon="warning">
+          Your search found no results.
+        </v-alert>
         <template slot="items" slot-scope="b">
           <td>{{ (new Date(b.item._date)).toLocaleDateString("de-de", { weekday: 'short', year: 'numeric', month: '2-digit', day: '2-digit' }) }}</td>
-          <td>{{ b.item.project._title }}</td>
-          <td>{{ b.item.task._title }}</td>
+          <td>{{ b.item.project }}</td>
+          <td>{{ b.item.task }}</td>
           <td class="text-xs-right">{{ durationAsHours(b.item._duration) }}</td>
           <td>{{ b.item._billable }}</td>
           <td>{{ b.item.description }}</td>
@@ -59,50 +88,85 @@
     ]
   });
 
+  // using a global vue filter to reuse code for multiple computed values
+  Vue.filter('filterBookings', function(bookings, filters) {
+    return (bookings) ? bookings.filter(d => {
+      return Object.keys(filters).every(f => {
+        return filters[f].length < 1 || filters[f].includes(d[f])
+      })
+    }) : []
+  })
+
   export default Vue.component('report-projects-page', {
     mixins: [dateUtils, pageMixin],
     data: function() {
       return {
         bookings: {},
         dateSelected: this.dateToLocalISOString(new Date()),
-        totalDuration: "PT0H",
+        pagination: {
+          sortBy: 'name'
+        },
+        selected: [],
         tableHeaders: [
           {
             text: 'Date',
             align: 'left',
             sortable: false,
-            class: Date,
-            value: 'date'
+            class: 'text-xs-left',
+            value: '_date'
           },
           {
             text: 'Project',
             align: 'left',
             sortable: false,
+            class: 'text-xs-left',
             value: 'project'
           },
           { text: 'Task',
             align: 'left',
             sortable: false,
+            class: 'text-xs-left',
             value: 'task'
           },
           { text: 'Duration',
             align: 'right',
+            class: 'text-xs-right',
             sortable: false,
             value: '_duration'
           },
           { text: 'Billable',
             align: 'left',
             sortable: false,
-            class: Boolean,
+            class: 'text-xs-left',
             value: '_billable'
           },
           { text: 'Description',
             align: 'left',
             sortable: false,
+            class: 'text-xs-left',
             value: 'description'
           }
-        ]
+        ],
+        filters: {
+          _date: [],
+          project: [],
+          task: [],
+          _duration: [],
+          _billable: [],
+          description: []
+        },
       };
+    },
+    computed:  {
+      filteredBookings() {
+        return Vue.filter('filterBookings')(this.bookings.booking, this.filters)
+      },
+      totalDuration() {
+        const fbs = Vue.filter('filterBookings')(this.bookings.booking, this.filters)
+        return (fbs) ? fbs.reduce((total, b) => {
+          return total.plus(Duration.fromISO(b._duration))
+        }, Duration.fromISO('PT0H')) : "PT0H";
+      }
     },
     created: function () {
       this.loadData()
@@ -121,12 +185,7 @@
         const urlDates = "/" + this.bookings._dateFrom + "/" + this.bookings._dateTo
         const self = this
         self.server.get('../api/report/bookings' + urlDates).then(function(reportResponse) {
-          console.log("report:")
-          console.log(reportResponse);
           const bs = x2jsBookings.xml_str2json(reportResponse.data).bookings;
-          self.totalDuration = (bs.booking) ? bs.booking.reduce((total, b) => {
-            return total.plus(Duration.fromISO(b._duration))
-          }, Duration.fromISO('PT0H')) : "PT0H";
           self.bookings = bs
 
           self.showMessage('fetched!', 'info')
@@ -135,6 +194,17 @@
           console.log(error);
           self.showMessage("ERROR: " + error, 'error')
         });
+      },
+      changeSort (column) {
+        if (this.pagination.sortBy === column) {
+          this.pagination.descending = !this.pagination.descending
+        } else {
+          this.pagination.sortBy = column
+          this.pagination.descending = false
+        }
+      },
+      columnValueList(val) {
+        return (this.bookings.booking) ? this.bookings.booking.map(d => d[val]) : []
       }
     }
   })

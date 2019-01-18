@@ -184,10 +184,14 @@ declare
           {
             $b/(@duration, @billable),
             <project>
-              { $p/(@id, @title) }
+            {
+              $p/@title/data()
+            }
             </project>,
             <task>
-              { $t/(@id, @title) }
+              {
+                $t/@title/data()
+              }
             </task>,
             $b/description
           }
