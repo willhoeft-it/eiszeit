@@ -37,7 +37,7 @@
               :key="header.text"
             >
               <div v-if="filters.hasOwnProperty(header.value)">
-                <v-select flat hide-details subheading multiple clearable :items="columnValueList(header.value)" v-model="filters[header.value]">
+                <v-select flat hide-details multiple clearable :items="columnValueList(header.value)" v-model="filters[header.value]">
                 </v-select>
               </div>
             </th>
@@ -71,6 +71,13 @@
   </v-layout></v-container></v-content>
 
 </template>
+
+<style scoped>
+  .v-input {
+    font-size: 1em;
+  }
+</style>
+
 */
 
 // <script>
