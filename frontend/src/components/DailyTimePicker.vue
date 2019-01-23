@@ -49,7 +49,7 @@
     methods: {
       onPickerInput: function() {
         // close the picker on first click/change when the input is valid
-        if (this.valueCopy && this.valueCopy.match(/\d\d:\d\d/)) {
+        if (/\d\d:\d\d/.test(this.valueCopy)) {
           this.menu = false
           this.$emit('input', this.valueCopy)
         }
