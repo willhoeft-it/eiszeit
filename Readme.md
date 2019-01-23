@@ -19,4 +19,26 @@ https://github.com/guard/listen/wiki/Increasing-the-amount-of-inotify-watchers
 
 npm cache verify
 
+## vuetify docs
+Because the docs may not be available in the used version online, check it out and compile the version you need:
 
+'''
+ git clone https://github.com/vuetifyjs/vuetify.git
+ cd vuetify
+ git checkout v1.4.2
+ 
+
+### install yarn (alternative npm client)
+
+see https://yarnpkg.com/en/docs/install#debian-stable
+
+ curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+ echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+ sudo apt-get update && sudo apt-get install yarn
+
+ yarn
+ yarn build
+ cd packages/docs
+ yarn dev
+
+http://localhost:8095/en/
