@@ -28,6 +28,7 @@
       full-width
       :allowed-minutes="allowedMinutes"
       format="24hr"
+      color="grey"
       >
     </v-time-picker>
   </v-menu>
