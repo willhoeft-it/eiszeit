@@ -12,7 +12,7 @@ export default {
           'yes', 'no', 'depends'
         ],
         server: axios.create({
-          timeout: 1000,
+          timeout: 10000,
           headers: {'Content-Type': 'application/xml; charset=UTF-8'}
         })
       };
