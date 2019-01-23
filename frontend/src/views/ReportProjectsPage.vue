@@ -4,8 +4,8 @@
   <v-content><v-container grid-list-md><v-layout row wrap>
     <v-flex xs6>
       <h2>User: {{staffmember.givenName}} {{staffmember.name}}</h2>
-      <!-- TODO: this is not updated to today on load. Why? Need to switch to a month select anyway...-->
-      <input v-model="dateSelected" @change="loadData" type="date" overflow="hidden" text-overflow="ellipsis"/>
+      <v-date-picker v-model="dateSelected" @change="loadData" type="month" color="grey" landscape reactive />
+
     </v-flex>
 
     <v-flex xs12>
@@ -16,6 +16,7 @@
         :headers="tableHeaders"
         :pagination.sync="pagination"
         :items="filteredBookings"
+        :rows-per-page-items="[10,20,{'text': 'All', 'value' :-1}]"
         item-key="name"
         class="elevation-1"
       >
@@ -109,7 +110,7 @@
     data: function() {
       return {
         bookings: {},
-        dateSelected: this.dateToLocalISOString(new Date()),
+        dateSelected: this.dateToLocalISOString(new Date()).split('T')[0],
         pagination: {
           sortBy: 'name'
         },
