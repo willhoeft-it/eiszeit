@@ -1,9 +1,10 @@
 <template>
   <v-text-field
-          v-bind:value="durationAsHours(value)"
-          @change.native="updateValue($event)"
-          label="duration"
-          type="text" >
+    v-bind:value="valueAsHours"
+    @change="updateValue"
+    @focus="$event.target.select()"
+    label="duration"
+    type="text" >
   </v-text-field>
 </template>
 
@@ -12,18 +13,28 @@
   import {Duration} from 'luxon'
   import dateUtils from '@/utils/dateUtils.js'
 
-  // TODO: handle validation errors correctly
   export default Vue.component('duration-textfield', {
     mixins: [dateUtils],
-    props: ['value'],
+    props: {
+      value: String
+    },
+    computed: {
+      valueAsHours: function () {
+        return this.durationAsHours(this.value)
+      }
+    },
+    data: function() {
+      return {
+        valueAsDuration: null
+      }
+    },
     methods: {
-      // Instead of updating the value directly, this
-      // method is used to format and place constraints
-      // on the input's value
-      updateValue: function (event) {
-        // Emit the number value through the input event
-        const value = event.target.value
-        this.$emit('input', this.hoursAsDuration(value))
+      // Turn various input formats into a valid ISO duration
+      updateValue: function (value) {
+        const re = /^(\d*)\:?(\d\d)$/
+        const v = (re.test(value)) ? value.replace(re, 'PT0$1H$2M') : 'PT0H'
+        this.valueAsDuration = this.hoursAsDuration(v)
+        this.$emit('input', this.valueAsDuration)
       }
     }
   })
