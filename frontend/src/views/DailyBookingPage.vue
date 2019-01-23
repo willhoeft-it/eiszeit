@@ -18,10 +18,10 @@
 
     <v-layout v-for="wt in workingday.workingtime" :key="wt.key">
       <v-flex xs1>
-        <daily-time-picker v-model="wt._start" v-on:change="updateOnTimeChange(wt)" label="begin" />
+        <daily-time-picker v-model="wt._start" @change="updateOnTimeChange(wt)" label="begin" />
       </v-flex>
       <v-flex xs1>
-        <daily-time-picker v-model="wt._end" v-on:change="updateOnTimeChange(wt)" label="end" />
+        <daily-time-picker v-model="wt._end" @change="updateOnTimeChange(wt)" label="end" />
       </v-flex>
       <v-flex xs1>
         <duration-textfield v-model="wt._duration" @change="updateOnDurationChange(wt)" />
@@ -43,10 +43,10 @@
     </v-flex>
     <v-layout v-for="b in workingday.break" :key="b.key">
       <v-flex xs1>
-        <daily-time-picker v-model="b._start" v-on:change="updateOnTimeChange(b)" label="begin" />
+        <daily-time-picker v-model="b._start" @change="updateOnTimeChange(b)" label="begin" />
       </v-flex>
       <v-flex xs1>
-        <daily-time-picker v-model="b._end" v-on:change="updateOnTimeChange(b)" label="end" />
+        <daily-time-picker v-model="b._end" @change="updateOnTimeChange(b)" label="end" />
       </v-flex>
       <v-flex xs1>
         <duration-textfield v-model="b._duration" @change="updateOnDurationChange(b)" />
@@ -83,10 +83,10 @@
         </v-select>
       </v-flex>
       <v-flex xs1>
-        <daily-time-picker v-model="booking._start" v-on:change="updateOnTimeChange(booking)" label="begin" />
+        <daily-time-picker v-model="booking._start" @change="updateOnTimeChange(booking)" label="begin" />
       </v-flex>
       <v-flex xs1>
-        <daily-time-picker v-model="booking._end" v-on:change="updateOnTimeChange(booking)" label="end" />
+        <daily-time-picker v-model="booking._end" @change="updateOnTimeChange(booking)" label="end" />
       </v-flex>
       <v-flex xs1>
         <duration-textfield v-model="booking._duration" @change="updateOnDurationChange(booking)"></duration-textfield>
