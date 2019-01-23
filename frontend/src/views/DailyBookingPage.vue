@@ -4,7 +4,8 @@
   <v-content><v-container grid-list-md><v-layout row wrap>
     <v-flex xs6>
       <h2>User: {{staffmember.givenName}} {{staffmember.name}}</h2>
-      <input v-model="workingday._date" @change="loadData" type="date" overflow="hidden" text-overflow="ellipsis"/>
+      <!-- TODO: nice add-on: add days with bookings as events (requires back end query)-->
+      <v-date-picker v-model="workingday._date" @change="loadData" color="grey" landscape reactive />
     </v-flex>
 
     <v-flex xs12>
