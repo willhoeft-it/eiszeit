@@ -87,7 +87,7 @@
   export default {
     data: function() {
       return {
-        page: 'reportProjectsPage',
+        page: 'dailyBookingPage',
         drawer: false,
         snackbar: {
           message: "",

@@ -18,14 +18,13 @@
 
     <v-layout v-for="wt in workingday.workingtime" :key="wt.key">
       <v-flex xs1>
-        <!-- TODO: combine with time-picker in a dedicated component and reuse-->
-        <v-text-field v-model="wt._start" @blur="updateOnTimeChange(wt)" label="begin" type="time" ></v-text-field>
+        <daily-time-picker v-model="wt._start" v-on:change="updateOnTimeChange(wt)" label="begin" />
       </v-flex>
       <v-flex xs1>
-        <v-text-field v-model="wt._end" @blur="updateOnTimeChange(wt)" label="end" type="time" ></v-text-field>
+        <daily-time-picker v-model="wt._end" v-on:change="updateOnTimeChange(wt)" label="end" />
       </v-flex>
       <v-flex xs1>
-        <duration-textfield v-model="wt._duration" @change.native="updateOnDurationChange(wt)" ></duration-textfield>
+        <duration-textfield v-model="wt._duration" @change.native="updateOnDurationChange(wt)" />
       </v-flex>
       <v-flex xs8>
         <v-textarea v-model="wt.description" label="comment" auto-grow rows="1"></v-textarea>
@@ -44,13 +43,13 @@
     </v-flex>
     <v-layout v-for="b in workingday.break" :key="b.key">
       <v-flex xs1>
-        <v-text-field v-model="b._start" label="begin" type="time" @blur="updateOnTimeChange(b)"></v-text-field>
+        <daily-time-picker v-model="b._start" v-on:change="updateOnTimeChange(b)" label="begin" />
       </v-flex>
       <v-flex xs1>
-        <v-text-field v-model="b._end" label="end" type="time" @blur="updateOnTimeChange(b)"></v-text-field>
+        <daily-time-picker v-model="b._end" v-on:change="updateOnTimeChange(b)" label="end" />
       </v-flex>
       <v-flex xs1>
-        <duration-textfield v-model="b._duration" @change.native="updateOnDurationChange(b)"></duration-textfield>
+        <duration-textfield v-model="b._duration" @change.native="updateOnDurationChange(b)" />
       </v-flex>
       <v-flex xs8>
         <v-textarea v-model="b.description" label="comment" auto-grow rows="1"></v-textarea>
@@ -84,10 +83,10 @@
         </v-select>
       </v-flex>
       <v-flex xs1>
-        <v-text-field v-model="booking._start" label="begin" type="time" @blur="updateOnTimeChange(booking)"></v-text-field>
+        <daily-time-picker v-model="booking._start" v-on:change="updateOnTimeChange(booking)" label="begin" />
       </v-flex>
       <v-flex xs1>
-        <v-text-field v-model="booking._end" label="end" type="time" @blur="updateOnTimeChange(booking)"></v-text-field>
+        <daily-time-picker v-model="booking._end" v-on:change="updateOnTimeChange(booking)" label="end" />
       </v-flex>
       <v-flex xs1>
         <duration-textfield v-model="booking._duration" @change.native="updateOnDurationChange(booking)"></duration-textfield>
@@ -121,6 +120,8 @@
   import Vue from 'vue'
   // eslint-disable-next-line
   import DurationTextfield from '@/components/DurationTextfield.vue'
+  // eslint-disable-next-line
+  import DailyTimePicker from '@/components/DailyTimePicker.vue'
   import {DateTime, Duration} from 'luxon'
   import axios from 'axios'
   import dateUtils from '@/utils/dateUtils.js'
