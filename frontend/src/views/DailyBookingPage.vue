@@ -4,7 +4,7 @@
   <v-content><v-container grid-list-md><v-layout row wrap>
     <v-flex xs6>
       <h2>User: {{staffmember.givenName}} {{staffmember.name}}</h2>
-      <!-- TODO: nice add-on: add days with bookings as events (requires back end query)-->
+      <!-- TODO: nice add-on: add days with bookings as events (green=fully booked, yellow=bookings missing, none=no bookings)(requires back end query)-->
       <v-date-picker v-model="workingday._date" @change="loadData" color="grey" landscape reactive />
     </v-flex>
 
@@ -250,6 +250,7 @@
         });
       },
       updateOnTimeChange: function(wt) {
+        console.log("updateOnTimeChange", wt._start, wt._end)
         if (wt._end && wt._start) {
           const endDt = DateTime.fromISO(this.workingday._date + "T" + wt._end)
           const startDt = DateTime.fromISO(this.workingday._date + "T" + wt._start)
