@@ -69,7 +69,7 @@
           </v-btn>
         </v-snackbar>
         <v-footer dark app>
-          <span class="white--text">&copy; 2018 - Willhöft IT-Beratung GmbH</span>
+          <span class="white--text">&copy; 2019 - Willhöft IT-Beratung GmbH</span>
         </v-footer>
       </v-app>
     </div>
