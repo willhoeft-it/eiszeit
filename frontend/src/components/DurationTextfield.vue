@@ -10,7 +10,6 @@
 
 <script>
   import Vue from 'vue'
-  import {Duration} from 'luxon'
   import dateUtils from '@/utils/dateUtils.js'
 
   export default Vue.component('duration-textfield', {
@@ -31,7 +30,7 @@
     methods: {
       // Turn various input formats into a valid ISO duration
       updateValue: function (value) {
-        const re = /^(\d*)\:?(\d\d)$/
+        const re = /^(\d*):?(\d\d)$/
         const v = (re.test(value)) ? value.replace(re, 'PT0$1H$2M') : 'PT0H'
         this.valueAsDuration = this.hoursAsDuration(v)
         this.$emit('input', this.valueAsDuration)
