@@ -1,6 +1,6 @@
 /* @flow
 <template>
-
+  <v-card>
   <v-content><v-container grid-list-md><v-layout row wrap>
     <v-flex xs6>
       <h2>User: {{staffmember.givenName}} {{staffmember.name}}</h2>
@@ -34,13 +34,8 @@
         <v-btn @click="removeWorkingTime(wt)" flat><v-icon>clear</v-icon></v-btn>
       </v-flex>
     </v-layout>
-    <v-flex xs11></v-flex>
-    <v-flex xs1>
-      <!-- TODO: use a "floating button" here that actually floats -->
-        <v-btn @click="addWorkingTime"><v-icon>add</v-icon></v-btn>
-    </v-flex>
     <v-flex xs12>
-      <h3>Breaks</h3>
+      <h2>Breaks</h2>
     </v-flex>
     <v-layout v-for="b in workingday.break" :key="b.key">
       <v-flex xs1>
@@ -59,11 +54,6 @@
         <v-btn @click="removeBreak(b)" flat><v-icon>clear</v-icon></v-btn>
       </v-flex>
     </v-layout>
-    <v-flex xs11></v-flex>
-    <v-flex xs1>
-      <!-- TODO: use a "floating button" here that actually floats -->
-        <v-btn @click="addBreak"><v-icon>add</v-icon></v-btn>
-    </v-flex>
     <v-flex xs12>
       <h2>Bookings</h2>
     </v-flex>
@@ -104,16 +94,59 @@
       </v-flex>
     </v-layout>
     <v-flex xs11></v-flex>
-    <v-flex xs1>
-      <!-- TODO: use a "floating button" here that actually floats -->
-        <v-btn @click="addBooking"><v-icon>add</v-icon></v-btn>
-    </v-flex>
     <v-flex xs12>
       <v-btn @click="submitWorkingtimes" raised>submit</v-btn>
       <v-btn @click="loadData">reset</v-btn>
     </v-flex>
-    </v-layout></v-container>
-  </v-content>
+
+    </v-layout>
+  </v-container></v-content>
+  <v-speed-dial
+    v-model="fab"
+    fixed
+    bottom
+    right
+    direction="top"
+    transition="scale-transition"
+  >
+  <!-- TODO: add labels, just in https://github.com/vuetifyjs/vuetify/issues/3399 -->
+    <v-btn
+      slot="activator"
+      v-model="fab"
+      color="blue darken-2"
+      dark
+      fab
+    >
+      <v-icon>add_circle</v-icon>
+      <v-icon>close</v-icon>
+    </v-btn>
+    <v-btn
+      fab
+      color="blue"
+      dark
+      @click="addBooking">
+      <v-icon>note_add</v-icon>
+    </v-btn>
+    <v-btn
+      fab
+      dark
+      small
+      color="indigo"
+      @click="addBreak"
+    >
+      <v-icon>free_breakfast</v-icon>
+    </v-btn>
+    <v-btn
+      fab
+      dark
+      small
+      color="green"
+      @click="addWorkingTime"
+    >
+      <v-icon>alarm_add</v-icon>
+    </v-btn>
+  </v-speed-dial>
+</v-card>
 </template>
 */
 
@@ -152,7 +185,8 @@
         workingday: {},
         tasks: {
           task: []
-        }
+        },
+        fab: false
       };
     },
     computed: {
