@@ -31,7 +31,7 @@
         <v-textarea v-model="wt.description" label="comment" auto-grow rows="1"></v-textarea>
       </v-flex>
       <v-flex xs1>
-        <v-btn @click="removeWorkingTime(wt)"><v-icon>delete</v-icon></v-btn>
+        <v-btn @click="removeWorkingTime(wt)" flat><v-icon>clear</v-icon></v-btn>
       </v-flex>
     </v-layout>
     <v-flex xs11></v-flex>
@@ -56,7 +56,7 @@
         <v-textarea v-model="b.description" label="comment" auto-grow rows="1"></v-textarea>
       </v-flex>
       <v-flex xs1>
-        <v-btn @click="removeBreak(b)"><v-icon>delete</v-icon></v-btn>
+        <v-btn @click="removeBreak(b)" flat><v-icon>clear</v-icon></v-btn>
       </v-flex>
     </v-layout>
     <v-flex xs11></v-flex>
@@ -100,7 +100,7 @@
         <v-textarea v-model="booking.description" label="description" auto-grow rows="1"></v-textarea>
       </v-flex>
       <v-flex xs1>
-        <v-btn @click="removeBooking(booking)"><v-icon>delete</v-icon></v-btn>
+        <v-btn @click="removeBooking(booking)" flat><v-icon>clear</v-icon></v-btn>
       </v-flex>
     </v-layout>
     <v-flex xs11></v-flex>
