@@ -110,6 +110,7 @@
     transition="scale-transition"
   >
   <!-- TODO: add labels, just in https://github.com/vuetifyjs/vuetify/issues/3399 -->
+    <!-- TODO: when an entry has been added. Scroll to its position, with "$vuetify.goTo(target, options)" and select the comment or time field -->
     <v-btn
       slot="activator"
       v-model="fab"
