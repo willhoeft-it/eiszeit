@@ -31,12 +31,16 @@
       // Turn various input formats into a valid ISO duration
       updateValue: function (value) {
         const re = /^(\d*):?(\d\d)$/
-        const v = (re.test(value)) ? value.replace(re, 'PT0$1H$2M') : 'PT0H'
-        this.valueAsDuration = this.hoursAsDuration(v)
-        this.$emit('input', this.valueAsDuration)
-        if (this.valueAsDuration != this.value) {
+        if (re.test(value)) {
+          this.valueAsDuration = value.replace(re, 'PT0$1H$2M')
+          if (this.valueAsDuration != this.value) {
+            this.$emit('change', this.valueAsDuration)
+          }
+        } else {
+          this.valueAsDuration = 'PT0H'
           this.$emit('change', this.valueAsDuration)
         }
+        this.$emit('input', this.valueAsDuration)        
       }
     }
   })
