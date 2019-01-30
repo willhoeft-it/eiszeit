@@ -4,10 +4,10 @@
   <v-content><v-container grid-list-md><v-layout row wrap>
     <v-flex xs6>
       <h2>User: {{staffmember.givenName}} {{staffmember.name}}</h2>
+      <!-- TODO: this takes a lot of vertical space. Reduce it (even if just the white space below). -->
       <!-- TODO: nice add-on: add days with bookings as events (green=fully booked, yellow=bookings missing, none=no bookings)(requires back end query)-->
       <v-date-picker v-model="workingday._date" @change="loadData" color="grey" landscape reactive />
     </v-flex>
-
     <v-flex xs12>
       <h2>Working Time</h2>
     </v-flex>
@@ -16,7 +16,7 @@
       <v-alert :value="unbookedTime.valueOf() < 0" type="warning" outline>{{durationAsHours(unbookedTime)}} overbooked time</v-alert>
       <v-alert :value="unbookedTime.valueOf() == 0" type="success" outline>All day booked!</v-alert>
     </v-flex>
-
+    <!-- TODO: being responsive. On small screens put comment on next line -->
     <v-layout v-for="wt in workingday.workingtime" :key="wt.key">
       <v-flex xs1>
         <daily-time-picker v-model="wt._start" @change="updateOnTimeChange(wt)" label="begin" />
@@ -37,6 +37,7 @@
     <v-flex xs12>
       <h2>Breaks</h2>
     </v-flex>
+    <!-- TODO: being responsive. On small screens put comment on next line -->
     <v-layout v-for="b in workingday.break" :key="b.key">
       <v-flex xs1>
         <daily-time-picker v-model="b._start" @change="updateOnTimeChange(b)" label="begin" />
@@ -57,6 +58,7 @@
     <v-flex xs12>
       <h2>Bookings</h2>
     </v-flex>
+    <!-- TODO: being responsive. On small screens put description on next line -->
     <v-layout v-for="booking in workingday.booking" :key="booking.key">
       <v-flex xs3>
         <v-select v-model="booking._taskId" label="Task" :items="tasks.task" item-text="_title" item-value="_id"  @input="setBillableToDefault(booking)">
@@ -95,7 +97,7 @@
     </v-layout>
     <v-flex xs11></v-flex>
     <v-flex xs12>
-      <v-btn @click="submitWorkingtimes" raised>submit</v-btn>
+      <v-btn color="green" dark @click="submitWorkingtimes">submit</v-btn>
       <v-btn @click="loadData">reset</v-btn>
     </v-flex>
 
