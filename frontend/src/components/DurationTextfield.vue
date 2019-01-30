@@ -34,6 +34,9 @@
         const v = (re.test(value)) ? value.replace(re, 'PT0$1H$2M') : 'PT0H'
         this.valueAsDuration = this.hoursAsDuration(v)
         this.$emit('input', this.valueAsDuration)
+        if (this.valueAsDuration != this.value) {
+          this.$emit('change', this.valueAsDuration)
+        }
       }
     }
   })
