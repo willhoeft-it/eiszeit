@@ -12,19 +12,17 @@
   >
     <v-text-field
       slot="activator"
-      v-model="valueCopy"
-      v-on:change="$emit('change', valueCopy)"
-      v-on:input="$emit('input', valueCopy)"
+      v-bind:value="value"
       :label="label"
-      :append-icon="(valueCopy)?'clear':''"
-      @click:append="function(){valueCopy = null}"
+      :append-icon="(value)?'clear':''"
+      @click:append="onPickerInput('')"
       readonly
     ></v-text-field>
+    <!-- unfortunately whether time-picker nor its native root component emit an event if the same time is clicked again -->
     <v-time-picker
       v-if="menu"
-      v-model="valueCopy"
-      v-on:change="$emit('change', valueCopy)"
-      v-on:input="onPickerInput"
+      v-bind:value="value"
+      v-on:input="onPickerInput($event)"
       full-width
       :allowed-minutes="allowedMinutes"
       format="24hr"
@@ -43,18 +41,18 @@
     data: function() {
       return {
         menu: false,
-        valueCopy: this.value,
         allowedMinutes: m => m % 15 === 0
       };
     },
     methods: {
-      onPickerInput: function() {
-        this.$emit('input', this.valueCopy)
+      onPickerInput: function(newValue) {
+        console.log("onPickerInput: ", newValue)
+        this.$emit('input', newValue)
         // close the picker on first click/change when the input is valid
-        if (/\d\d:\d\d/.test(this.valueCopy)) {
+        if (/\d\d:\d\d/.test(newValue)) {
           this.menu = false
-          if (this.valueCopy != this.value) {
-            this.$emit('change', this.valueCopy)
+          if (newValue != this.value) {
+            this.$emit('change', newValue)
           }
         }
       }
