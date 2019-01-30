@@ -111,7 +111,6 @@
     direction="top"
     transition="scale-transition"
   >
-  <!-- TODO: add labels, just in https://github.com/vuetifyjs/vuetify/issues/3399 -->
     <!-- TODO: when an entry has been added. Scroll to its position, with "$vuetify.goTo(target, options)" and select the comment or time field -->
     <v-btn
       slot="activator"
@@ -123,31 +122,55 @@
       <v-icon>add_circle</v-icon>
       <v-icon>close</v-icon>
     </v-btn>
-    <v-btn
-      fab
+    <v-tooltip
       color="blue"
-      dark
-      @click="addBooking">
-      <v-icon>note_add</v-icon>
-    </v-btn>
-    <v-btn
-      fab
-      dark
-      small
-      color="indigo"
-      @click="addBreak"
-    >
-      <v-icon>free_breakfast</v-icon>
-    </v-btn>
-    <v-btn
-      fab
-      dark
-      small
+      left
+      :disabled="tooltipsDisabled"
+      :value="tooltips">
+      <v-btn
+        slot="activator"
+        fab
+        color="blue"
+        dark
+        @click="addBooking">
+        <v-icon>note_add</v-icon>
+      </v-btn>
+      <span>add booking</span>
+    </v-tooltip>
+    <v-tooltip
       color="green"
-      @click="addWorkingTime"
-    >
-      <v-icon>alarm_add</v-icon>
-    </v-btn>
+      left
+      :disabled="tooltipsDisabled"
+      :value="tooltips">
+      <v-btn
+        slot="activator"
+        fab
+        dark
+        small
+        color="green"
+        @click="addBreak"
+      >
+        <v-icon>free_breakfast</v-icon>
+      </v-btn>
+      <span>add break</span>
+    </v-tooltip>
+    <v-tooltip
+      color="indigo"
+      left
+      :disabled="tooltipsDisabled"
+      :value="tooltips">
+      <v-btn
+        slot="activator"
+        fab
+        dark
+        small
+        color="indigo"
+        @click="addWorkingTime"
+      >
+        <v-icon>alarm_add</v-icon>
+      </v-btn>
+      <span>add working time</span>
+    </v-tooltip>
   </v-speed-dial>
 </v-card>
 </template>
@@ -178,7 +201,6 @@
     arrayAccessFormPaths : [
       "workingday.workingtime", "workingday.break", "workingday.booking"
     ]
-    // TODO: check if "datetimeAccessFormPaths : []" can be used instead of conversion in model
   });
 
   export default Vue.component('daily-booking-page', {
@@ -189,8 +211,21 @@
         tasks: {
           task: []
         },
-        fab: false
+        fab: false,
+        tooltips: false,
+        tooltipsDisabled: false
       };
+    },
+    watch: {
+      // fix so that tooltips work with the speed dial animation
+      fab (val) {
+        this.tooltips = false
+        this.tooltipsDisabled = false
+        val && setTimeout(() => {
+          this.tooltips = true
+          this.$nextTick(() => this.tooltipsDisabled = true)
+        }, 250)
+      }
     },
     computed: {
       unbookedTime() {
