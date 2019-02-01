@@ -24,7 +24,8 @@
             <th
               v-for="header in props.headers"
               :key="header.text"
-              :class="['column sortable', pagination.descending ? 'desc' : 'asc', header.value === pagination.sortBy ? 'active' : '']"
+              :class="['column sortable', pagination.descending ? 'desc' : 'asc', header.value === pagination.sortBy ? 'active' : '', header.align ? 'text-xs-' + header.align : '']"
+              :width="header.width"
               @click="changeSort(header.value)"
             >
               <v-icon small>arrow_upward</v-icon>
@@ -43,7 +44,6 @@
             </th>
           </tr>
         </template>
-
         <v-alert slot="no-results" :value="true" color="error" icon="warning">
           Your search found no results.
         </v-alert>
@@ -72,9 +72,18 @@
 
 </template>
 
-<style scoped>
-  .v-input {
+<style>
+  .v-list__tile {
     font-size: 1em;
+  }
+  .v-input {
+    font-size: 13px;
+  }
+  table.v-table thead th {
+    font-size: 13px;
+  }
+  table.v-table tbody td:first-child, table.v-table tbody td:not(:first-child) {
+    padding: 0 15px
   }
 </style>
 
@@ -119,48 +128,45 @@
             text: 'Date',
             align: 'left',
             sortable: false,
-            class: 'text-xs-left',
+            width: '14%',
             value: '_date'
           },
           {
             text: 'Project',
             align: 'left',
             sortable: false,
-            class: 'text-xs-left',
+            width: '21%',
             value: 'project'
           },
           { text: 'Task',
             align: 'left',
             sortable: false,
-            class: 'text-xs-left',
+            width: '14%',
             value: 'task'
           },
           { text: 'Duration',
             align: 'right',
-            class: 'text-xs-right',
             sortable: false,
+            width: '7%',
             value: '_duration'
           },
           { text: 'Billable',
             align: 'left',
             sortable: false,
-            class: 'text-xs-left',
+            width: '7%',
             value: '_billable'
           },
           { text: 'Description',
             align: 'left',
             sortable: false,
-            class: 'text-xs-left',
+            width: '36%',
             value: 'description'
           }
         ],
         filters: {
-          _date: [],
           project: [],
           task: [],
-          _duration: [],
-          _billable: [],
-          description: []
+          _billable: []
         },
       };
     },
