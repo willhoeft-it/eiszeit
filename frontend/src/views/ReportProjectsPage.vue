@@ -20,6 +20,7 @@
         class="elevation-1"
       >
         <template slot="headers" slot-scope="props">
+          <!-- TODO: add a free text filter for description -->
           <tr>
             <th
               v-for="header in props.headers"
@@ -48,7 +49,7 @@
           Your search found no results.
         </v-alert>
         <template slot="items" slot-scope="b">
-          <td>{{ (new Date(b.item._date)).toLocaleDateString("de-de", { weekday: 'short', year: 'numeric', month: '2-digit', day: '2-digit' }) }}</td>
+          <td class="text-xs-right">{{ (new Date(b.item._date)).toLocaleDateString("de-de", { weekday: 'short', year: 'numeric', month: '2-digit', day: '2-digit' }) }}</td>
           <td>{{ b.item.project }}</td>
           <td>{{ b.item.task }}</td>
           <td class="text-xs-right">{{ durationAsHours(b.item._duration) }}</td>
@@ -72,7 +73,7 @@
 
 </template>
 
-<style>
+<style scoped>
   .v-list__tile {
     font-size: 1em;
   }
@@ -128,7 +129,7 @@
         tableHeaders: [
           {
             text: 'Date',
-            align: 'left',
+            align: 'right',
             sortable: false,
             width: '14%',
             value: '_date'
