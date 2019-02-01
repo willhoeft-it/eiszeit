@@ -147,34 +147,35 @@ declare
 
 (: Reports :)
 
-(: Bookings from / to :)
+(: Bookings from (included) / to (excluded). Multiple filters are connected as "or" :)
 declare
   %rest:path("timetracking/api/report/bookings/{$dateFrom}/{$dateTo}")
-  %rest:query-param("projectId", "{$projectId}")
-  %rest:query-param("staffmemberId", "{$staffmemberId}")
+  %rest:query-param("projectTitle", "{$projectTitle}")
   %rest:query-param("billable", "{$billable}")
   %rest:query-param("sort", "{$sort}", "date")
   %rest:GET
   %rest:produces("application/xml", "text/xml")
   %output:method("xml")
   %output:omit-xml-declaration("no")
-  function page:timetrack-get-bookings($dateFrom as xs:date, $dateTo as xs:date, $projectId as xs:integer?, $staffmemberId as xs:string?, $billable as xs:string?, $sort as xs:string*) {
+  function page:timetrack-get-bookings($dateFrom as xs:date, $dateTo as xs:date, $projectTitle as xs:string*, $billable as xs:string*, $sort as xs:string*) {
       <bookings>
       {
         attribute dateFrom {fn:adjust-date-to-timezone($dateFrom, [])},
         attribute dateTo {fn:adjust-date-to-timezone($dateTo, [])},
-        if ($projectId) then
-          attribute projectId {$projectId},
-        if ($staffmemberId) then
-          attribute staffmemberId {$staffmemberId},
-        if ($billable) then
+        (: TODO if necessary return active filters as multiple elements
+        if (exists($projectTitle)) then
+          attribute projectTitle {$projectTitle},
+        if (exists($billable)) then
           attribute billable {$billable},
-
-        (: TODO: add staffMemberId to query (when in model) :)
+        :)
         let $db := db:open("timetracking")
         let $wds := $db/timetrack/workingday[@date>=$dateFrom and @date<$dateTo]
         let $tasks := page:tasks-get()
         for $wd in ($wds), $b in ($wd/booking), $t in ($tasks//task[@id = $b/@taskId]), $p in ($t/ancestor::project)
+        where
+          not (exists($projectTitle)) or ($p/@title = $projectTitle)
+        where
+          not (exists($billable)) or ($b/@billable = $billable)
         order by
           (if ($sort = 'date') then $wd/@date)
         order by
