@@ -63,7 +63,7 @@
             <strong>{{ durationAsHours(totalDuration) }}</strong>
           </td>
           <td :colspan="2">
-            <strong>&nbsp;</strong>
+            &nbsp;
           </td>
         </template>
       </v-data-table>
@@ -82,7 +82,9 @@
   table.v-table thead th {
     font-size: 13px;
   }
-  table.v-table tbody td:first-child, table.v-table tbody td:not(:first-child) {
+  table.v-table thead th:first-child, table.v-table thead th:not(:first-child),
+  table.v-table tbody td:first-child, table.v-table tbody td:not(:first-child),
+  table.v-table tfoot td:first-child, table.v-table tfoot td:not(:first-child) {
     padding: 0 15px
   }
 </style>
