@@ -2,10 +2,9 @@
 <template>
 
   <v-content><v-container grid-list-md><v-layout row wrap>
-    <v-flex xs6>
+    <v-flex xs12 sm8 md6>
       <h2>User: {{staffmember.givenName}} {{staffmember.name}}</h2>
-      <v-date-picker v-model="dateSelected" @change="loadData" type="month" color="grey" landscape reactive />
-
+      <v-date-picker v-model="dateSelected" @change="loadData" type="month" color="grey" full-width landscape reactive />
     </v-flex>
 
     <v-flex xs12>

@@ -6,7 +6,8 @@
       <h2>User: {{staffmember.givenName}} {{staffmember.name}}</h2>
       <!-- TODO: this takes a lot of vertical space. Reduce it (even if just the white space below). -->
       <!-- TODO: nice add-on: add days with bookings as events (green=fully booked, yellow=bookings missing, none=no bookings)(requires back end query)-->
-      <v-date-picker v-model="workingday._date" @change="loadData" color="grey" landscape reactive />
+      <v-date-picker v-model="workingday._date" @change="loadData" color="grey" full-width landscape show-week reactive v-show="$vuetify.breakpoint.mdAndUp"/>
+      <v-date-picker v-model="workingday._date" @change="loadData" color="grey" reactive v-show="$vuetify.breakpoint.smAndDown"/>
     </v-flex>
     <v-flex xs12>
       <h2>Working Time</h2>
