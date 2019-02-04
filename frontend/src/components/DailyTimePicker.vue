@@ -22,7 +22,7 @@
     <v-time-picker
       v-if="menu"
       v-bind:value="value"
-      v-on:input="onPickerInput($event)"
+      v-on:change="onPickerInput($event)"
       full-width
       :allowed-minutes="allowedMinutes"
       format="24hr"
