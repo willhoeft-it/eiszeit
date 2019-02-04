@@ -22,7 +22,7 @@
     <v-time-picker
       v-if="menu"
       v-bind:value="value"
-      v-on:change="onPickerInput($event)"
+      v-on:input="onPickerInput($event)"
       full-width
       :allowed-minutes="allowedMinutes"
       format="24hr"
@@ -47,13 +47,13 @@
     methods: {
       onPickerInput: function(newValue) {
         console.log("onPickerInput: ", newValue)
+        if (newValue != this.value) {
+          this.$emit('change', newValue)
+        }
         this.$emit('input', newValue)
         // close the picker on first click/change when the input is valid
         if (/\d\d:\d\d/.test(newValue)) {
           this.menu = false
-          if (newValue != this.value) {
-            this.$emit('change', newValue)
-          }
         }
       }
     }

@@ -20,10 +20,10 @@
     <!-- TODO: being responsive. On small screens put comment on next line -->
     <v-layout v-for="wt in workingday.workingtime" :key="wt.key">
       <v-flex xs1>
-        <daily-time-picker v-model="wt._start" @change="updateOnTimeChange(wt)" label="begin" />
+        <daily-time-picker v-model="wt._start" @change="updateOnTimeChange(wt, $event, null)" label="begin" />
       </v-flex>
       <v-flex xs1>
-        <daily-time-picker v-model="wt._end" @change="updateOnTimeChange(wt)" label="end" />
+        <daily-time-picker v-model="wt._end" @change="updateOnTimeChange(wt, null, $event)" label="end" />
       </v-flex>
       <v-flex xs1>
         <duration-textfield v-model="wt._duration" @change="updateOnDurationChange(wt, $event)" />
@@ -41,10 +41,10 @@
     <!-- TODO: being responsive. On small screens put comment on next line -->
     <v-layout v-for="b in workingday.break" :key="b.key">
       <v-flex xs1>
-        <daily-time-picker v-model="b._start" @change="updateOnTimeChange(b)" label="begin" />
+        <daily-time-picker v-model="b._start" @change="updateOnTimeChange(b, $event, null)" label="begin" />
       </v-flex>
       <v-flex xs1>
-        <daily-time-picker v-model="b._end" @change="updateOnTimeChange(b)" label="end" />
+        <daily-time-picker v-model="b._end" @change="updateOnTimeChange(b, null, $event)" label="end" />
       </v-flex>
       <v-flex xs1>
         <duration-textfield v-model="b._duration" @change="updateOnDurationChange(b, $event)" />
@@ -77,10 +77,10 @@
         </v-select>
       </v-flex>
       <v-flex xs1>
-        <daily-time-picker v-model="booking._start" @change="updateOnTimeChange(booking)" label="begin" />
+        <daily-time-picker v-model="booking._start" @change="updateOnTimeChange(booking, $event, null)" label="begin" />
       </v-flex>
       <v-flex xs1>
-        <daily-time-picker v-model="booking._end" @change="updateOnTimeChange(booking)" label="end" />
+        <daily-time-picker v-model="booking._end" @change="updateOnTimeChange(booking, null, $event)" label="end" />
       </v-flex>
       <v-flex xs1>
         <duration-textfield v-model="booking._duration" @change="updateOnDurationChange(booking, $event)"></duration-textfield>
@@ -322,11 +322,13 @@
             }
         });
       },
-      updateOnTimeChange: function(wt) {
-        console.log("updateOnTimeChange", wt._start, wt._end)
-        if (wt._end && wt._start) {
-          const endDt = DateTime.fromISO(this.workingday._date + "T" + wt._end)
-          const startDt = DateTime.fromISO(this.workingday._date + "T" + wt._start)
+      updateOnTimeChange: function(wt, newStart, newEnd) {
+        console.log("updateOnTimeChange", newStart, newEnd)
+        const start = newStart ? newStart : wt._start
+        const end = newEnd ? newEnd : wt._end
+        if (start && end) {
+          const startDt = DateTime.fromISO(this.workingday._date + "T" + start)
+          const endDt = DateTime.fromISO(this.workingday._date + "T" + end)
           wt._duration = endDt.diff(startDt, ['hours', 'minutes']).toISO()
           console.log("updateOnEndChange: " + endDt.toISO() + " - " + startDt.toISO() + " = " + wt._duration)
         }
