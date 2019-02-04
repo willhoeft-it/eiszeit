@@ -26,7 +26,7 @@
         <daily-time-picker v-model="wt._end" @change="updateOnTimeChange(wt)" label="end" />
       </v-flex>
       <v-flex xs1>
-        <duration-textfield v-model="wt._duration" @change="updateOnDurationChange(wt)" />
+        <duration-textfield v-model="wt._duration" @change="updateOnDurationChange(wt, $event)" />
       </v-flex>
       <v-flex xs8>
         <v-textarea v-model="wt.description" label="comment" auto-grow rows="1"></v-textarea>
@@ -47,7 +47,7 @@
         <daily-time-picker v-model="b._end" @change="updateOnTimeChange(b)" label="end" />
       </v-flex>
       <v-flex xs1>
-        <duration-textfield v-model="b._duration" @change="updateOnDurationChange(b)" />
+        <duration-textfield v-model="b._duration" @change="updateOnDurationChange(b, $event)" />
       </v-flex>
       <v-flex xs8>
         <v-textarea v-model="b.description" label="comment" auto-grow rows="1"></v-textarea>
@@ -83,7 +83,7 @@
         <daily-time-picker v-model="booking._end" @change="updateOnTimeChange(booking)" label="end" />
       </v-flex>
       <v-flex xs1>
-        <duration-textfield v-model="booking._duration" @change="updateOnDurationChange(booking)"></duration-textfield>
+        <duration-textfield v-model="booking._duration" @change="updateOnDurationChange(booking, $event)"></duration-textfield>
       </v-flex>
       <v-flex xs1>
         <v-select v-model="booking._billable" label="billable" :items="billableOptions">
@@ -331,13 +331,13 @@
           console.log("updateOnEndChange: " + endDt.toISO() + " - " + startDt.toISO() + " = " + wt._duration)
         }
       },
-      updateOnDurationChange: function(wt) {
-        console.log("updateOnDurationChange: " + wt._duration + " / " + wt._start)
-        if (wt._duration && wt._start) {
-          const duration = Duration.fromISO(wt._duration)
+      updateOnDurationChange: function(wt, newDuration) {
+        console.log("updateOnDurationChange: " + newDuration + " / " + wt._start)
+        if (newDuration && wt._start) {
+          const duration = Duration.fromISO(newDuration)
           const startDt = DateTime.fromISO(this.workingday._date + "T" + wt._start)
           wt._end = startDt.plus(duration).toFormat("HH:mm")
-          console.log("updateOnDurationChange: " + startDt.toISO() + " + " + wt._duration + " = " + wt._end)
+          console.log("updateOnDurationChange: " + startDt.toISO() + " + " + newDuration + " = " + wt._end)
         }
       },
       addDefaultWorkingTime: function(wd) {
