@@ -4,7 +4,7 @@
   <v-content><v-container grid-list-md><v-layout row wrap>
     <v-flex xs12 sm8 md6>
       <h2>User: {{staffmember.givenName}} {{staffmember.name}}</h2>
-      <v-date-picker v-model="dateSelected" @change="loadData" type="month" color="grey" full-width landscape reactive />
+      <v-date-picker v-model="dateSelected" @change="loadData" type="month" color="grey" full-width landscape first-day-of-week="1" reactive />
     </v-flex>
 
     <v-flex xs12>

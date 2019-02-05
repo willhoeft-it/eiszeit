@@ -6,8 +6,8 @@
       <h2>User: {{staffmember.givenName}} {{staffmember.name}}</h2>
       <!-- TODO: this takes a lot of vertical space. Reduce it (even if just the white space below). -->
       <!-- TODO: nice add-on: add days with bookings as events (green=fully booked, yellow=bookings missing, none=no bookings)(requires back end query)-->
-      <v-date-picker v-model="workingday._date" @change="loadData" color="grey" full-width landscape show-week reactive v-show="$vuetify.breakpoint.mdAndUp"/>
-      <v-date-picker v-model="workingday._date" @change="loadData" color="grey" reactive v-show="$vuetify.breakpoint.smAndDown"/>
+      <v-date-picker v-model="workingday._date" @change="loadData" color="grey" full-width landscape show-week first-day-of-week="1" reactive v-show="$vuetify.breakpoint.mdAndUp"/>
+      <v-date-picker v-model="workingday._date" @change="loadData" color="grey" first-day-of-week="1" reactive v-show="$vuetify.breakpoint.smAndDown"/>
     </v-flex>
     <v-flex xs12>
       <h2>Working Time</h2>
@@ -60,6 +60,7 @@
       <h2>Bookings</h2>
     </v-flex>
     <!-- TODO: being responsive. On small screens put description on next line -->
+    <!-- TODO: sort to top or highlight tasks that have recently been used -->
     <v-layout v-for="booking in workingday.booking" :key="booking.key">
       <v-flex xs3>
         <v-select v-model="booking._taskId" label="Task" :items="tasks.task" item-text="_title" item-value="_id"  @input="setBillableToDefault(booking)">
