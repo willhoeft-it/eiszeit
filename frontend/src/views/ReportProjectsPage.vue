@@ -96,7 +96,7 @@
   import Vue from 'vue'
   // eslint-disable-next-line
   import DurationTextfield from '@/components/DurationTextfield.vue'
-  import {DateTime, Duration} from 'luxon'
+  import {Duration} from 'luxon'
   import dateUtils from '@/utils/dateUtils.js'
   import pageMixin from '@/views/PageMixin.js'
 

@@ -52,7 +52,6 @@ declare
     page:timetrack-get(current-date())
 };
 
-
 (: TODO: validate:
   * schema
   * add staff member
@@ -141,11 +140,38 @@ declare
           </task>
       }
     </tasks>
-
 };
 
 
 (: Reports :)
+
+(: Booked days overview with sum of work, breaks and bookings  :)
+(: TODO: filter on staffMember / authorized user :)
+(: TODO: add infos about weekends, holidays, vacations, sickness :)
+declare
+  %rest:path("timetracking/api/report/days/{$dateFrom}/{$dateTo}")
+  %rest:GET
+  %rest:produces("application/xml", "text/xml")
+  %output:method("xml")
+  %output:omit-xml-declaration("no")
+  function page:timetrack-get-days($dateFrom as xs:date, $dateTo as xs:date) {
+      <workingdays>
+      {
+        attribute dateFrom {fn:adjust-date-to-timezone($dateFrom, [])},
+        attribute dateTo {fn:adjust-date-to-timezone($dateTo, [])},
+        let $db := db:open("timetracking")
+        let $wds := $db/timetrack/workingday[@date>=$dateFrom and @date<$dateTo]
+        for $wd in ($wds)
+        return
+          <workingday date="{$wd/@date}">
+            <workingtimeSum>{sum($wd/workingtime/xs:dayTimeDuration(@duration))}</workingtimeSum>
+            <breakSum>{sum($wd/break/xs:dayTimeDuration(@duration))}</breakSum>
+            <bookingSum>{sum($wd/booking/xs:dayTimeDuration(@duration))}</bookingSum>
+        </workingday>
+      }
+      </workingdays>
+};
+
 
 (: Bookings from (included) / to (excluded). Multiple filters are connected as "or" :)
 declare

@@ -5,9 +5,8 @@
     <v-flex xs6>
       <h2>User: {{staffmember.givenName}} {{staffmember.name}}</h2>
       <!-- TODO: this takes a lot of vertical space. Reduce it (even if just the white space below). -->
-      <!-- TODO: nice add-on: add days with bookings as events (green=fully booked, yellow=bookings missing, none=no bookings)(requires back end query)-->
-      <v-date-picker v-model="workingday._date" @change="loadData" color="grey" full-width landscape show-week first-day-of-week="1" reactive v-show="$vuetify.breakpoint.mdAndUp"/>
-      <v-date-picker v-model="workingday._date" @change="loadData" color="grey" first-day-of-week="1" reactive v-show="$vuetify.breakpoint.smAndDown"/>
+      <v-date-picker v-model="workingday._date" @change="loadData" @update:pickerDate="loadWdInfos($event)" :events="wdInfos" color="grey" full-width landscape show-week first-day-of-week="1" reactive v-show="$vuetify.breakpoint.mdAndUp"/>
+      <v-date-picker v-model="workingday._date" @change="loadData" @update:pickerDate="loadWdInfos($event)" :events="wdInfos" color="grey" first-day-of-week="1" reactive v-show="$vuetify.breakpoint.smAndDown"/>
     </v-flex>
     <v-flex xs12>
       <h2>Working Time</h2>
@@ -186,6 +185,7 @@
   import DailyTimePicker from '@/components/DailyTimePicker.vue'
   import {DateTime, Duration} from 'luxon'
   import axios from 'axios'
+  import binarySearch from 'binary-search'
   import dateUtils from '@/utils/dateUtils.js'
   import pageMixin from '@/views/PageMixin.js'
 
@@ -204,6 +204,12 @@
       "workingday.workingtime", "workingday.break", "workingday.booking"
     ]
   });
+  // eslint-disable-next-line
+  const x2jsWdReport = new X2JS({
+    arrayAccessFormPaths : [
+      "workingdays.workingday"
+    ]
+  });
 
   export default Vue.component('daily-booking-page', {
     mixins: [dateUtils, pageMixin],
@@ -213,6 +219,7 @@
         tasks: {
           task: []
         },
+        wdReport: {},
         fab: false,
         tooltips: false,
         tooltipsDisabled: false
@@ -276,9 +283,27 @@
           }
           self.workingday = d;
           console.log(self.workingday);
+
           self.showMessage('fetched!', 'info')
         }))
         .catch(function (error) {
+          // TODO: handle errors generically as in POST + alert/snackbar/..-dialog
+          console.log(error);
+          self.showMessage("ERROR: " + error, 'error')
+        });
+      },
+      // loading monthly working day booking overview for date picker event markers
+      loadWdInfos: function(month) {
+        const start = month + "-01"
+        const endDate = new Date(start)
+        endDate.setMonth(endDate.getMonth() + 1)
+        const end = this.dateToLocalISOString(endDate).slice(0, 10)
+        console.log("fetching wd report for " + start + " to " + end)
+        const self = this
+        self.server.get('../api/report/days/' + start + '/' + end).then(function(wdReportResponse) {
+          self.wdReport = x2jsWdReport.xml_str2json(wdReportResponse.data).workingdays;
+          console.log("fetched wd report")
+        }).catch(function (error) {
           // TODO: handle errors generically as in POST + alert/snackbar/..-dialog
           console.log(error);
           self.showMessage("ERROR: " + error, 'error')
@@ -322,6 +347,18 @@
               self.showMessage("ERROR : Failed setting up server request", 'error')
             }
         });
+      },
+      // interpreting working day booking overview as colors for date picker event markers
+      wdInfos: function(date) {
+        if (! this.wdReport.workingday) return false
+        const s = {_date: date}
+        const wdi = binarySearch(this.wdReport.workingday, s, function(el, needle) {
+          if (el._date === needle._date) return 0
+          return el._date < needle._date ? -1 : 1
+        })
+        if (wdi < 0) return false
+        const wd = this.wdReport.workingday[wdi]
+        return (Duration.fromISO(wd.workingtimeSum) - Duration.fromISO(wd.breakSum) - Duration.fromISO(wd.bookingSum) == 0) ? 'green' : 'yellow'
       },
       updateOnTimeChange: function(wt, newStart, newEnd) {
         console.log("updateOnTimeChange", newStart, newEnd)
