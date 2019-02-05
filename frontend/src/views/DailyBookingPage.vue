@@ -1,5 +1,6 @@
 /* @flow
 <template>
+  <!-- TODO: warn on leaving the page on unsaved data -->
   <v-card>
   <v-content><v-container grid-list-md><v-layout row wrap>
     <v-flex xs6>
@@ -13,7 +14,7 @@
     </v-flex>
     <v-flex xs12>
       <v-alert :value="unbookedTime.valueOf() > 0" type="warning" outline>{{durationAsHours(unbookedTime)}} unbooked time</v-alert>
-      <v-alert :value="unbookedTime.valueOf() < 0" type="warning" outline>{{durationAsHours(unbookedTime)}} overbooked time</v-alert>
+      <v-alert :value="unbookedTime.valueOf() < 0" type="warning" outline>{{durationAsHours(unbookedTime.negate())}} overbooked time</v-alert>
       <v-alert :value="unbookedTime.valueOf() == 0" type="success" outline>All day booked!</v-alert>
     </v-flex>
     <!-- TODO: being responsive. On small screens put comment on next line -->
