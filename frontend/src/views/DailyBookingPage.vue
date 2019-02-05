@@ -327,6 +327,7 @@
           .then(function (response) {
             console.log(response);
             self.showMessage("posted!", 'success')
+            self.loadWdInfos(self.workingday._date.slice(0, 7))
           })
           .catch(function (error) {
             if (error.response) {
