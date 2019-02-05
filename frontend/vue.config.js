@@ -1,5 +1,5 @@
 module.exports = {
-  baseUrl: process.env.NODE_ENV === 'production' ? '/timetracking/static/'  : '/',
+  publicPath: process.env.NODE_ENV === 'production' ? '/timetracking/static/'  : '/',
   // development proxy to running basex API
   devServer: {
     proxy: {
