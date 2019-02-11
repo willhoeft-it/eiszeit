@@ -40,6 +40,14 @@
                 <v-list-tile-title>report on projects</v-list-tile-title>
               </v-list-tile-content>
             </v-list-tile>
+            <v-list-tile @click="page='reportWorkingtimePage'">
+              <v-list-tile-action>
+                <v-icon>list</v-icon>
+              </v-list-tile-action>
+              <v-list-tile-content>
+                <v-list-tile-title>report on working time</v-list-tile-title>
+              </v-list-tile-content>
+            </v-list-tile>
           </v-list>
         </v-navigation-drawer>
         <v-toolbar dark fixed app>
@@ -47,20 +55,17 @@
           <v-toolbar-title>Timetracking</v-toolbar-title>
         </v-toolbar>
 
-        <!-- BEGIN dailyBookingPage -->
         <daily-booking-page v-if="page === 'dailyBookingPage'" v-on:pageMessageEvent="showMessage">
         </daily-booking-page>
-        <!-- END dailyBookingPage -->
 
-        <!-- BEGIN taskManagingPage -->
         <task-managing-page v-if="page === 'taskManagingPage'" v-on:pageMessageEvent="showMessage">
         </task-managing-page>
-        <!-- END taskManagingPage -->
 
-        <!-- BEGIN report-projects-page -->
         <report-projects-page v-if="page === 'reportProjectsPage'" v-on:pageMessageEvent="showMessage">
         </report-projects-page>
-        <!-- END report-projects-page -->
+
+        <report-workingtime-page v-if="page === 'reportWorkingtimePage'" v-on:pageMessageEvent="showMessage">
+        </report-workingtime-page>
 
         <v-snackbar v-model="snackbar.show" :color="snackbar.level" :multi-line="snackbar.level === 'error'" bottom :timeout="(snackbar.level === 'error') ? 0 : 2000">
         {{ snackbar.message }}
@@ -83,11 +88,13 @@
   import TaskManagingPage from '@/views/TaskManagingPage.vue'
   // eslint-disable-next-line
   import ReportProjectsPage from '@/views/ReportProjectsPage.vue'
+  // eslint-disable-next-line
+  import ReportWorkingtimePage from '@/views/ReportWorkingtimePage.vue'
 
   export default {
     data: function() {
       return {
-        page: 'dailyBookingPage',
+        page: 'reportWorkingtimePage',
         drawer: false,
         snackbar: {
           message: "",

@@ -164,7 +164,9 @@ declare
         for $wd in ($wds)
         return
           <workingday date="{$wd/@date}">
+            {$wd/workingtime}
             <workingtimeSum>{sum($wd/workingtime/xs:dayTimeDuration(@duration))}</workingtimeSum>
+            {$wd/break}
             <breakSum>{sum($wd/break/xs:dayTimeDuration(@duration))}</breakSum>
             <bookingSum>{sum($wd/booking/xs:dayTimeDuration(@duration))}</bookingSum>
         </workingday>
@@ -225,41 +227,4 @@ declare
           </booking>
       }
       </bookings>
-};
-
-(: TODO: finish this :)
-declare
-  %rest:path("timetracking/api/report/workingtime/{$dateFrom}/{$dateTo}/{$staffMemberId}")
-  %rest:GET
-  %rest:produces("application/xml", "text/xml")
-  %output:method("xml")
-  %output:omit-xml-declaration("no")
-  function page:timetrack-get-workingtime($dateFrom as xs:date, $dateTo as xs:date, $staffMemberId as xs:string) {
-    (: TODO: add staffMemberId to query (when in model) :)
-    let $wtdays := db:open("timetracking")/timetrack/workingday[@date ge $dateFrom and @date lt $dateTo]
-    let $wtSum := sum($wtdays/workingtime/xs:dayTimeDuration(@duration))
-    let $breakSum := sum($wtdays/break/xs:dayTimeDuration(@duration))
-    return
-    <workingtimeSummary staffMemberId="{$staffMemberId}" dateFrom="{fn:adjust-date-to-timezone($dateFrom, [])}" dateTo="{fn:adjust-date-to-timezone($dateTo, [])}">
-      <daysBooked>{count($wtdays)}</daysBooked>
-      <workingtimeDurationSum>{$wtSum}</workingtimeDurationSum>
-      <breakDurationSum>{$breakSum}</breakDurationSum>
-      <bookings>
-        <billableDuration>{sum($wtdays/booking[@billable='yes']/xs:dayTimeDuration(@duration))}</billableDuration>
-        <notBillableDuration>{sum($wtdays/booking[@billable='no']/xs:dayTimeDuration(@duration))}</notBillableDuration>
-        <possiblyBillableDuration>{sum($wtdays/booking[@billable='depends']/xs:dayTimeDuration(@duration))}</possiblyBillableDuration>
-        <unbookedDuration>{$wtSum - $breakSum - sum($wtdays/booking/xs:dayTimeDuration(@duration))}</unbookedDuration>
-        <!-- TODO: finish this -->
-        <projectGroup id="" title="">
-          <billableDuration></billableDuration>
-          <notBillableDuration></notBillableDuration>
-          <possiblyBillableDuration></possiblyBillableDuration>
-          <project id="" title="">
-            <billableDuration></billableDuration>
-            <notBillableDuration></notBillableDuration>
-            <possiblyBillableDuration></possiblyBillableDuration>
-          </project>
-        </projectGroup>
-       </bookings>
-    </workingtimeSummary>
 };
