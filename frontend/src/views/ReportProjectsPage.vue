@@ -16,7 +16,6 @@
         :pagination.sync="pagination"
         :items="filteredBookings"
         :rows-per-page-items="[10,20,{'text': 'All', 'value' :-1}]"
-        item-key="name"
         class="elevation-1"
       >
         <template slot="headers" slot-scope="props">
@@ -123,7 +122,7 @@
         bookings: {},
         dateSelected: this.dateToLocalISOString(new Date()).split('T')[0],
         pagination: {
-          sortBy: 'name'
+          sortBy: '_date'
         },
         selected: [],
         tableHeaders: [
