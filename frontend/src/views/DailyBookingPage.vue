@@ -255,14 +255,13 @@
         if (! this.workingday.workingtime)
           return Duration.fromISO('PT0H')
         const wtsum = this.workingday.workingtime.reduce((total, wt) => {
-          return total.plus(Duration.fromISO(wt._duration))
-
+          return wt._duration ? total.plus(Duration.fromISO(wt._duration)) : total
         }, Duration.fromISO('PT0H'));
         const netwtsum = (this.workingday.break) ? this.workingday.break.reduce((total, b) => {
-          return total.minus(Duration.fromISO(b._duration))
+          return b._duration ? total.minus(Duration.fromISO(b._duration)) : total
         }, wtsum) : wtsum;
         const unbooked = (this.workingday.booking) ? this.workingday.booking.reduce((total, b) => {
-          return total.minus(Duration.fromISO(b._duration))
+          return b._duration ? total.minus(Duration.fromISO(b._duration)) : total
         }, netwtsum) : netwtsum;
         return unbooked;
       }
