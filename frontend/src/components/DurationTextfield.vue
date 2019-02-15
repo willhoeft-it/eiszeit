@@ -33,14 +33,14 @@
         const re = /^(\d*):?(\d\d)$/
         if (re.test(value)) {
           this.valueAsDuration = value.replace(re, 'PT0$1H$2M')
-          if (this.valueAsDuration != this.value) {
+          if (this.valueAsDuration !== this.value) {
             this.$emit('change', this.valueAsDuration)
           }
         } else {
           this.valueAsDuration = 'PT0H'
           this.$emit('change', this.valueAsDuration)
         }
-        this.$emit('input', this.valueAsDuration)        
+        this.$emit('input', this.valueAsDuration)
       }
     }
   })
