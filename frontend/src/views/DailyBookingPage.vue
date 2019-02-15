@@ -35,6 +35,10 @@
         <v-btn @click="removeWorkingTime(wt)" flat><v-icon>clear</v-icon></v-btn>
       </v-flex>
     </v-layout>
+    <v-flex xs11></v-flex>
+    <v-flex xs1 v-show="$vuetify.breakpoint.mdAndUp">
+        <v-btn @click="addWorkingTime"><v-icon>add</v-icon></v-btn>
+    </v-flex>
     <v-flex xs12>
       <h2>Breaks</h2>
     </v-flex>
@@ -56,6 +60,10 @@
         <v-btn @click="removeBreak(b)" flat><v-icon>clear</v-icon></v-btn>
       </v-flex>
     </v-layout>
+    <v-flex xs11></v-flex>
+    <v-flex xs1 v-show="$vuetify.breakpoint.mdAndUp">
+        <v-btn @click="addBreak"><v-icon>add</v-icon></v-btn>
+    </v-flex>
     <v-flex xs12>
       <h2>Bookings</h2>
     </v-flex>
@@ -98,6 +106,9 @@
       </v-flex>
     </v-layout>
     <v-flex xs11></v-flex>
+    <v-flex xs1 v-show="$vuetify.breakpoint.mdAndUp">
+        <v-btn @click="addBooking"><v-icon>add</v-icon></v-btn>
+    </v-flex>
     <v-flex xs12>
       <v-btn color="green" dark @click="submitWorkingtimes">submit</v-btn>
       <v-btn @click="loadData">reset</v-btn>
@@ -105,6 +116,7 @@
 
     </v-layout>
   </v-container></v-content>
+
   <v-speed-dial
     v-model="fab"
     fixed
@@ -112,6 +124,7 @@
     right
     direction="top"
     transition="scale-transition"
+    v-show="$vuetify.breakpoint.smAndDown"
   >
     <!-- TODO: when an entry has been added. Scroll to its position, with "$vuetify.goTo(target, options)" and select the comment or time field -->
     <v-btn
