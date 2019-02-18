@@ -2,10 +2,9 @@
 <template>
   <!-- TODO: warn on leaving the page on unsaved data -->
   <v-card>
-  <v-content><v-container grid-list-md><v-layout row wrap>
+  <v-content><v-container fluid><v-layout wrap>
     <v-flex xs6>
       <h2>User: {{staffmember.givenName}} {{staffmember.name}}</h2>
-      <!-- TODO: this takes a lot of vertical space. Reduce it (even if just the white space below). -->
       <v-date-picker v-model="workingday._date" @change="loadData" @update:pickerDate="loadWdInfos($event)" :events="wdInfos" color="grey" full-width landscape show-week first-day-of-week="1" reactive v-show="$vuetify.breakpoint.mdAndUp"/>
       <v-date-picker v-model="workingday._date" @change="loadData" @update:pickerDate="loadWdInfos($event)" :events="wdInfos" color="grey" first-day-of-week="1" reactive v-show="$vuetify.breakpoint.smAndDown"/>
     </v-flex>
@@ -17,21 +16,20 @@
       <v-alert :value="unbookedTime.valueOf() < 0" type="warning" outline>{{durationAsHours(unbookedTime.negate())}} overbooked time</v-alert>
       <v-alert :value="unbookedTime.valueOf() == 0" type="success" outline>All day booked!</v-alert>
     </v-flex>
-    <!-- TODO: being responsive. On small screens put comment on next line -->
-    <v-layout v-for="wt in workingday.workingtime" :key="wt.key">
-      <v-flex xs1>
+    <v-layout v-for="wt in workingday.workingtime" :key="wt.key" row wrap>
+      <v-flex md1 xs4>
         <daily-time-picker v-model="wt._start" @change="updateOnTimeChange(wt, $event, null)" label="begin" />
       </v-flex>
-      <v-flex xs1>
+      <v-flex md1 xs4>
         <daily-time-picker v-model="wt._end" @change="updateOnTimeChange(wt, null, $event)" label="end" />
       </v-flex>
-      <v-flex xs1>
+      <v-flex md1 xs4>
         <duration-textfield v-model="wt._duration" @change="updateOnDurationChange(wt, $event)" />
       </v-flex>
-      <v-flex xs8>
+      <v-flex md8 xs11>
         <v-textarea v-model="wt.description" label="comment" auto-grow rows="1"></v-textarea>
       </v-flex>
-      <v-flex xs1>
+      <v-flex md1 xs1>
         <v-btn @click="removeWorkingTime(wt)" flat><v-icon>clear</v-icon></v-btn>
       </v-flex>
     </v-layout>
@@ -42,21 +40,20 @@
     <v-flex xs12>
       <h2>Breaks</h2>
     </v-flex>
-    <!-- TODO: being responsive. On small screens put comment on next line -->
-    <v-layout v-for="b in workingday.break" :key="b.key">
-      <v-flex xs1>
+    <v-layout v-for="b in workingday.break" :key="b.key" row wrap>
+      <v-flex md1 xs4>
         <daily-time-picker v-model="b._start" @change="updateOnTimeChange(b, $event, null)" label="begin" />
       </v-flex>
-      <v-flex xs1>
+      <v-flex md1 xs4>
         <daily-time-picker v-model="b._end" @change="updateOnTimeChange(b, null, $event)" label="end" />
       </v-flex>
-      <v-flex xs1>
+      <v-flex md1 xs4>
         <duration-textfield v-model="b._duration" @change="updateOnDurationChange(b, $event)" />
       </v-flex>
-      <v-flex xs8>
+      <v-flex md8 xs11 >
         <v-textarea v-model="b.description" label="comment" auto-grow rows="1"></v-textarea>
       </v-flex>
-      <v-flex xs1>
+      <v-flex md1 xs1>
         <v-btn @click="removeBreak(b)" flat><v-icon>clear</v-icon></v-btn>
       </v-flex>
     </v-layout>
@@ -67,10 +64,9 @@
     <v-flex xs12>
       <h2>Bookings</h2>
     </v-flex>
-    <!-- TODO: being responsive. On small screens put description on next line -->
     <!-- TODO: sort to top or highlight tasks that have recently been used -->
-    <v-layout v-for="booking in workingday.booking" :key="booking.key">
-      <v-flex xs3>
+    <v-layout v-for="booking in workingday.booking" :key="booking.key" row wrap>
+      <v-flex md3 xs12>
         <v-select v-model="booking._taskId" label="Task" :items="tasks.task" item-text="_title" item-value="_id"  @input="setBillableToDefault(booking)">
           <template slot="label">
             <span v-if="! booking._taskId" class="caption">Task</span>
@@ -85,23 +81,23 @@
           </template>
         </v-select>
       </v-flex>
-      <v-flex xs1>
+      <v-flex md1 xs3>
         <daily-time-picker v-model="booking._start" @change="updateOnTimeChange(booking, $event, null)" label="begin" />
       </v-flex>
-      <v-flex xs1>
+      <v-flex md1 xs3>
         <daily-time-picker v-model="booking._end" @change="updateOnTimeChange(booking, null, $event)" label="end" />
       </v-flex>
-      <v-flex xs1>
+      <v-flex md1 xs3>
         <duration-textfield v-model="booking._duration" @change="updateOnDurationChange(booking, $event)"></duration-textfield>
       </v-flex>
-      <v-flex xs1>
+      <v-flex md1 xs3>
         <v-select v-model="booking._billable" label="billable" :items="billableOptions">
         </v-select>
       </v-flex>
-      <v-flex xs4>
+      <v-flex md4 xs11>
         <v-textarea v-model="booking.description" label="description" auto-grow rows="1"></v-textarea>
       </v-flex>
-      <v-flex xs1>
+      <v-flex md1 xs1>
         <v-btn @click="removeBooking(booking)" flat><v-icon>clear</v-icon></v-btn>
       </v-flex>
     </v-layout>
