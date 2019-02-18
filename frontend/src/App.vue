@@ -94,7 +94,7 @@
   export default {
     data: function() {
       return {
-        page: 'reportWorkingtimePage',
+        page: 'dailyBookingPage',
         drawer: false,
         snackbar: {
           message: "",
