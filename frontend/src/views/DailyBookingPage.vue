@@ -375,8 +375,8 @@
         const start = newStart ? newStart : wt._start
         const end = newEnd ? newEnd : wt._end
         if (start && end) {
-          const startDt = DateTime.fromISO(this.workingday._date + "T" + start)
-          const endDt = DateTime.fromISO(this.workingday._date + "T" + end)
+          const startDt = this.toDateTime(this.workingday._date, start)
+          const endDt = this.toDateTime(this.workingday._date, end)
           wt._duration = endDt.diff(startDt, ['hours', 'minutes']).toISO()
           console.log("updateOnEndChange: " + endDt.toISO() + " - " + startDt.toISO() + " = " + wt._duration)
         }
@@ -385,7 +385,7 @@
         console.log("updateOnDurationChange: " + newDuration + " / " + wt._start)
         if (newDuration && wt._start) {
           const duration = Duration.fromISO(newDuration)
-          const startDt = DateTime.fromISO(this.workingday._date + "T" + wt._start)
+          const startDt = this.toDateTime(this.workingday._date, wt._start)
           wt._end = startDt.plus(duration).toFormat("HH:mm")
           console.log("updateOnDurationChange: " + startDt.toISO() + " + " + newDuration + " = " + wt._end)
         }

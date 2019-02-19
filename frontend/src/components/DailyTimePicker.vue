@@ -60,14 +60,26 @@
     methods: {
       // Turn various input formats into a valid time
       updateValueFromTextField: function (v) {
-        const re = /^(\d*):?(\d\d)$/
-        if (re.test(v)) {
-          this.innerValue = v.replace(re, '$1:$2')
-          if (this.innerValue !== this.value) {
-            this.$emit('change', this.innerValue)
-          }
+        // match 12:00, 1200, 09:00, 0900. But not 12, 9, 900, 9:00
+        const re4d = /^(\d\d):?(\d\d)$/
+        // match 9:00, 900. But not 12, 9
+        const re3d = /^(\d):?(\d\d)$/
+        // match 12
+        const re2d = /^(\d\d)$/
+        // match 9
+        const re1d = /^(\d)$/
+        if (re4d.test(v)) {
+          this.innerValue = v.replace(re4d, '$1:$2')
+        } else if (re3d.test(v)) {
+          this.innerValue = v.replace(re3d, '0$1:$2')
+        } else if (re2d.test(v)){
+          this.innerValue = v.replace(re2d, '$1:00')
+        } else if (re1d.test(v)){
+          this.innerValue = v.replace(re1d, '0$1:00')
         } else {
           this.innerValue = '00:00'
+        }
+        if (this.innerValue !== this.value) {
           this.$emit('change', this.innerValue)
         }
         this.$emit('input', this.innerValue)
