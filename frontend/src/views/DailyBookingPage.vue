@@ -193,7 +193,7 @@
   import DurationTextfield from '@/components/DurationTextfield.vue'
   // eslint-disable-next-line
   import DailyTimePicker from '@/components/DailyTimePicker.vue'
-  import {DateTime, Duration} from 'luxon'
+  import {Duration} from 'luxon'
   import axios from 'axios'
   import binarySearch from 'binary-search'
   import dateUtils from '@/utils/dateUtils.js'

@@ -50,14 +50,14 @@
         <template slot="expand" slot-scope="props">
           <table>
             <tbody>
-              <tr v-for="wt in props.item.workingtime">
+              <tr v-for="(wt, i) in props.item.workingtime" :key="i">
                 <td width="150em"/>
                 <td width="130em" class="text-xs-right">{{ durationAsHours(wt._duration) }}</td>
                 <td width="100em" />
                 <td width="100em" />
                 <td>{{ wt.description }}</td>
               </tr>
-              <tr v-for="b in props.item.break">
+              <tr v-for="(b, i) in props.item.break" :key="i">
                 <td width="150em" />
                 <td width="130em" />
                 <td width="100em" class="text-xs-right">{{ durationAsHours(b._duration) }}</td>
