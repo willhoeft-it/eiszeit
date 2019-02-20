@@ -1,5 +1,5 @@
 <template>
-  <v-content><v-container grid-list-md><v-layout row wrap>
+  <v-content><v-container fluid><v-layout row wrap>
     <v-flex xs12>
       <v-expansion-panel expand>
         <v-expansion-panel-content v-for="pg in tasks.projectGroup" :key="pg.$key">
