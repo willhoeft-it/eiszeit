@@ -25,7 +25,7 @@
           <v-card v-else :key="selected._id">
             <v-card-title primary-title><h2>{{ type2String.get(activeElement.type) }}</h2></v-card-title>
             <v-card-text>
-              <v-text-field label="title*" required v-model="selected._title"></v-text-field>
+              <v-text-field @focus="$event.target.select()" label="title" required v-model="selected._title"></v-text-field>
               <v-switch
                 :disabled="selected._status==='new'"
                 v-model="selected._status" :label="selected._status" true-value="open" false-value="locked"></v-switch>
@@ -35,14 +35,14 @@
               </v-select>
               <v-text-field
                 v-if="activeElement.type==='projectGroup'"
-                label="customer ID*" required v-model="selected._customerId"></v-text-field>
-              <v-select
+                label="customer ID" required v-model="selected._customerId"></v-text-field>
+              <v-radio-group
                 v-if="activeElement.type==='task'"
-                v-model="selected._billableDefault"
-                :items="billableOptions"
-                label="billable default"
-              ></v-select>
-
+                v-model="selected._billableDefault" label="billable default:"row>
+                <v-radio label="yes" value="yes"></v-radio>
+                <v-radio label="no" value="no"></v-radio>
+                <v-radio label="depends" value="depends"></v-radio>
+              </v-radio-group>
               <v-btn @click="removeElement(selected)"><v-icon>delete</v-icon></v-btn>
               <v-btn
                 v-if="activeElement.type==='projectGroup'"
@@ -64,7 +64,7 @@
   </v-flex>
 
   <v-flex xs12>
-    <v-btn @click="submitTasks" raised>submit</v-btn>
+    <v-btn color="green" dark @click="submitTasks" raised>submit</v-btn>
     <v-btn @click="loadData">reset</v-btn>
   </v-flex>
   </v-layout></v-container></v-content>
