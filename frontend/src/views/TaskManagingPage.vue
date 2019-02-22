@@ -38,7 +38,7 @@
                 label="customer ID" required v-model="selected._customerId"></v-text-field>
               <v-radio-group
                 v-if="activeElement.type==='task'"
-                v-model="selected._billableDefault" label="billable default:"row>
+                v-model="selected._billableDefault" label="billable default:" row>
                 <v-radio label="yes" value="yes"></v-radio>
                 <v-radio label="no" value="no"></v-radio>
                 <v-radio label="depends" value="depends"></v-radio>
