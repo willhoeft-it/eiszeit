@@ -10,10 +10,10 @@
   </xs:element>
   <xs:element name="projectGroup">
     <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="member"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="project"/>
-      </xs:sequence>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="member"/>
+        <xs:element ref="project"/>
+      </xs:choice>
       <xs:attribute name="id" use="required" type="xs:integer"/>
       <xs:attribute name="customerId" use="required" type="xs:string"/>
       <xs:attribute name="status" use="required" type="statusType"/>
@@ -22,11 +22,11 @@
   </xs:element>
   <xs:element name="project">
     <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="member"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="task"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="taskGroup"/>
-      </xs:sequence>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="member"/>
+        <xs:element ref="task"/>
+        <xs:element ref="taskGroup"/>
+      </xs:choice>
       <xs:attribute name="id" use="required" type="xs:integer"/>
       <xs:attribute name="status" use="required" type="statusType"/>
       <xs:attribute name="title" use="required" type="xs:string"/>
