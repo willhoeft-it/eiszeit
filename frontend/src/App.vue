@@ -26,7 +26,7 @@
             </v-list-tile>
             <v-list-tile @click="page='taskManagingPage'">
               <v-list-tile-action>
-                <v-icon>list</v-icon>
+                <v-icon>create_new_folder</v-icon>
               </v-list-tile-action>
               <v-list-tile-content>
                 <v-list-tile-title>task managing</v-list-tile-title>
