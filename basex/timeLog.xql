@@ -105,6 +105,7 @@ declare
     return
         copy $tn := $t
         modify (
+            (: TODO: make an additional check that all ids are unique :)
             validate:xsd($t, $xsdTasks),
             replace value of node $tn/tasks/@rev with $dbt/@rev + 1,
                 (: adding @id to new elements :)
