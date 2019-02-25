@@ -2,7 +2,7 @@
 <template>
   <!-- TODO: warn on leaving the page on unsaved data -->
   <v-card>
-  <v-content><v-container fluid><v-layout wrap>
+  <v-content><v-container fluid grid-list-md><v-layout wrap>
     <v-flex xs6>
       <h2>User: {{staffmember.givenName}} {{staffmember.name}}</h2>
       <v-date-picker v-model="workingday._date" @change="loadData" @update:pickerDate="loadWdInfos($event)" :events="wdInfos" color="grey" full-width landscape show-week first-day-of-week="1" reactive v-show="$vuetify.breakpoint.mdAndUp"/>
