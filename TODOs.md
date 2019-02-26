@@ -7,12 +7,11 @@
 ## User management
 
 ## build chain
-* "production" environment configuration = docker szenario
+* "production" environment configuration = docker scenario
 * '''npm run build'''
 
 ## Docker
 * Build image from npm, see https://gist.github.com/duluca/d13e501e870215586271b0f9ce1781ce/
-* But: this should happen from above "frontend" directory and include baseX-code
 
 ## front end test
 * Jasmine
@@ -28,6 +27,12 @@
 
 ## refactor
 * rename all "working hours" to "attendance"
+
+## reconsider product name "timetracking"
+* Add logo / favicon
+
+## Dashboard
+* or remove it if not used?
 
 ## contracted hours
 * per user, define contracts with date interval and working hours per day
