@@ -17,6 +17,8 @@
 * Jasmine
 
 ## backend test
+* direct db access (crud) for setup / teardown / test
+* test via REST
 
 ## public on Github
 
@@ -33,6 +35,13 @@
 
 ## Dashboard
 * or remove it if not used?
+
+## billed
+* allow to set booking status to "billed"
+ * multiple selects and submit possible in "report on projects"
+ * booking is locked in dailybooking page
+ * backend checks that it cannot be changed
+ * status is shown in reports
 
 ## contracted hours
 * per user, define contracts with date interval and working hours per day

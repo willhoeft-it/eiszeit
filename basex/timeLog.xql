@@ -1,6 +1,10 @@
 module namespace page = 'http://basex.org/modules/web-page';
+(: TODO: change module namespace to something more meaningful :)
+
 
 (:~
+ : TODO: in a production environment we should accept URLs from root (/) and read files from static/
+ :
  : Serve static files
  : @param  $file  file or unknown path
  : @return rest binary data
@@ -22,7 +26,7 @@ function page:file(
 };
 
 
-(: TODO autorization :)
+(: TODO authorization :)
 
 (:~
  : timetrack API
