@@ -1,5 +1,4 @@
 {
-  "//": "npm build script to create and maintain the docker image. See https://gist.github.com/duluca/d13e501e870215586271b0f9ce1781ce/",
   "name": "timetracking-docker",
   "version": "0.1.0",
   "config": {
