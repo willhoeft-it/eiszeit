@@ -1,5 +1,5 @@
 module namespace page = 'http://basex.org/modules/web-page';
-(: TODO: change module namespace to something more meaningful :)
+(: TODO: change module namespace to something more meaningful. E.g. github page :)
 
 
 (:~
@@ -10,7 +10,8 @@ module namespace page = 'http://basex.org/modules/web-page';
  : @return rest binary data
  :)
 declare
-  %rest:path("timetracking/static/{$file=.+}")
+  %rest:path("static/{$file=.+}")
+  %rest:GET
   %perm:allow("all")
 function page:file(
   $file as xs:string
@@ -33,11 +34,12 @@ function page:file(
  :)
 
 declare
-  %rest:path("timetracking/api/timetrack/{$date}")
+  %rest:path("api/timetrack/{$date}")
   %rest:GET
   %rest:produces("application/xml", "text/xml")
   %output:method("xml")
   %output:omit-xml-declaration("no")
+  %rest:single
   function page:timetrack-get($date as xs:date) {
     <workingday date="{fn:adjust-date-to-timezone($date, [])}"> {
         for $t in (db:open("timetracking")/timetrack/workingday[@date=$date]) return
@@ -47,11 +49,12 @@ declare
 };
 
 declare
-  %rest:path("timetracking/api/timetrack")
+  %rest:path("api/timetrack")
   %rest:GET
   %rest:produces("application/xml", "text/xml")
   %output:method("xml")
   %output:omit-xml-declaration("no")
+  %rest:single
   function page:timetrack-get() {
     page:timetrack-get(current-date())
 };
@@ -61,11 +64,12 @@ declare
   * add staff member
 :)
 declare
-  %rest:path("timetracking/api/timetrack")
+  %rest:path("api/timetrack")
   %rest:POST("{$t}")
   %updating
   %output:method("xml")
   %output:omit-xml-declaration("no")
+  %rest:single
   function page:timetrack-post($t as document-node()) {
     let $doc := db:open("timetracking")/timetrack
     let $dbt := $doc/workingday[@date=$t/workingday/@date]
@@ -80,11 +84,12 @@ declare
  :)
 
 declare
-  %rest:path("timetracking/api/tasks")
+  %rest:path("api/tasks")
   %rest:GET
   %rest:produces("application/xml", "text/xml")
   %output:method("xml")
   %output:omit-xml-declaration("no")
+  %rest:single
   function page:tasks-get() {
     let $db := db:open("timetracking")/taskRevisions
     return $db/tasks[@rev=max(../tasks/@rev)]
@@ -95,15 +100,16 @@ declare
 :)
 
 declare
-  %rest:path("timetracking/api/tasks")
+  %rest:path("api/tasks")
   %rest:POST("{$t}")
   %rest:produces("application/xml", "text/xml")
   %updating
   %output:method("xml")
   %output:omit-xml-declaration("no")
+  %rest:single
   function page:tasks-post($t as document-node()) {
     (: admin:write-log(concat('POST tasks:', serialize($t)), 'DEBUG') :)
-    let $xsdTasks := doc("tasks.xsd")
+    let $xsdTasks := doc("schemas/tasks.xsd")
     let $db := db:open("timetracking")/taskRevisions
     let $dbt := $db/tasks[@rev=max(../tasks/@rev)] ?: <tasks/>
     return
@@ -126,11 +132,12 @@ declare
 };
 
 declare
-  %rest:path("timetracking/api/tasks/{$staffmemberId}")
+  %rest:path("api/tasks/{$staffmemberId}")
   %rest:GET
   %rest:produces("application/xml", "text/xml")
   %output:method("xml")
   %output:omit-xml-declaration("no")
+  %rest:single
   function page:tasks-get-by-staffmember($staffmemberId as xs:string) {
     <tasks>{
         let $db := db:open("timetracking")/taskRevisions
@@ -154,11 +161,12 @@ declare
 (: TODO: filter on staffMember / authorized user :)
 (: TODO: add infos about weekends, holidays, vacations, sickness :)
 declare
-  %rest:path("timetracking/api/report/days/{$dateFrom}/{$dateTo}")
+  %rest:path("api/report/days/{$dateFrom}/{$dateTo}")
   %rest:GET
   %rest:produces("application/xml", "text/xml")
   %output:method("xml")
   %output:omit-xml-declaration("no")
+  %rest:single
   function page:timetrack-get-days($dateFrom as xs:date, $dateTo as xs:date) {
       <workingdays>
       {
@@ -182,7 +190,7 @@ declare
 
 (: Bookings from (included) / to (excluded). Multiple filters are connected as "or" :)
 declare
-  %rest:path("timetracking/api/report/bookings/{$dateFrom}/{$dateTo}")
+  %rest:path("api/report/bookings/{$dateFrom}/{$dateTo}")
   %rest:query-param("projectTitle", "{$projectTitle}")
   %rest:query-param("billable", "{$billable}")
   %rest:query-param("sort", "{$sort}", "date")
@@ -190,6 +198,7 @@ declare
   %rest:produces("application/xml", "text/xml")
   %output:method("xml")
   %output:omit-xml-declaration("no")
+  %rest:single
   function page:timetrack-get-bookings($dateFrom as xs:date, $dateTo as xs:date, $projectTitle as xs:string*, $billable as xs:string*, $sort as xs:string*) {
       <bookings>
       {

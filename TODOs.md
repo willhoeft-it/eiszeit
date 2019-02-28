@@ -29,6 +29,11 @@
 
 ## refactor
 * rename all "working hours" to "attendance"
+* reorder basex into folders
+ * (web) modules
+ * schemas
+ * tests
+ * evolution scripts
 
 ## reconsider product name "timetracking"
 * Add logo / favicon
