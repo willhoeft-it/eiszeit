@@ -119,7 +119,7 @@ declare
             validate:xsd($t, $xsdTasks),
             replace value of node $tn/tasks/@rev with $dbt/@rev + 1,
                 (: adding @id to new elements :)
-                let $maxId := max($db//*/@id)
+                let $maxId := max((0, $db//*/@id))
                 for $e in $tn//(projectGroup, project, taskGroup, task)[@status='new']
                 count $i
                 return (
