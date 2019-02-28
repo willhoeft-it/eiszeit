@@ -105,7 +105,6 @@
     },
     computed: {
       items () {
-        // TODO: handle no projectGroup
         if (! this.tasks || ! this.tasks.projectGroup) return []
         return this.getChildren(this.tasks.projectGroup, 'projectGroup')
       },
