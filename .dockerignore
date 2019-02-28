@@ -1,0 +1,5 @@
+# Because technically this folder is the docker context root, we exclude some files to speed up image creation
+*.xpr
+vuetify-docs
+**/*.git
+**/node_modules

@@ -1,22 +1,30 @@
 module namespace page = 'http://basex.org/modules/web-page';
 (: TODO: change module namespace to something more meaningful. E.g. github page :)
 
+(:~
+ : Forwards to ui index
+ :)
+declare
+  %rest:path("/")
+  %rest:GET
+  %perm:allow("all")
+function page:redirectIndex() {
+  <rest:redirect>ui/index.html</rest:redirect>
+};
 
 (:~
- : TODO: in a production environment we should accept URLs from root (/) and read files from static/
- :
  : Serve static files
  : @param  $file  file or unknown path
  : @return rest binary data
  :)
 declare
-  %rest:path("static/{$file=.+}")
+  %rest:path("ui/{$file=.+}")
   %rest:GET
   %perm:allow("all")
 function page:file(
   $file as xs:string
 ) as item()+ {
-  let $path := file:base-dir() || 'static/' || $file
+  let $path := file:base-dir() || 'ui/' || $file
   return (
     web:response-header(
       map { 'media-type': web:content-type($path) },
@@ -166,7 +174,6 @@ declare
   %rest:produces("application/xml", "text/xml")
   %output:method("xml")
   %output:omit-xml-declaration("no")
-  %rest:single
   function page:timetrack-get-days($dateFrom as xs:date, $dateTo as xs:date) {
       <workingdays>
       {
