@@ -15,7 +15,23 @@ Build frontend first, so it will be integrated in the image.
 See docker/README.md
 
 ## Develop
-TODO: how to setup a nice dev environment with basex. Either with basex in docker or with a dedicated install.
+How to setup a nice dev environment with basex and Vue CLI.
+
+### setup the backend
+* setup a basex server
+* make a symlink in its webapps/ folder to your basex/ project folder like this:
+  jwi@jwi-ThinkPad-T460s:~/bin/basex/webapp$ ln -s ~/projects/timetracking/basex timetracking
+* start the server with bin/basexhttp. Check if this works: http://localhost:8984/timetracking/api/tasks
+* if you start from scratch, you need to create the database 'timetracking' and add the provided files at basex/evolutions/*_init.xml
+* its often handy to have the admin webapp enabled. Check here http://localhost:8984/dba (default login 'admin', password 'admin')
+
+### setup the frontend
+* if necessary, configure the api dev-proxy in frontend/vue.config.js to forward to your basex server
+* start the dev frontend in the timetracking/frontend/ folder with
+  npm run serve
+* open your browser to the shown URL
+
+Now all changes under the frontend/src/ and basex/ folders should be instantly reflected. Go code!
 
 ## vue-cli 3
 
@@ -35,11 +51,9 @@ npm cache verify
 ## vuetify docs
 Because the docs may not be available in the used version online, check it out and compile the version you need:
 
-'''
  git clone https://github.com/vuetifyjs/vuetify.git
  cd vuetify
  git checkout v1.4.2
-
 
 ### install yarn (alternative npm client)
 
