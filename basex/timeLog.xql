@@ -1,4 +1,7 @@
 module namespace page = 'http://basex.org/modules/web-page';
+import module namespace session = "http://basex.org/modules/session";
+declare namespace rnd = "java.security.SecureRandom";
+
 (: TODO: change module namespace to something more meaningful. E.g. github page :)
 
 (:~
@@ -34,6 +37,71 @@ function page:file(
   )
 };
 
+declare
+  %rest:path("api/logout")
+  %rest:POST
+  %perm:allow("all")
+function page:logout() {
+  <rest:response>
+    <http:response status="200">
+      <http:header name="Content-Language" value="en"/>
+    </http:response>
+  </rest:response>,
+  "Logged out",
+  session:close()
+};
+
+(: TODO: test: always denies :)
+declare
+  %rest:path("api/login")
+  %rest:query-param("login", "{$login}")
+  %rest:query-param("password", "{$password}")
+  %rest:POST
+  %rest:produces("text/plain; charset=utf-8")
+  %perm:allow("all")
+function page:login($login as xs:string, $password as xs:string) {
+  let $staffmember := db:open("timetracking")/staffmember[alias=$login]
+  let $auth := $staffmember/authentication[@type='local']
+  return if ($auth and page:checkLocalAuthentication($password, $auth))
+  then
+    session:set('staffmemberId', $staffmember/@id)
+  else
+    (
+      <rest:response>
+        <http:response status="401">
+          <http:header name="Content-Language" value="en"/>
+        </http:response>
+      </rest:response>,
+      "Authentication failed"
+    )
+};
+
+declare
+  function page:createLocalAuthentication($password as xs:string) as element(authentication) {
+    let $salt := page:salt()
+    let $hash := crypto:hmac($password, $salt, 'sha256', 'base64')
+    return
+      <authentication type="local">
+        <hash type="hmac_sha256" salt="{$salt}">{$hash}</hash>
+      </authentication>
+};
+
+declare function page:checkLocalAuthentication($password as xs:string, $auth as element(authentication)) as xs:boolean{
+  page:timeConstantEqual(crypto:hmac($password, $auth/hash/@salt, 'sha256', 'base64'), $auth/hash/text())
+};
+
+(: secure random 256 bit salt :)
+declare
+  function page:salt() as xs:base64Binary {
+    let $random := rnd:new()
+    return bin:from-octets(for-each(rnd:generateSeed($random, xs:int(32)), function($i as xs:int) {$i + 128}))
+};
+
+(: Time constant string comparison :)
+declare
+  function page:timeConstantEqual($a as xs:base64Binary, $b as xs:base64Binary) as xs:boolean {
+    (bin:length($a) = bin:length($b)) and bin:unpack-unsigned-integer(bin:xor($a, $b), 0, bin:length($a)) = 0
+};
 
 (: TODO authorization :)
 
