@@ -4,7 +4,7 @@ import module namespace page = 'http://basex.org/modules/web-page' at '../timeLo
 
 declare
   %unit:test
-  function testp:createLocalAuthenticationTest() {
+  function testp:createLocalAuthenticationTest() as empty-sequence() {
     let $auth := page:createLocalAuthentication('password')
     return (
       (:
@@ -23,14 +23,14 @@ declare
 
 declare
   %unit:test
-  function testp:timeConstantEqualTest() {
+  function testp:timeConstantEqualTest() as empty-sequence() {
     unit:assert(page:timeConstantEqual(xs:base64Binary('test'), xs:base64Binary('test')), 'trivial test'),
     unit:assert(not(page:timeConstantEqual(xs:base64Binary('tost'), xs:base64Binary('test'))), 'unequal')
 };
 
 declare
   %unit:test
-  function testp:cryptoHmacTest() {
+  function testp:cryptoHmacTest() as empty-sequence() {
     let $password := 'test'
     let $salt := 'salty'
     return (
@@ -40,7 +40,7 @@ declare
 
 declare
   %unit:test
-  function testp:checkLocalAuthenticationTest() {
+  function testp:checkLocalAuthenticationTest() as empty-sequence() {
     let $auth := page:createLocalAuthentication('password')
     return (
       unit:assert(page:checkLocalAuthentication('password', $auth), 'valid password'),
@@ -61,7 +61,7 @@ declare
 (: TODO: this depends on a user with a known password in the db :)
 declare
   %unit:test
-  function testp:loginTest() {
+  function testp:loginTest() as empty-sequence() {
     let $resp := testp:login('jwi', 'password')
     return (
       unit:assert-equals(number($resp/@status), 200, 'login failed')
@@ -70,7 +70,7 @@ declare
 
 declare
   %unit:test
-  function testp:loginDenialTest() {
+  function testp:loginDenialTest() as empty-sequence() {
     let $resp := testp:login('jwi', 'xxxxx')
     return (
       unit:assert-equals(number($resp/@status), 401, 'login not denied')

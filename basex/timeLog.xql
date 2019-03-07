@@ -11,7 +11,7 @@ declare
   %rest:path("/")
   %rest:GET
   %perm:allow("all")
-function page:redirectIndex() {
+function page:redirectIndex() as empty-sequence() {
   <rest:redirect>ui/index.html</rest:redirect>
 };
 
@@ -41,7 +41,7 @@ declare
   %rest:path("api/logout")
   %rest:POST
   %perm:allow("all")
-function page:logout() {
+function page:logout() as empty-sequence() {
   <rest:response>
     <http:response status="200">
       <http:header name="Content-Language" value="en"/>
@@ -115,7 +115,7 @@ declare
   %output:method("xml")
   %output:omit-xml-declaration("no")
   %rest:single
-  function page:timetrack-get($date as xs:date) {
+  function page:timetrack-get($date as xs:date) as element(workingday) {
     <workingday date="{fn:adjust-date-to-timezone($date, [])}"> {
         for $t in (db:open("timetracking")/timetrack/workingday[@date=$date]) return
           $t/*
@@ -130,7 +130,7 @@ declare
   %output:method("xml")
   %output:omit-xml-declaration("no")
   %rest:single
-  function page:timetrack-get() {
+  function page:timetrack-get() as element(workingday)  {
     page:timetrack-get(current-date())
 };
 
@@ -145,7 +145,7 @@ declare
   %output:method("xml")
   %output:omit-xml-declaration("no")
   %rest:single
-  function page:timetrack-post($t as document-node()) {
+  function page:timetrack-post($t as document-node()) as empty-sequence() {
     let $doc := db:open("timetracking")/timetrack
     let $dbt := $doc/workingday[@date=$t/workingday/@date]
     return if ($dbt)
@@ -165,7 +165,7 @@ declare
   %output:method("xml")
   %output:omit-xml-declaration("no")
   %rest:single
-  function page:tasks-get() {
+  function page:tasks-get() as element(tasks) {
     let $db := db:open("timetracking")/taskRevisions
     return $db/tasks[@rev=max(../tasks/@rev)]
 };
@@ -182,7 +182,7 @@ declare
   %output:method("xml")
   %output:omit-xml-declaration("no")
   %rest:single
-  function page:tasks-post($t as document-node()) {
+  function page:tasks-post($t as document-node()) as empty-sequence() {
     (: admin:write-log(concat('POST tasks:', serialize($t)), 'DEBUG') :)
     let $xsdTasks := doc("schemas/tasks.xsd")
     let $db := db:open("timetracking")/taskRevisions
@@ -213,7 +213,7 @@ declare
   %output:method("xml")
   %output:omit-xml-declaration("no")
   %rest:single
-  function page:tasks-get-by-staffmember($staffmemberId as xs:string) {
+  function page:tasks-get-by-staffmember($staffmemberId as xs:string) as element(tasks) {
     <tasks>{
         let $db := db:open("timetracking")/taskRevisions
         let $dbt := $db/tasks[@rev=max(../tasks/@rev)]
@@ -241,7 +241,7 @@ declare
   %rest:produces("application/xml", "text/xml")
   %output:method("xml")
   %output:omit-xml-declaration("no")
-  function page:timetrack-get-days($dateFrom as xs:date, $dateTo as xs:date) {
+  function page:timetrack-get-days($dateFrom as xs:date, $dateTo as xs:date) as element(workingdays){
       <workingdays>
       {
         attribute dateFrom {fn:adjust-date-to-timezone($dateFrom, [])},
@@ -273,7 +273,7 @@ declare
   %output:method("xml")
   %output:omit-xml-declaration("no")
   %rest:single
-  function page:timetrack-get-bookings($dateFrom as xs:date, $dateTo as xs:date, $projectTitle as xs:string*, $billable as xs:string*, $sort as xs:string*) {
+  function page:timetrack-get-bookings($dateFrom as xs:date, $dateTo as xs:date, $projectTitle as xs:string*, $billable as xs:string*, $sort as xs:string*) as element(bookings) {
       <bookings>
       {
         attribute dateFrom {fn:adjust-date-to-timezone($dateFrom, [])},
