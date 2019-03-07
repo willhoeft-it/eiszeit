@@ -59,7 +59,7 @@ declare
   %rest:produces("text/plain; charset=utf-8")
   %perm:allow("all")
 function page:login($login as xs:string, $password as xs:string) as item()* {
-  let $staffmember := db:open("timetracking")/staffmember[alias=$login]
+  let $staffmember := db:open("timetracking")/staff/staffmember[alias=$login]
   let $auth := $staffmember/authentication[@type='local']
   return if ($auth and page:checkLocalAuthentication($password, $auth))
   then
