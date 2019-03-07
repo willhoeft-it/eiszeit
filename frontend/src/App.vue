@@ -53,16 +53,16 @@
       <v-toolbar-title>Timetracking</v-toolbar-title>
     </v-toolbar>
 
-    <daily-booking-page v-if="page === 'dailyBookingPage'" v-on:pageMessageEvent="showMessage">
+    <daily-booking-page v-if="page === 'dailyBookingPage'" v-on:pageMessageEvent="showSnackbarMessage" v-on:authFailEvent="showLogin">
     </daily-booking-page>
 
-    <task-managing-page v-if="page === 'taskManagingPage'" v-on:pageMessageEvent="showMessage">
+    <task-managing-page v-if="page === 'taskManagingPage'" v-on:pageMessageEvent="showSnackbarMessage" v-on:authFailEvent="showLogin">
     </task-managing-page>
 
-    <report-projects-page v-if="page === 'reportProjectsPage'" v-on:pageMessageEvent="showMessage">
+    <report-projects-page v-if="page === 'reportProjectsPage'" v-on:pageMessageEvent="showSnackbarMessage" v-on:authFailEvent="showLogin">
     </report-projects-page>
 
-    <report-workingtime-page v-if="page === 'reportWorkingtimePage'" v-on:pageMessageEvent="showMessage">
+    <report-workingtime-page v-if="page === 'reportWorkingtimePage'" v-on:pageMessageEvent="showSnackbarMessage" v-on:authFailEvent="showLogin">
     </report-workingtime-page>
 
     <v-snackbar v-model="snackbar.show" :color="snackbar.level" :multi-line="snackbar.level === 'error'" bottom :timeout="(snackbar.level === 'error') ? 0 : 2000">
@@ -71,8 +71,35 @@
         Close
       </v-btn>
     </v-snackbar>
+
+    <v-dialog v-model="loginDialog" persistent max-width="600px">
+          <v-card>
+            <v-card-title>
+              <span class="headline">Login</span>
+            </v-card-title>
+            <v-form @submit.prevent="submitLogin">
+              <v-card-text>
+                <v-container grid-list-md>
+                  <v-layout wrap>
+                    <v-flex xs12>
+                      <v-text-field v-model="login" label="Login" required />
+                    </v-flex>
+                    <v-flex xs12>
+                      <v-text-field v-model="password" label="Password" type="password" required />
+                    </v-flex>
+                  </v-layout>
+                </v-container>
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="green" dark type="submit">Ok</v-btn>
+              </v-card-actions>
+            </v-form>
+          </v-card>
+        </v-dialog>
+
     <v-footer dark app>
-      <span class="white--text">&copy; 2019 - Willhöft IT-Beratung GmbH</span>
+      <span class="white--text">&copy; 2018-2019 - Willhöft IT-Beratung GmbH</span>
     </v-footer>
   </v-app>
 </template>
@@ -86,10 +113,11 @@
   import ReportProjectsPage from '@/views/ReportProjectsPage.vue'
   // eslint-disable-next-line
   import ReportWorkingtimePage from '@/views/ReportWorkingtimePage.vue'
-
-  // TODO: login
+  import axios from 'axios'
+  import pageMixin from '@/views/PageMixin.js'
 
   export default {
+    mixins: [pageMixin],
     data: function() {
       return {
         page: 'dailyBookingPage',
@@ -98,14 +126,51 @@
           message: "",
           level: "info",
           show: false
-        }
+        },
+        loginDialog: true,
+        login: "",
+        password: ""
       };
     },
     methods: {
-      showMessage: function(event) {
+      showSnackbarMessage: function(event) {
         this.snackbar.message = event.text;
         this.snackbar.level = event.level;
         this.snackbar.show = true;
+      },
+      showLogin: function(event) {
+        this.loginDialog = true;
+      },
+      submitLogin: function(event) {
+        const self = this
+        // TODO: Test: URL encode this?
+        self.server.post('../user/login?login=' + this.login + '&password=' + this.password)
+          .then(function (response) {
+            console.log(response);
+            self.loginDialog = false
+            self.showSnackbarMessage({text: "Logged in!", level: 'success'})
+          })
+          .catch(function (error) {
+            if (error.response) {
+              // The request was made and the server responded with a status code
+              // that falls out of the range of 2xx
+              console.log(error.response.data);
+              console.log(error.response.status);
+              console.log(error.response.headers);
+              self.showSnackbarMessage({text: "ERROR " + error.response.status + ": " + error.response.data, level: 'error'})
+            } else if (error.request) {
+              // The request was made but no response was received
+              // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+              // http.ClientRequest in node.js
+              console.log(error.request);
+              self.showSnackbarMessage({text: "ERROR : Failed contacting server", level: 'error'})
+            } else {
+              // Something happened in setting up the request that triggered an Error
+              console.log('Error', error.message);
+              self.showSnackbarMessage({text: "ERROR : Failed setting up server request", level: 'error'})
+            }
+        });
+
       }
     }
   }

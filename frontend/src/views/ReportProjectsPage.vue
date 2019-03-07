@@ -204,11 +204,7 @@
           self.bookings = bs
 
           self.showMessage('fetched!', 'info')
-        }).catch(function (error) {
-          // TODO: handle errors generically as in POST + alert/snackbar/..-dialog
-          console.log(error);
-          self.showMessage("ERROR: " + error, 'error')
-        });
+        }).catch(this.handleHttpError);
       },
       changeSort (column) {
         if (this.pagination.sortBy === column) {

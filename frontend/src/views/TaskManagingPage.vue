@@ -208,26 +208,7 @@
           console.log(t)
           self.tasks = t
           self.showMessage('fetched!', 'info')
-        }).catch(function (error) {
-          if (error.response) {
-            // The request was made and the server responded with a status code
-            // that falls out of the range of 2xx
-            console.log(error.response.data);
-            console.log(error.response.status);
-            console.log(error.response.headers);
-            self.showMessage("ERROR " + error.response.status + ": " + error.response.data, 'error')
-          } else if (error.request) {
-            // The request was made but no response was received
-            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-            // http.ClientRequest in node.js
-            console.log(error.request);
-            self.showMessage("ERROR : Failed contacting server", 'error')
-          } else {
-            // Something happened in setting up the request that triggered an Error
-            console.log('Error', error.message);
-            self.showMessage("ERROR : Failed setting up server request", 'error')
-          }
-        });
+        }).catch(this.handleHttpError);
       },
       submitTasks: function () {
         console.log("submitTasks")
@@ -244,26 +225,7 @@
           console.log(response);
           self.showMessage("posted!", 'success');
           self.loadData();
-        }).catch(function (error) {
-          if (error.response) {
-            // The request was made and the server responded with a status code
-            // that falls out of the range of 2xx
-            console.log(error.response.data);
-            console.log(error.response.status);
-            console.log(error.response.headers);
-            self.showMessage("ERROR " + error.response.status + ": " + error.response.data, 'error')
-          } else if (error.request) {
-            // The request was made but no response was received
-            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-            // http.ClientRequest in node.js
-            console.log(error.request);
-            self.showMessage("ERROR : Failed contacting server", 'error')
-          } else {
-            // Something happened in setting up the request that triggered an Error
-            console.log('Error', error.message);
-            self.showMessage("ERROR : Failed setting up server request", 'error')
-          }
-        });
+        }).catch(this.handleHttpError);
       }
     }
   })

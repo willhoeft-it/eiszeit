@@ -1,10 +1,5 @@
 # TODOs
 
-## Authentication
-* centrally in App.vue
-
-## Filter for users / staff members
-
 ## User management
 
 ## remove all willhoeft specific details from code / examples
@@ -13,11 +8,10 @@
 * Jasmine
 
 ## backend test
-* http://docs.basex.org/wiki/Unit_Module
 * direct db access (crud) for setup / teardown / test
-* test via REST
-* basex command line parameter -t runs tests. All or just specified paths
 * integrate in npm tooling, run tests in docker container
+
+## Permissions for project leads / members
 
 ## public on Github
 

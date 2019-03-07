@@ -294,12 +294,7 @@
           console.log(self.workingday);
 
           self.showMessage('fetched!', 'info')
-        }))
-        .catch(function (error) {
-          // TODO: handle errors generically as in POST + alert/snackbar/..-dialog
-          console.log(error);
-          self.showMessage("ERROR: " + error, 'error')
-        });
+        })).catch(this.handleHttpError);
       },
       // loading monthly working day booking overview for date picker event markers
       loadWdInfos: function(month) {
@@ -312,11 +307,7 @@
         self.server.get('../api/report/days/' + start + '/' + end).then(function(wdReportResponse) {
           self.wdReport = x2jsWdReport.xml_str2json(wdReportResponse.data).workingdays;
           console.log("fetched wd report")
-        }).catch(function (error) {
-          // TODO: handle errors generically as in POST + alert/snackbar/..-dialog
-          console.log(error);
-          self.showMessage("ERROR: " + error, 'error')
-        });
+        }).catch(this.handleHttpError);
       },
       submitWorkingtimes: function () {
         console.log("submitWorkingTimes")
@@ -337,26 +328,7 @@
             self.showMessage("posted!", 'success')
             self.loadWdInfos(self.workingday._date.slice(0, 7))
           })
-          .catch(function (error) {
-            if (error.response) {
-              // The request was made and the server responded with a status code
-              // that falls out of the range of 2xx
-              console.log(error.response.data);
-              console.log(error.response.status);
-              console.log(error.response.headers);
-              self.showMessage("ERROR " + error.response.status + ": " + error.response.data, 'error')
-            } else if (error.request) {
-              // The request was made but no response was received
-              // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-              // http.ClientRequest in node.js
-              console.log(error.request);
-              self.showMessage("ERROR : Failed contacting server", 'error')
-            } else {
-              // Something happened in setting up the request that triggered an Error
-              console.log('Error', error.message);
-              self.showMessage("ERROR : Failed setting up server request", 'error')
-            }
-        });
+          .catch(this.handleHttpError);
       },
       // interpreting working day booking overview as colors for date picker event markers
       wdInfos: function(date) {
