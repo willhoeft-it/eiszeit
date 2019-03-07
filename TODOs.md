@@ -1,6 +1,7 @@
 # TODOs
 
 ## Authentication
+* centrally in App.vue
 
 ## Filter for users / staff members
 
