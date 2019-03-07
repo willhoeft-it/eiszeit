@@ -108,6 +108,7 @@ declare
 
 (:~
  : Permission check: all api functions need logged-in user
+ : TODO: www-authenticate is set to Basic realm="BaseX" and cannot be overridden? Change in web.xml if necesary.
  :)
 declare %perm:check('api/') function page:checkApp() {
   let $staffmemberId := session:get('staffmemberId')
@@ -116,7 +117,7 @@ declare %perm:check('api/') function page:checkApp() {
     <rest:response>
       <http:response status="401">
         <http:header name="Content-Language" value="en"/>
-        <http:header name="WWW-Authenticate" value="token"/>
+        <http:header name="www-authenticate" value="token"/>
       </http:response>
     </rest:response>,
     "Authentication needed"
@@ -176,7 +177,6 @@ declare
     else insert node $tn into $doc
 };
 
-
 (:~
  : tasks API
  :)
@@ -196,7 +196,6 @@ declare
 (:
     Saves a new revision of the complete task hierarchy. Generates new ids for all new elements.
 :)
-
 declare
   %rest:path("api/tasks")
   %rest:POST("{$t}")
