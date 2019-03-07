@@ -4,15 +4,7 @@ import module namespace page = 'http://basex.org/modules/web-page' at '../timeLo
 
 declare
   %unit:test
-  function testp:void() { () };
-
-declare %unit:test('expected', "err:XPTY0004") function testp:add() {
-  123 + 'strings and integers cannot be added'
-};
-
-declare
-  %unit:test
-  function testp:createLocalAuthentication() {
+  function testp:createLocalAuthenticationTest() {
     let $auth := page:createLocalAuthentication('password')
     return (
       (:
@@ -31,31 +23,56 @@ declare
 
 declare
   %unit:test
-  function testp:timeConstantEqual() {
-    unit:assert(page:timeConstantEqual(xs:base64Binary('test'), xs:base64Binary('test')), 'trivial test')
+  function testp:timeConstantEqualTest() {
+    unit:assert(page:timeConstantEqual(xs:base64Binary('test'), xs:base64Binary('test')), 'trivial test'),
+    unit:assert(not(page:timeConstantEqual(xs:base64Binary('tost'), xs:base64Binary('test'))), 'unequal')
 };
 
 declare
   %unit:test
-  function testp:cryptoHmac() {
+  function testp:cryptoHmacTest() {
     let $password := 'test'
     let $salt := 'salty'
-    let $auth :=
-      <authentication type="local">
-        <hash type="hmac_sha256" salt="{$salt}">{crypto:hmac($password, $salt, 'sha256', 'base64')}</hash>
-      </authentication>
     return (
-      unit:assert-equals(crypto:hmac($password, $salt, 'sha256', 'base64'), crypto:hmac($password, $salt, 'sha256', 'base64'), 'same inputs, unequal outputs'),
-      unit:assert-equals(crypto:hmac($password, $salt, 'sha256', 'base64'), crypto:hmac($password, $auth/hash/@salt, 'sha256', 'base64'), 'same inputs, but from auth')
+      unit:assert-equals(crypto:hmac($password, $salt, 'sha256', 'base64'), crypto:hmac($password, $salt, 'sha256', 'base64'), 'same inputs, unequal outputs')
     )
 };
 
 declare
   %unit:test
-  function testp:checkLocalAuthentication() {
+  function testp:checkLocalAuthenticationTest() {
     let $auth := page:createLocalAuthentication('password')
     return (
       unit:assert(page:checkLocalAuthentication('password', $auth), 'valid password'),
       unit:assert(not(page:checkLocalAuthentication('XXpassword', $auth)), 'invalid password')
+    )
+};
+
+(: TODO: this requires a running basex db and configured port and api path. Maybe helpful: http://docs.basex.org/wiki/RESTXQ_Module#rest:base-uri :)
+declare
+  function testp:login($login as xs:string, $password as xs:string) as element(http:response){
+    http:send-request(
+      <http:request method='post'>
+      </http:request>,
+      'http://localhost:8984/api/login?login=' || $login || '&amp;' || 'password=' || $password
+    ) [1]
+};
+
+(: TODO: this depends on a user with a known password in the db :)
+declare
+  %unit:test
+  function testp:loginTest() {
+    let $resp := testp:login('jwi', 'password')
+    return (
+      unit:assert-equals(number($resp/@status), 200, 'login failed')
+    )
+};
+
+declare
+  %unit:test
+  function testp:loginDenialTest() {
+    let $resp := testp:login('jwi', 'xxxxx')
+    return (
+      unit:assert-equals(number($resp/@status), 401, 'login not denied')
     )
 };
