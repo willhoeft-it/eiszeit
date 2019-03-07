@@ -37,11 +37,13 @@ function page:file(
   )
 };
 
+(: TODO: remove GET method when finished testing :)
 declare
-  %rest:path("api/logout")
+  %rest:path("user/logout")
+  %rest:GET
   %rest:POST
   %perm:allow("all")
-function page:logout() as empty-sequence() {
+function page:logout() as item()* {
   <rest:response>
     <http:response status="200">
       <http:header name="Content-Language" value="en"/>
@@ -51,10 +53,12 @@ function page:logout() as empty-sequence() {
   session:close()
 };
 
+(: TODO: remove GET method when finished testing :)
 declare
-  %rest:path("api/login")
+  %rest:path("user/login")
   %rest:query-param("login", "{$login}")
   %rest:query-param("password", "{$password}")
+  %rest:GET
   %rest:POST
   %rest:produces("text/plain; charset=utf-8")
   %perm:allow("all")
@@ -62,17 +66,17 @@ function page:login($login as xs:string, $password as xs:string) as item()* {
   let $staffmember := db:open("timetracking")/staff/staffmember[alias=$login]
   let $auth := $staffmember/authentication[@type='local']
   return if ($auth and page:checkLocalAuthentication($password, $auth))
-  then
+  then (
     session:set('staffmemberId', $staffmember/@id)
-  else
-    (
-      <rest:response>
-        <http:response status="401">
-          <http:header name="Content-Language" value="en"/>
-        </http:response>
-      </rest:response>,
-      "Authentication failed"
-    )
+  ) else (
+    <rest:response>
+      <http:response status="401">
+        <http:header name="Content-Language" value="en"/>
+        <http:header name="WWW-Authenticate" value="token"/>
+      </http:response>
+    </rest:response>,
+    "Authentication failed"
+  )
 };
 
 declare
@@ -102,7 +106,22 @@ declare
     (bin:length($a) = bin:length($b)) and bin:unpack-unsigned-integer(bin:xor($a, $b), 0, bin:length($a)) = 0
 };
 
-(: TODO authorization :)
+(:~
+ : Permission check: all api functions need logged-in user
+ :)
+declare %perm:check('api/') function page:checkApp() {
+  let $staffmemberId := session:get('staffmemberId')
+  where empty($staffmemberId)
+  return (
+    <rest:response>
+      <http:response status="401">
+        <http:header name="Content-Language" value="en"/>
+        <http:header name="WWW-Authenticate" value="token"/>
+      </http:response>
+    </rest:response>,
+    "Authentication needed"
+  )
+};
 
 (:~
  : timetrack API
@@ -116,11 +135,10 @@ declare
   %output:omit-xml-declaration("no")
   %rest:single
   function page:timetrack-get($date as xs:date) as element(workingday) {
-    <workingday date="{fn:adjust-date-to-timezone($date, [])}"> {
-        for $t in (db:open("timetracking")/timetrack/workingday[@date=$date]) return
-          $t/*
-    }
-    </workingday>
+    let $staffmemberId := session:get('staffmemberId')
+    return
+      db:open("timetracking")/timetrack/workingday[@date=$date and @staffmemberId=$staffmemberId] ?:
+        <workingday date="{fn:adjust-date-to-timezone($date, [])}" staffmemberId="{$staffmemberId}" />
 };
 
 declare
@@ -134,10 +152,6 @@ declare
     page:timetrack-get(current-date())
 };
 
-(: TODO: validate:
-  * schema
-  * add staff member
-:)
 declare
   %rest:path("api/timetrack")
   %rest:POST("{$t}")
@@ -146,11 +160,20 @@ declare
   %output:omit-xml-declaration("no")
   %rest:single
   function page:timetrack-post($t as document-node()) as empty-sequence() {
+    let $xsdWorkingday := doc("schemas/workingday.xsd")
     let $doc := db:open("timetracking")/timetrack
-    let $dbt := $doc/workingday[@date=$t/workingday/@date]
+    let $memberId := session:get('staffmemberId')
+    let $dbt := $doc/workingday[@date=$t/workingday/@date and @staffmemberId=$memberId]
+    return copy $tn := $t
+    modify (
+        (: TODO: validate that all task ids are valid and valid for the user :)
+        (: TODO: validate that the root node is "workingday" (schema has many elements) :)
+        validate:xsd($t, $xsdWorkingday),
+        replace value of node $tn/workingday/@staffmemberId with $memberId
+    )
     return if ($dbt)
-    then replace node $dbt with $t
-    else insert node $t into $doc
+    then replace node $dbt with $tn
+    else insert node $tn into $doc
 };
 
 

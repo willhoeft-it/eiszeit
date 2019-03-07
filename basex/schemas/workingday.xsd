@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+  <xs:element name="workingday">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="workingtime"/>
+        <xs:element ref="break"/>
+        <xs:element ref="booking"/>
+      </xs:choice>
+      <xs:attribute name="staffmemberId" use="required" type="xs:string"/>
+      <xs:attribute name="date" use="required" type="xs:date"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="workingtime">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="1">
+        <xs:element name="description"/>
+      </xs:choice>
+      <xs:attribute name="start" use="optional" type="shortTimeType"/>
+      <xs:attribute name="duration" use="required" type="xs:duration"/>
+      <xs:attribute name="end" use="optional" type="shortTimeType"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="break">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="1">
+        <xs:element name="description"/>
+      </xs:choice>
+      <xs:attribute name="start" use="optional" type="shortTimeType"/>
+      <xs:attribute name="duration" use="required" type="xs:duration"/>
+      <xs:attribute name="end" use="optional" type="shortTimeType"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="booking">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="1">
+        <xs:element name="description"/>
+      </xs:choice>
+      <xs:attribute name="start" use="optional" type="shortTimeType"/>
+      <xs:attribute name="duration" use="required" type="xs:duration"/>
+      <xs:attribute name="end" use="optional" type="shortTimeType"/>
+      <xs:attribute name="billable" use="required" type="billableType"/>
+      <xs:attribute name="taskId" use="required" type="xs:integer"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- TODO: reuse common types -->
+  <xs:simpleType name="shortTimeType">
+      <xs:restriction base="xs:string">
+          <xs:pattern value="[0-9]{2}:[0-9]{2}"/>
+      </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="billableType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="yes"/>
+      <xs:enumeration value="no"/>
+      <xs:enumeration value="depends"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>

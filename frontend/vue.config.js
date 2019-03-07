@@ -5,6 +5,9 @@ module.exports = {
     proxy: {
       '/api/': {
         target: 'http://localhost:8984/',
+      },
+      '/user/': {
+        target: 'http://localhost:8984/',
       }
     }
   }

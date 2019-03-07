@@ -54,7 +54,7 @@ declare
     http:send-request(
       <http:request method='post'>
       </http:request>,
-      'http://localhost:8984/api/login?login=' || $login || '&amp;' || 'password=' || $password
+      'http://localhost:8984/user/login?login=' || $login || '&amp;' || 'password=' || $password
     ) [1]
 };
 
