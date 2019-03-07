@@ -51,7 +51,6 @@ function page:logout() {
   session:close()
 };
 
-(: TODO: test: always denies :)
 declare
   %rest:path("api/login")
   %rest:query-param("login", "{$login}")
@@ -59,7 +58,7 @@ declare
   %rest:POST
   %rest:produces("text/plain; charset=utf-8")
   %perm:allow("all")
-function page:login($login as xs:string, $password as xs:string) {
+function page:login($login as xs:string, $password as xs:string) as item()* {
   let $staffmember := db:open("timetracking")/staffmember[alias=$login]
   let $auth := $staffmember/authentication[@type='local']
   return if ($auth and page:checkLocalAuthentication($password, $auth))
@@ -87,7 +86,7 @@ declare
 };
 
 declare function page:checkLocalAuthentication($password as xs:string, $auth as element(authentication)) as xs:boolean{
-  page:timeConstantEqual(crypto:hmac($password, $auth/hash/@salt, 'sha256', 'base64'), $auth/hash/text())
+  page:timeConstantEqual(xs:base64Binary(crypto:hmac($password, xs:base64Binary($auth/hash/@salt), 'sha256', 'base64')), xs:base64Binary($auth/hash/text()))
 };
 
 (: secure random 256 bit salt :)

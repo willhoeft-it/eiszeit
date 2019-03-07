@@ -6,6 +6,8 @@
 
 ## User management
 
+## remove all willhoeft specific details from code / examples
+
 ## front end test
 * Jasmine
 
@@ -13,7 +15,8 @@
 * http://docs.basex.org/wiki/Unit_Module
 * direct db access (crud) for setup / teardown / test
 * test via REST
-* basex command line parameter -T runs all tests
+* basex command line parameter -t runs tests. All or just specified paths
+* integrate in npm tooling, run tests in docker container
 
 ## public on Github
 
@@ -27,6 +30,8 @@
 
 ## reconsider product name "timetracking"
 * Add logo / favicon
+
+## Example for OpenOffice integration
 
 ## Dashboard
 * or remove it if not used?
