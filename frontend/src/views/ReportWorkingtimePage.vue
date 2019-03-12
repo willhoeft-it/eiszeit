@@ -45,7 +45,7 @@
             <td class="text-xs-right">{{ durationAsHours(props.item.workingtimeSum) }}</td>
             <td class="text-xs-right">{{ durationAsHours(props.item.breakSum) }}</td>
             <td class="text-xs-right">{{ durationAsHours(props.item.bookingSum) }}</td>
-            <td/>
+            <td>{{ shortDescriptionArr(props.item.workingtime).concat(shortDescriptionArr(props.item.break)).join(", ") }}</td>
           </tr>
         </template>
         <template slot="expand" slot-scope="props">
@@ -190,6 +190,9 @@
       this.loadData()
     },
     methods: {
+      shortDescriptionArr: function (items) {
+        return items.filter(i => i.description).map(i =>  (i.description.length > 20) ? i.description.substring(0, 20) + "..." : i.description)
+      },
       loadData: function() {
         console.log("loadData")
         console.log("today string: " + this.dateSelected)
