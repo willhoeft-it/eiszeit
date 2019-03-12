@@ -38,6 +38,7 @@
         <v-alert slot="no-results" :value="true" color="error" icon="warning">
           Your search found no results.
         </v-alert>
+        <!-- TODO: bug: sort on durations > 10 hrs is wrong. (11:00 < 5:45) -->
         <template slot="items" slot-scope="props">
           <tr @click="props.expanded = !props.expanded">
             <td class="text-xs-right">{{ (new Date(props.item._date)).toLocaleDateString("de-de", { weekday: 'short', year: 'numeric', month: '2-digit', day: '2-digit' }) }}</td>
@@ -94,10 +95,16 @@
   table.v-table thead th {
     font-size: 13px;
   }
-  table.v-table thead th:first-child, table.v-table thead th:not(:first-child),
-  table.v-table tbody td:first-child, table.v-table tbody td:not(:first-child),
-  table.v-table tfoot td:first-child, table.v-table tfoot td:not(:first-child) {
-    padding: 0 15px
+  /* workaround: table and first tr don't get a component class (bug?) elevation-1 is the first element with component class */
+  .elevation-1 >>> table.v-table tbody tr {
+   border-bottom-style: none;
+   border-top: 1px solid rgba(0,0,0,.12);
+  }
+
+  .elevation-1 >>> table.v-table thead th:first-child, .elevation-1 >>> table.v-table thead th:not(:first-child),
+  .elevation-1 >>> table.v-table tbody td:first-child, .elevation-1 >>> table.v-table tbody td:not(:first-child),
+  .elevation-1 >>> table.v-table tfoot td:first-child, .elevation-1 >>> table.v-table tfoot td:not(:first-child) {
+    padding: 0 15px;
   }
 
   .v-datatable__expand-content table {
