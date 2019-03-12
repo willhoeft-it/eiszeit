@@ -53,6 +53,7 @@ function page:logout() as item()* {
   session:close()
 };
 
+(: TODO: DO NOT use url-params for authentication. Credentials appear in all logs! :)
 (: TODO: remove GET method when finished testing :)
 declare
   %rest:path("user/login")
@@ -72,7 +73,6 @@ function page:login($login as xs:string, $password as xs:string) as item()* {
     <rest:response>
       <http:response status="401">
         <http:header name="Content-Language" value="en"/>
-        <http:header name="WWW-Authenticate" value="token"/>
       </http:response>
     </rest:response>,
     "Authentication failed"
@@ -117,7 +117,6 @@ declare %perm:check('api/') function page:checkApp() {
     <rest:response>
       <http:response status="401">
         <http:header name="Content-Language" value="en"/>
-        <http:header name="www-authenticate" value="token"/>
       </http:response>
     </rest:response>,
     "Authentication needed"
