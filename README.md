@@ -1,5 +1,16 @@
 # Time Tracking Software
 
+## What it is
+It tracks the time you spend on tasks and projects and allows you to report to project leads and customers how much time has been spent on them and how much of it can be billed. It will also allow to report on working time contracted between employee and employer. For the latter it is planned (but not yet implemented) to take into account the individual contracted hours, contracted vacation days, public holidays, illnesses, etc.
+
+TODO: focus on key features: usability. etc.
+
+## What it isn't
+It's not a project planning tool. The tool is meant to report in retrospect and not to make plans for the future. Projects often go on for much longer than thought, but their structure often changes in between. From my year long experience it never pays to set up a very detailed project structure for reporting. In the end, all you want to know is what can be billed, what not and what may be in dispute.
+It's not a (human) resource planning tool. Again, this software is meant to report over the past, not the future.
+
+TODO: But an open API will allow you to integrate with all kinds of other software.
+
 ## Build
 
 After starting a second page (task managing) it was obvious that I would need to modularize the app. Mainly because the data store between the pages should be separated. To avoid using a build tool, which would add some setup complexity costs and a special build step after changes to publish it to basex, I tried X-Templates and inline-templates (see https://medium.com/js-dojo/7-ways-to-define-a-component-template-in-vuejs-c04e0c72900d ). But that does not seem to work with components that are nested in the app. String-Templates are a nogo for non-trivial components, because of lacking syntax-highlighting. So, time to switch to single file vue-components and simple build-chain.
