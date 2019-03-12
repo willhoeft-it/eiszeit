@@ -40,6 +40,15 @@ declare
 
 declare
   %unit:test
+  function testp:defaultAdminAuthTest() as empty-sequence() {
+    let $auth := doc("../evolutions/staff_init.xml")/staff/staffmember[@id='admin']/authentication
+    return (
+      unit:assert(page:checkLocalAuthentication('password', $auth), 'default admin password')
+    )
+};
+
+declare
+  %unit:test
   function testp:checkLocalAuthenticationTest() as empty-sequence() {
     let $auth := page:createLocalAuthentication('password')
     return (
