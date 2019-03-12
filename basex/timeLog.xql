@@ -53,15 +53,11 @@ function page:logout() as item()* {
   session:close()
 };
 
-(: TODO: DO NOT use url-params for authentication. Credentials appear in all logs! :)
-(: TODO: remove GET method when finished testing :)
 declare
   %rest:path("user/login")
   %rest:query-param("login", "{$login}")
   %rest:query-param("password", "{$password}")
-  %rest:GET
   %rest:POST
-  %rest:produces("text/plain; charset=utf-8")
   %perm:allow("all")
 function page:login($login as xs:string, $password as xs:string) as item()* {
   let $staffmember := db:open("timetracking")/staff/staffmember[alias=$login]
@@ -77,6 +73,31 @@ function page:login($login as xs:string, $password as xs:string) as item()* {
     </rest:response>,
     "Authentication failed"
   )
+};
+
+(:~
+ : Make a GET to user/login to check if the session is valid and retrieve base user data.
+ :)
+declare
+  %rest:path("user/login")
+  %rest:GET
+  %rest:produces("application/xml", "text/xml")
+  %output:method("xml")
+  %output:omit-xml-declaration("no")
+  %perm:allow("all")
+function page:login() as item()* {
+  let $staffmemberId := session:get('staffmemberId')
+  return if (empty($staffmemberId))
+  then (
+    <rest:response>
+      <http:response status="401" />
+    </rest:response>,
+    <error>Not logged in</error>
+  ) else
+    <staffmember>  {
+      db:open("timetracking")/staff/staffmember[@id=$staffmemberId]/(@*|*[not(local-name()='authentication')])
+    }
+    </staffmember>
 };
 
 declare

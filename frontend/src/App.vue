@@ -143,8 +143,7 @@
       },
       submitLogin: function(event) {
         const self = this
-        // TODO: Test: URL encode this?
-        self.server.post('../user/login?login=' + this.login + '&password=' + this.password)
+        self.server.post('../user/login', 'login=' + this.login + '&' + 'password=' + this.password, {headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
           .then(function (response) {
             console.log(response);
             self.loginDialog = false
