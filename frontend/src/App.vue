@@ -72,6 +72,8 @@
       </v-btn>
     </v-snackbar>
 
+    <!-- TODO: before first show, check if we don't already have a valid user session (GET /user/login) -->
+    <!-- TODO: after a failed access and then a successful login, retry the failed access -->
     <v-dialog v-model="loginDialog" persistent max-width="600px">
           <v-card>
             <v-card-title>

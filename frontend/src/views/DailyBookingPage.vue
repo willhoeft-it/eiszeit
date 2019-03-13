@@ -64,6 +64,7 @@
     <v-flex xs12>
       <h2>Bookings</h2>
     </v-flex>
+    <!-- TODO: fix error in taskPathString, when task has been locked. Instead the task path should be shown and the input read-only  -->
     <!-- TODO: sort to top or highlight tasks that have recently been used -->
     <v-layout v-for="booking in workingday.booking" :key="booking.key" row wrap>
       <v-flex md3 xs12>
