@@ -89,6 +89,9 @@
 
   export default Vue.component('task-managing-page', {
     mixins: [pageMixin],
+    props: {
+      staffmember: Object
+    },
     data: function() {
       return {
         tasks: {

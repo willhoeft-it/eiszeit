@@ -53,16 +53,16 @@
       <v-toolbar-title>Timetracking</v-toolbar-title>
     </v-toolbar>
 
-    <daily-booking-page v-if="page === 'dailyBookingPage'" v-on:pageMessageEvent="showSnackbarMessage" v-on:authFailEvent="showLogin">
+    <daily-booking-page v-if="page === 'dailyBookingPage'" v-on:pageMessageEvent="showSnackbarMessage" v-on:authFailEvent="loadStaffmember" v-bind:staffmember="staffmember">
     </daily-booking-page>
 
-    <task-managing-page v-if="page === 'taskManagingPage'" v-on:pageMessageEvent="showSnackbarMessage" v-on:authFailEvent="showLogin">
+    <task-managing-page v-if="page === 'taskManagingPage'" v-on:pageMessageEvent="showSnackbarMessage" v-on:authFailEvent="loadStaffmember" v-bind:staffmember="staffmember">
     </task-managing-page>
 
-    <report-projects-page v-if="page === 'reportProjectsPage'" v-on:pageMessageEvent="showSnackbarMessage" v-on:authFailEvent="showLogin">
+    <report-projects-page v-if="page === 'reportProjectsPage'" v-on:pageMessageEvent="showSnackbarMessage" v-on:authFailEvent="loadStaffmember" v-bind:staffmember="staffmember">
     </report-projects-page>
 
-    <report-workingtime-page v-if="page === 'reportWorkingtimePage'" v-on:pageMessageEvent="showSnackbarMessage" v-on:authFailEvent="showLogin">
+    <report-workingtime-page v-if="page === 'reportWorkingtimePage'" v-on:pageMessageEvent="showSnackbarMessage" v-on:authFailEvent="loadStaffmember" v-bind:staffmember="staffmember">
     </report-workingtime-page>
 
     <v-snackbar v-model="snackbar.show" :color="snackbar.level" :multi-line="snackbar.level === 'error'" bottom :timeout="(snackbar.level === 'error') ? 0 : 2000">
@@ -72,9 +72,8 @@
       </v-btn>
     </v-snackbar>
 
-    <!-- TODO: before first show, check if we don't already have a valid user session (GET /user/login) -->
     <!-- TODO: after a failed access and then a successful login, retry the failed access -->
-    <v-dialog v-model="loginDialog" persistent max-width="600px">
+    <v-dialog v-bind:value="loginVisible" persistent max-width="600px">
           <v-card>
             <v-card-title>
               <span class="headline">Login</span>
@@ -118,6 +117,9 @@
   import axios from 'axios'
   import pageMixin from '@/views/PageMixin.js'
 
+  // eslint-disable-next-line
+  const x2jsStaffmember = new X2JS()
+
   export default {
     mixins: [pageMixin],
     data: function() {
@@ -129,10 +131,18 @@
           level: "info",
           show: false
         },
-        loginDialog: true,
         login: "",
-        password: ""
+        password: "",
+        staffmember: {}
       };
+    },
+    computed: {
+      loginVisible: function() {
+        return !Boolean(this.staffmember._id)
+      }
+    },
+    created: function () {
+      this.loadStaffmember()
     },
     methods: {
       showSnackbarMessage: function(event) {
@@ -140,16 +150,36 @@
         this.snackbar.level = event.level;
         this.snackbar.show = true;
       },
-      showLogin: function(event) {
-        this.loginDialog = true;
+      loadStaffmember: function() {
+        const self = this
+        self.server.get('../user/login').then(function(response) {
+          self.staffmember = x2jsStaffmember.xml_str2json(response.data).staffmember;
+        }).catch(function(error) {
+          if (error.response) {
+            if (error.response.status == 401) {
+              self.staffmember = {}
+              return
+            }
+            console.log(error.response.data);
+            console.log(error.response.status);
+            console.log(error.response.headers);
+            self.showSnackbarMessage({text: "ERROR " + error.response.status + ": " + error.response.data, level: 'error'})
+          } else if (error.request) {
+            console.log(error.request);
+            self.showSnackbarMessage({text: "ERROR : Failed contacting server", level: 'error'})
+          } else {
+            console.log('Error', error.message);
+            self.showSnackbarMessage({text: "ERROR : Failed setting up server request", level: 'error'})
+          }
+        })
       },
       submitLogin: function(event) {
         const self = this
         self.server.post('../user/login', 'login=' + this.login + '&' + 'password=' + this.password, {headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
           .then(function (response) {
-            console.log(response);
-            self.loginDialog = false
+            console.log(response)
             self.showSnackbarMessage({text: "Logged in!", level: 'success'})
+            self.loadStaffmember()
           })
           .catch(function (error) {
             if (error.response) {

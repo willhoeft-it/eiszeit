@@ -117,6 +117,9 @@
 
   export default Vue.component('report-projects-page', {
     mixins: [dateUtils, pageMixin],
+    props: {
+      staffmember: Object
+    },
     data: function() {
       return {
         bookings: {},

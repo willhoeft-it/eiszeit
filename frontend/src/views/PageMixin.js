@@ -12,11 +12,6 @@ export default {
             _staffmemberId: "ute",
           },
         ],
-        staffmember: {
-          _staffmemberId: "joern",
-          name: "Willhöft",
-          givenName: "Jörn"
-        },
         billableOptions: [
           'yes', 'no', 'depends'
         ],

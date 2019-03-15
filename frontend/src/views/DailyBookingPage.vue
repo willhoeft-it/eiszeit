@@ -224,6 +224,9 @@
 
   export default Vue.component('daily-booking-page', {
     mixins: [dateUtils, pageMixin],
+    props: {
+      staffmember: Object
+    },
     data: function() {
       return {
         workingday: {},
@@ -272,7 +275,7 @@
         const urlDate = (this.workingday && this.workingday._date) ? ("/" + this.workingday._date) : ""
         const self = this
         axios.all([
-          self.server.get('../api/tasks/' + this.staffmember._staffmemberId),
+          self.server.get('../api/tasks/' + this.staffmember._id),
           self.server.get('../api/timetrack' + urlDate),
         ]).then(axios.spread(function(taskResponse, timetrackResponse) {
           console.log("tasks:")
