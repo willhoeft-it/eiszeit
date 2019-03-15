@@ -2,7 +2,7 @@
 <staff rev="0">
   <staffmember id="admin">
     <name>Admin</name>
-    <givenNamen>Admin</givenNamen>
+    <givenName>Admin</givenName>
     <alias>admin</alias>
     <email>admin@example.com</email>
     <authentication type="local">
