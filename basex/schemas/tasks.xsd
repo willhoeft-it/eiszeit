@@ -11,7 +11,7 @@
   <xs:element name="projectGroup">
     <xs:complexType>
       <xs:choice minOccurs="0" maxOccurs="unbounded">
-        <xs:element ref="member"/>
+        <xs:element ref="staffmemberId"/>
         <xs:element ref="project"/>
       </xs:choice>
       <xs:attribute name="id" use="required" type="xs:integer"/>
@@ -23,7 +23,7 @@
   <xs:element name="project">
     <xs:complexType>
       <xs:choice minOccurs="0" maxOccurs="unbounded">
-        <xs:element ref="member"/>
+        <xs:element ref="staffmemberId"/>
         <xs:element ref="task"/>
         <xs:element ref="taskGroup"/>
       </xs:choice>
@@ -45,7 +45,7 @@
   <xs:element name="task">
     <xs:complexType>
       <xs:sequence>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="member"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="staffmemberId"/>
       </xs:sequence>
       <xs:attribute name="id" use="required" type="xs:integer"/>
       <xs:attribute name="status" use="required" type="statusType"/>
@@ -67,10 +67,9 @@
       <xs:enumeration value="locked"/>
     </xs:restriction>
   </xs:simpleType>
-  <xs:element name="member">
-    <xs:complexType>
-      <xs:attribute name="staffmemberId" use="required" type="xs:string"/>
-    </xs:complexType>
+  <xs:element name="staffmemberId">
+    <xs:simpleType>
+      <xs:restriction base="xs:string" />
+    </xs:simpleType>
   </xs:element>
-
 </xs:schema>

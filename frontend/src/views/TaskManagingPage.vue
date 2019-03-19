@@ -31,7 +31,7 @@
                 v-model="selected._status" :label="selected._status" true-value="open" false-value="locked"></v-switch>
               <v-select
                 v-if="['task', 'project', 'projectGroup'].includes(activeElement.type)"
-                v-model="selected.member" label="members" chips deletable-chips multiple return-object item-text="_staffmemberId" item-value="_staffmemberId" :items="staff">
+                v-model="selected.staffmemberId" label="members" chips deletable-chips multiple item-text="alias" item-value="_id" :items="staffmembers">
               </v-select>
               <v-text-field
                 v-if="activeElement.type==='projectGroup'"
@@ -74,6 +74,7 @@
   import Vue from 'vue'
   import pageMixin from '@/views/PageMixin.js'
   import {find} from 'deep_find'
+  import axios from 'axios'
 
   // eslint-disable-next-line
   const x2jsTasks = new X2JS({
@@ -86,6 +87,10 @@
     ]
   });
 
+  // eslint-disable-next-line
+  const x2jsStaffmembers = new X2JS({
+    arrayAccessFormPaths : [ 'staff.staffmember' ]
+  })
 
   export default Vue.component('task-managing-page', {
     mixins: [pageMixin],
@@ -94,8 +99,8 @@
     },
     data: function() {
       return {
-        tasks: {
-        },
+        tasks: { },
+        staffmembers: [],
         active: [],
         type2String: new Map([['projectGroup', 'project group'], ['project', 'project'], ['taskGroup', 'task group'], ['task', 'task']]),
         // Page scope unique key generator. Uses negative keys to avoid conflicts with ids from back end
@@ -204,14 +209,19 @@
       loadData: function() {
         console.log("loadData")
         const self = this
-        self.server.get('../api/tasks/').then(function(taskResponse) {
+        axios.all([
+          self.server.get('../api/tasks'),
+          self.server.get('../api/staff'),
+        ]).then(axios.spread(function(taskResponse, staffResponse) {
           console.log("tasks:")
-          console.log(taskResponse);
+          console.log(taskResponse)
           const t = x2jsTasks.xml_str2json(taskResponse.data).tasks;
           console.log(t)
+          const s = x2jsStaffmembers.xml_str2json(staffResponse.data).staff;
           self.tasks = t
+          self.staffmembers = s.staffmember
           self.showMessage('fetched!', 'info')
-        }).catch(this.handleHttpError);
+        })).catch(this.handleHttpError);
       },
       submitTasks: function () {
         console.log("submitTasks")

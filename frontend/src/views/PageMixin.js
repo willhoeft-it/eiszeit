@@ -3,15 +3,6 @@ import axios from 'axios'
 export default {
     data: function() {
       return {
-        // TODO: staff members should be queried from database
-        staff: [
-          {
-            _staffmemberId: "joern",
-          },
-          {
-            _staffmemberId: "ute",
-          },
-        ],
         billableOptions: [
           'yes', 'no', 'depends'
         ],

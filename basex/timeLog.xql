@@ -148,6 +148,22 @@ declare %perm:check('api/') function page:checkApp() {
  : timetrack API
  :)
 
+ declare
+   %rest:path("api/staff")
+   %rest:GET
+   %rest:produces("application/xml", "text/xml")
+   %output:method("xml")
+   %output:omit-xml-declaration("no")
+ function page:staff-get() as item()* {
+   <staff> {
+     for $s in (db:open("timetracking")/staff/staffmember) return
+       <staffmember>
+         { $s/(@*|*[not(local-name()='authentication')]) }
+       </staffmember>
+   }
+   </staff>
+ };
+
 declare
   %rest:path("api/timetrack/{$date}")
   %rest:GET
@@ -259,7 +275,7 @@ declare
     <tasks>{
         let $db := db:open("timetracking")/taskRevisions
         let $dbt := $db/tasks[@rev=max(../tasks/@rev)]
-        for $t in ($dbt//task[member[@staffmemberId=$staffmemberId] and not(ancestor-or-self::*[@status='locked'])]) return
+        for $t in ($dbt//task[staffmemberId=$staffmemberId and not(ancestor-or-self::*[@status='locked'])]) return
           <task>
             { $t/@* }
             {
