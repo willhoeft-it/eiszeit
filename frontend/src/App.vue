@@ -74,30 +74,31 @@
 
     <!-- TODO: after a failed access and then a successful login, retry the failed access -->
     <v-dialog v-bind:value="loginVisible" persistent max-width="600px">
-          <v-card>
-            <v-card-title>
-              <span class="headline">Login</span>
-            </v-card-title>
-            <v-form @submit.prevent="submitLogin">
-              <v-card-text>
-                <v-container grid-list-md>
-                  <v-layout wrap>
-                    <v-flex xs12>
-                      <v-text-field v-model="login" label="Login" required />
-                    </v-flex>
-                    <v-flex xs12>
-                      <v-text-field v-model="password" label="Password" type="password" required />
-                    </v-flex>
-                  </v-layout>
-                </v-container>
-              </v-card-text>
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn color="green" dark type="submit">Ok</v-btn>
-              </v-card-actions>
-            </v-form>
-          </v-card>
-        </v-dialog>
+      <v-card>
+        <v-card-title>
+          <span class="headline">Login</span>
+        </v-card-title>
+        <v-form @submit.prevent="submitLogin">
+          <v-card-text>
+            <v-container grid-list-md>
+              <v-layout wrap>
+                <v-flex xs12>
+                  <!-- TODO: allow the browser to fill in this form. Don't write from model, only read? -->
+                  <v-text-field v-model="login" label="Login" required />
+                </v-flex>
+                <v-flex xs12>
+                  <v-text-field v-model="password" label="Password" type="password" required />
+                </v-flex>
+              </v-layout>
+            </v-container>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="green" dark type="submit">Ok</v-btn>
+          </v-card-actions>
+        </v-form>
+      </v-card>
+    </v-dialog>
 
     <v-footer dark app>
       <span class="white--text">&copy; 2018-2019 - Willhöft IT-Beratung GmbH</span>

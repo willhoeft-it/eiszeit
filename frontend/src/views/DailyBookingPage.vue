@@ -272,6 +272,10 @@
     methods: {
       loadData: function() {
         console.log("loadData")
+        if (! this.staffmember._id) {
+          return
+        }
+
         const urlDate = (this.workingday && this.workingday._date) ? ("/" + this.workingday._date) : ""
         const self = this
         axios.all([
