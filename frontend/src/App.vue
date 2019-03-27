@@ -83,8 +83,7 @@
             <v-container grid-list-md>
               <v-layout wrap>
                 <v-flex xs12>
-                  <!-- TODO: allow the browser to fill in this form. Don't write from model, only read? -->
-                  <v-text-field v-model="login" label="Login" required />
+                  <v-text-field v-model="login" label="Login" required type="username"/>
                 </v-flex>
                 <v-flex xs12>
                   <v-text-field v-model="password" label="Password" type="password" required />
@@ -115,7 +114,6 @@
   import ReportProjectsPage from '@/views/ReportProjectsPage.vue'
   // eslint-disable-next-line
   import ReportWorkingtimePage from '@/views/ReportWorkingtimePage.vue'
-  import axios from 'axios'
   import pageMixin from '@/views/PageMixin.js'
 
   // eslint-disable-next-line
@@ -139,7 +137,7 @@
     },
     computed: {
       loginVisible: function() {
-        return !Boolean(this.staffmember._id)
+        return ! this.staffmember._id
       }
     },
     created: function () {
@@ -174,7 +172,7 @@
           }
         })
       },
-      submitLogin: function(event) {
+      submitLogin: function() {
         const self = this
         self.server.post('../user/login', 'login=' + this.login + '&' + 'password=' + this.password, {headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
           .then(function (response) {
