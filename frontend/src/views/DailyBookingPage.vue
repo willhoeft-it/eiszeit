@@ -12,9 +12,9 @@
       <h2>Working Time</h2>
     </v-flex>
     <v-flex xs12>
-      <v-alert :value="unbookedTime.valueOf() > 0" type="warning" outline>{{durationAsHours(unbookedTime)}} unbooked time</v-alert>
-      <v-alert :value="unbookedTime.valueOf() < 0" type="warning" outline>{{durationAsHours(unbookedTime.negate())}} overbooked time</v-alert>
-      <v-alert :value="unbookedTime.valueOf() == 0" type="success" outline>All day booked!</v-alert>
+      <v-alert :value="unbookedTime.valueOf() > 0" type="warning" :outline="!isDirty">{{durationAsHours(unbookedTime)}} unbooked time</v-alert>
+      <v-alert :value="unbookedTime.valueOf() < 0" type="warning" :outline="!isDirty">{{durationAsHours(unbookedTime.negate())}} overbooked time</v-alert>
+      <v-alert :value="unbookedTime.valueOf() == 0" type="success" :outline="!isDirty" >All day booked!</v-alert>
     </v-flex>
     <v-layout v-for="wt in workingday.workingtime" :key="wt.key" row wrap>
       <v-flex md1 xs4>
@@ -196,6 +196,7 @@
   import DailyTimePicker from '@/components/DailyTimePicker.vue'
   import {Duration} from 'luxon'
   import axios from 'axios'
+  import _ from 'lodash'
   import binarySearch from 'binary-search'
   import dateUtils from '@/utils/dateUtils.js'
   import pageMixin from '@/views/PageMixin.js'
@@ -230,6 +231,7 @@
     data: function() {
       return {
         workingday: {},
+        workingdayUnchanged: {},
         tasks: {
           task: []
         },
@@ -264,12 +266,25 @@
           return b._duration ? total.minus(Duration.fromISO(b._duration)) : total
         }, netwtsum) : netwtsum;
         return unbooked;
+      },
+      isDirty() {
+        return _.isEqual(this.workingday, this.workingdayUnchanged)
       }
     },
     created: function () {
+      // TODO: this is not working (reliably). On window close, ask user when unchanged data
+      const self = this
+      window.addEventListener('beforeunload', (event) => {
+        if (self.isDirty()) {
+          event.returnValue = 'You have unfinished changes!';
+        }
+      })
       this.loadData();
     },
     methods: {
+      resetDirty: function() {
+        this.workingdayUnchanged = JSON.parse(JSON.stringify(this.workingday))
+      },
       loadData: function() {
         console.log("loadData")
         if (! this.staffmember._id) {
@@ -298,7 +313,8 @@
           if (! d.booking) {
             self.addDefaultBooking(d);
           }
-          self.workingday = d;
+          self.workingday = d
+          self.resetDirty()
           console.log(self.workingday);
 
           self.showMessage('fetched!', 'info')
@@ -334,6 +350,7 @@
           .then(function (response) {
             console.log(response);
             self.showMessage("posted!", 'success')
+            self.resetDirty()
             self.loadWdInfos(self.workingday._date.slice(0, 7))
           })
           .catch(this.handleHttpError);
