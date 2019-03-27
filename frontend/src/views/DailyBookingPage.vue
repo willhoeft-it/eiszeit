@@ -1,6 +1,5 @@
 /* @flow
 <template>
-  <!-- TODO: warn on leaving the page on unsaved data -->
   <v-card>
   <v-content><v-container fluid grid-list-md><v-layout wrap>
     <v-flex xs6>
@@ -12,9 +11,9 @@
       <h2>Working Time</h2>
     </v-flex>
     <v-flex xs12>
-      <v-alert :value="unbookedTime.valueOf() > 0" type="warning" :outline="!isDirty">{{durationAsHours(unbookedTime)}} unbooked time</v-alert>
-      <v-alert :value="unbookedTime.valueOf() < 0" type="warning" :outline="!isDirty">{{durationAsHours(unbookedTime.negate())}} overbooked time</v-alert>
-      <v-alert :value="unbookedTime.valueOf() == 0" type="success" :outline="!isDirty" >All day booked!</v-alert>
+      <v-alert :value="unbookedTime.valueOf() > 0" type="warning" :outline="isDirty">{{durationAsHours(unbookedTime)}} unbooked time</v-alert>
+      <v-alert :value="unbookedTime.valueOf() < 0" type="warning" :outline="isDirty">{{durationAsHours(unbookedTime.negate())}} overbooked time</v-alert>
+      <v-alert :value="unbookedTime.valueOf() == 0" type="success" :outline="isDirty" >All day booked!</v-alert>
     </v-flex>
     <v-layout v-for="wt in workingday.workingtime" :key="wt.key" row wrap>
       <v-flex md1 xs4>
@@ -268,16 +267,14 @@
         return unbooked;
       },
       isDirty() {
-        return _.isEqual(this.workingday, this.workingdayUnchanged)
+        return !_.isEqual(this.workingday, this.workingdayUnchanged)
       }
     },
     created: function () {
-      // TODO: this is not working (reliably). On window close, ask user when unchanged data
       const self = this
       window.addEventListener('beforeunload', (event) => {
-        if (self.isDirty()) {
-          event.returnValue = 'You have unfinished changes!';
-        }
+        console.log('beforeunload. dirty: ', self.isDirty)
+        if (self.isDirty) event.returnValue = 'You have unfinished changes!'
       })
       this.loadData();
     },
