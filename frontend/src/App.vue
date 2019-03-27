@@ -30,6 +30,14 @@
             <v-list-tile-title>task managing</v-list-tile-title>
           </v-list-tile-content>
         </v-list-tile>
+        <v-list-tile @click="page='userManagingPage'">
+          <v-list-tile-action>
+            <v-icon>supervised_user_circle</v-icon>
+          </v-list-tile-action>
+          <v-list-tile-content>
+            <v-list-tile-title>user managing</v-list-tile-title>
+          </v-list-tile-content>
+        </v-list-tile>
         <v-list-tile @click="page='reportProjectsPage'">
           <v-list-tile-action>
             <v-icon>list</v-icon>
@@ -58,6 +66,9 @@
 
     <task-managing-page v-if="page === 'taskManagingPage'" v-on:pageMessageEvent="showSnackbarMessage" v-on:authFailEvent="loadStaffmember" v-bind:staffmember="staffmember">
     </task-managing-page>
+
+    <user-managing-page v-if="page === 'userManagingPage'" v-on:pageMessageEvent="showSnackbarMessage" v-on:authFailEvent="loadStaffmember" v-bind:staffmember="staffmember">
+    </user-managing-page>
 
     <report-projects-page v-if="page === 'reportProjectsPage'" v-on:pageMessageEvent="showSnackbarMessage" v-on:authFailEvent="loadStaffmember" v-bind:staffmember="staffmember">
     </report-projects-page>
@@ -110,6 +121,8 @@
   import DailyBookingPage from '@/views/DailyBookingPage.vue'
   // eslint-disable-next-line
   import TaskManagingPage from '@/views/TaskManagingPage.vue'
+  // eslint-disable-next-line
+  import UserManagingPage from '@/views/UserManagingPage.vue'
   // eslint-disable-next-line
   import ReportProjectsPage from '@/views/ReportProjectsPage.vue'
   // eslint-disable-next-line
