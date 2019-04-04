@@ -7,6 +7,7 @@
           <v-card-text>
             <v-treeview
             :active.sync="active"
+            :open.sync="open"
             :items="items"
             activatable
             >
@@ -25,7 +26,7 @@
           <v-card v-else :key="selected._id">
             <v-card-title primary-title><h2>{{ type2String.get(activeElement.type) }}</h2></v-card-title>
             <v-card-text>
-              <v-text-field @focus="$event.target.select()" label="title" required v-model="selected._title"></v-text-field>
+              <v-text-field @focus="$event.target.select()" label="title" ref="itemTitle" required v-model="selected._title"></v-text-field>
               <v-switch
                 :disabled="selected._status==='new'"
                 v-model="selected._status" :label="selected._status" true-value="open" false-value="locked"></v-switch>
@@ -43,7 +44,6 @@
                 <v-radio label="no" value="no"></v-radio>
                 <v-radio label="depends" value="depends"></v-radio>
               </v-radio-group>
-              <v-btn @click="removeElement(selected)"><v-icon>delete</v-icon></v-btn>
               <v-btn
                 v-if="activeElement.type==='projectGroup'"
                 @click="addProject(selected)">add project</v-btn>
@@ -53,6 +53,7 @@
               <v-btn
                 v-if="['project', 'taskGroup'].includes(activeElement.type)"
                 @click="addTask(selected)">add task</v-btn>
+              <v-btn @click="removeElement(selected)"><v-icon>delete</v-icon></v-btn>
             </v-card-text>
 
             <v-card-actions>
@@ -102,6 +103,7 @@
         tasks: { },
         staffmembers: [],
         active: [],
+        open: [],
         type2String: new Map([['projectGroup', 'project group'], ['project', 'project'], ['taskGroup', 'task group'], ['task', 'task']]),
         // Page scope unique key generator. Uses negative keys to avoid conflicts with ids from back end
         // Back end will generate new keys for all new items
@@ -127,7 +129,6 @@
         const id = this.active[0]
         return find(id, this.items, {searchField: 'id'})
       }
-
     },
     methods: {
       getChildren: function(elArr, type) {
@@ -142,11 +143,19 @@
           )
         }))
       },
+      selectTreeItem: function(id, parentId) {
+        this.active = [id]
+        if (parentId && !this.open.some(v => (v==parentId))) {
+          this.open.push(parentId)
+        }
+        this.$nextTick(() => this.$refs.itemTitle.focus())
+      },
       addProjectGroup: function() {
         console.log("addProjectGroup")
+        const id = this.pskey--
         const pg = {
           _status: "new",
-          _id: this.pskey--,
+          _id: id,
           _customerId: "",
           _title: "new project group",
         }
@@ -155,12 +164,14 @@
           Vue.set(this.tasks, "projectGroup", [])
         }
         this.tasks.projectGroup.push(pg)
+        this.selectTreeItem(id)
       },
       addProject: function(pg) {
         console.log("addProject")
+        const id = this.pskey--
         const p = {
           _status: "new",
-          _id: this.pskey--,
+          _id: id,
           _title: "new project",
         }
         if (! pg.project) {
@@ -168,12 +179,14 @@
           Vue.set(pg, "project", [])
         }
         pg.project.push(p)
+        this.selectTreeItem(id, pg._id)
       },
       addTaskGroup: function(p) {
         console.log("addTaskGroup")
+        const id = this.pskey--
         const tg = {
           _status: "new",
-          _id: this.pskey--,
+          _id: id,
           _title: "new task group",
         }
         if (! p.taskGroup) {
@@ -181,13 +194,15 @@
           Vue.set(p, "taskGroup", [])
         }
         p.taskGroup.push(tg)
+        this.selectTreeItem(id, p._id)
       },
       addTask: function(p) {
         // note: p may be a project or a task group
         console.log("addTask")
+        const id = this.pskey--
         const t = {
           _status: "new",
-          _id: this.pskey--,
+          _id: id,
           _title: "new task",
           _billableDefault: "depends",
         }
@@ -196,6 +211,7 @@
           Vue.set(p, "task", [])
         }
         p.task.push(t)
+        this.selectTreeItem(id, p._id)
       },
       removeElement: function(el) {
         console.log("removeElement: ", el)
@@ -204,7 +220,6 @@
         this.tasks = deepFilter(this.tasks, function(subject, prop) {
           return ! ( subject._id && subject._id === id )
         })
-
       },
       loadData: function() {
         console.log("loadData")
