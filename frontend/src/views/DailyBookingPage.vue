@@ -15,7 +15,7 @@
       <v-alert :value="unbookedTime.valueOf() < 0" type="warning" :outline="isDirty">{{durationAsHours(unbookedTime.negate())}} overbooked time</v-alert>
       <v-alert :value="unbookedTime.valueOf() == 0" type="success" :outline="isDirty" >All day booked!</v-alert>
     </v-flex>
-    <v-layout v-for="wt in workingday.workingtime" :key="wt.key" row wrap>
+    <v-layout v-for="wt in workingday.workingtime" :key="wt.$key" row wrap>
       <v-flex md1 xs4>
         <daily-time-picker v-model="wt._start" @change="updateOnTimeChange(wt, $event, null)" label="begin" />
       </v-flex>
@@ -39,7 +39,7 @@
     <v-flex xs12>
       <h2>Breaks</h2>
     </v-flex>
-    <v-layout v-for="b in workingday.break" :key="b.key" row wrap>
+    <v-layout v-for="b in workingday.break" :key="b.$key" row wrap>
       <v-flex md1 xs4>
         <daily-time-picker v-model="b._start" @change="updateOnTimeChange(b, $event, null)" label="begin" />
       </v-flex>
@@ -65,7 +65,7 @@
     </v-flex>
     <!-- TODO: fix error in taskPathString, when task has been locked. Instead the task path should be shown and the input read-only  -->
     <!-- TODO: sort to top or highlight tasks that have recently been used -->
-    <v-layout v-for="booking in workingday.booking" :key="booking.key" row wrap>
+    <v-layout v-for="booking in workingday.booking" :key="booking.$key" row wrap>
       <v-flex md3 xs12>
         <v-select v-model="booking._taskId" label="Task" :items="tasks.task" item-text="_title" item-value="_id"  @input="setBillableToDefault(booking)">
           <template slot="label">
@@ -336,7 +336,7 @@
         console.log("submitWorkingTimes")
         // eslint-disable-next-line
         const outjs = deepFilter(this.workingday, function(_, prop) {
-          return prop !== 'key'
+          return ! prop.toString().startsWith('$')
         })
         const xmlDocStr = x2jsTimetrack.js2xml(
           {
@@ -391,7 +391,7 @@
           _start: "10:00",
           _duration: "PT9H30M",
           description: "",
-          key: pskey++
+          $key: pskey++
         }
         if (! wd.workingtime) {
           console.log("creating workingtime array")
@@ -403,7 +403,7 @@
         const b = {
           _duration: "PT0H30M",
           description: "",
-          key: pskey++
+          $key: pskey++
         }
         if (! wd.break) {
           console.log("creating break array")
@@ -416,7 +416,7 @@
           _duration: "PT0H",
           _billable: "depends",
           description: "",
-          key: pskey++
+          $key: pskey++
         }
         if (! wd.booking) {
           console.log("creating booking array")

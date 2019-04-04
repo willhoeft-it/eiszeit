@@ -241,12 +241,8 @@
       },
       submitTasks: function () {
         console.log("submitTasks")
-        // eslint-disable-next-line
-        const outjs = deepFilter(this.tasks, function(_, prop) {
-          return ! prop.toString().startsWith('$')
-        })
         const xmlDocStr = x2jsTasks.js2xml({
-          tasks: outjs
+          tasks: this.tasks
         })
         console.log(xmlDocStr);
         const self = this
