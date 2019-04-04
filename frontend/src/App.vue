@@ -8,7 +8,7 @@
         -->
         <v-list-tile @click="page='homePage'">
           <v-list-tile-action>
-            <v-icon>home</v-icon>
+            <v-icon>fas fa-chart-line</v-icon>
           </v-list-tile-action>
           <v-list-tile-content>
             <v-list-tile-title>dashboard</v-list-tile-title>
@@ -16,7 +16,7 @@
         </v-list-tile>
         <v-list-tile @click="page='dailyBookingPage'">
           <v-list-tile-action>
-            <v-icon>book</v-icon>
+            <v-icon>fas fa-clipboard</v-icon>
           </v-list-tile-action>
           <v-list-tile-content>
             <v-list-tile-title>daily booking</v-list-tile-title>
@@ -24,7 +24,7 @@
         </v-list-tile>
         <v-list-tile @click="page='taskManagingPage'">
           <v-list-tile-action>
-            <v-icon>create_new_folder</v-icon>
+            <v-icon>fas fa-tasks</v-icon>
           </v-list-tile-action>
           <v-list-tile-content>
             <v-list-tile-title>task managing</v-list-tile-title>
@@ -32,7 +32,7 @@
         </v-list-tile>
         <v-list-tile @click="page='userManagingPage'">
           <v-list-tile-action>
-            <v-icon>supervised_user_circle</v-icon>
+            <v-icon>fas fa-users</v-icon>
           </v-list-tile-action>
           <v-list-tile-content>
             <v-list-tile-title>user managing</v-list-tile-title>
@@ -40,7 +40,7 @@
         </v-list-tile>
         <v-list-tile @click="page='reportProjectsPage'">
           <v-list-tile-action>
-            <v-icon>list</v-icon>
+            <v-icon>fas fa-money-check-alt</v-icon>
           </v-list-tile-action>
           <v-list-tile-content>
             <v-list-tile-title>report on projects</v-list-tile-title>
@@ -48,7 +48,7 @@
         </v-list-tile>
         <v-list-tile @click="page='reportWorkingtimePage'">
           <v-list-tile-action>
-            <v-icon>list</v-icon>
+            <v-icon>fas fa-clock</v-icon>
           </v-list-tile-action>
           <v-list-tile-content>
             <v-list-tile-title>report on working time</v-list-tile-title>
