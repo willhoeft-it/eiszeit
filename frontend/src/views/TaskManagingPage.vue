@@ -65,7 +65,7 @@
   </v-flex>
 
   <v-flex xs12>
-    <v-btn color="green" dark @click="submitTasks" raised>submit</v-btn>
+    <v-btn color="green" @click="submitTasks" raised>submit</v-btn>
     <v-btn @click="loadData">reset</v-btn>
   </v-flex>
   </v-layout></v-container></v-content>

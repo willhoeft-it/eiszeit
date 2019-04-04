@@ -32,7 +32,7 @@
               {{ header.text }}
             </th>
           </tr>
-          <tr class="grey lighten-3">
+          <tr>
             <th
               v-for="header in props.headers"
               :key="header.text"

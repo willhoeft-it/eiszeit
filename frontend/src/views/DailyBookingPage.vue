@@ -106,7 +106,7 @@
         <v-btn @click="addBooking"><v-icon>add</v-icon></v-btn>
     </v-flex>
     <v-flex xs12>
-      <v-btn color="green" dark @click="submitWorkingtimes">submit</v-btn>
+      <v-btn color="green" @click="submitWorkingtimes">submit</v-btn>
       <v-btn @click="loadData">reset</v-btn>
     </v-flex>
 

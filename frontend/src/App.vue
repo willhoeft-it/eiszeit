@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  <v-app :dark="darkTheme">
     <v-navigation-drawer v-model="drawer" fixed app >
       <v-list dense>
         <!--
@@ -56,9 +56,13 @@
         </v-list-tile>
       </v-list>
     </v-navigation-drawer>
-    <v-toolbar dark fixed app>
+    <v-toolbar fixed app>
       <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
       <v-toolbar-title>Timetracking</v-toolbar-title>
+      <v-spacer/>
+      <v-btn icon @click.stop="darkTheme = !darkTheme">
+        <v-icon>far fa-lightbulb</v-icon>
+      </v-btn>
     </v-toolbar>
 
     <daily-booking-page v-if="page === 'dailyBookingPage'" v-on:pageMessageEvent="showSnackbarMessage" v-on:authFailEvent="loadStaffmember" v-bind:staffmember="staffmember">
@@ -136,6 +140,7 @@
     mixins: [pageMixin],
     data: function() {
       return {
+        darkTheme: true,
         page: 'dailyBookingPage',
         drawer: false,
         snackbar: {
