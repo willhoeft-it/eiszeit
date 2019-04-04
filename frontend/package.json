@@ -14,7 +14,8 @@
     "deep_find": "^1.0.1",
     "luxon": "^1.11.1",
     "vue": "^2.6.2",
-    "vuetify": "^1.5.0"
+    "vuetify": "^1.5.0",
+    "x2js": "^3.2.6"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.0.3",

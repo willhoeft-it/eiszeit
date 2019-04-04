@@ -73,6 +73,7 @@
 
 <script>
   import Vue from 'vue'
+  import X2JS from 'x2js'
   import pageMixin from '@/views/PageMixin.js'
   import {find} from 'deep_find'
   import axios from 'axios'
@@ -230,9 +231,9 @@
         ]).then(axios.spread(function(taskResponse, staffResponse) {
           console.log("tasks:")
           console.log(taskResponse)
-          const t = x2jsTasks.xml_str2json(taskResponse.data).tasks;
+          const t = x2jsTasks.xml2js(taskResponse.data).tasks;
           console.log(t)
-          const s = x2jsStaffmembers.xml_str2json(staffResponse.data).staff;
+          const s = x2jsStaffmembers.xml2js(staffResponse.data).staff;
           self.tasks = t
           self.staffmembers = s.staffmember
           self.showMessage('fetched!', 'info')
@@ -244,7 +245,7 @@
         const outjs = deepFilter(this.tasks, function(_, prop) {
           return ! prop.toString().startsWith('$')
         })
-        const xmlDocStr = x2jsTasks.json2xml_str({
+        const xmlDocStr = x2jsTasks.js2xml({
           tasks: outjs
         })
         console.log(xmlDocStr);

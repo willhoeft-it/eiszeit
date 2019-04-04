@@ -18,6 +18,7 @@
   import Vue from 'vue'
   import pageMixin from '@/views/PageMixin.js'
   import axios from 'axios'
+  import X2JS from 'x2js'
 
   // eslint-disable-next-line
   const x2jsStaffmembers = new X2JS({
@@ -50,7 +51,7 @@
         axios.all([
           self.server.get('../api/staff')
         ]).then(axios.spread(function(staffResponse) {
-          const s = x2jsStaffmembers.xml_str2json(staffResponse.data).staff;
+          const s = x2jsStaffmembers.xml2js(staffResponse.data).staff;
           self.staffmembers = s.staffmember
           self.showMessage('fetched!', 'info')
         })).catch(this.handleHttpError);

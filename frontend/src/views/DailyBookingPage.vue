@@ -195,6 +195,7 @@
   import DailyTimePicker from '@/components/DailyTimePicker.vue'
   import {Duration} from 'luxon'
   import axios from 'axios'
+  import X2JS from 'x2js'
   import _ from 'lodash'
   import binarySearch from 'binary-search'
   import dateUtils from '@/utils/dateUtils.js'
@@ -296,11 +297,11 @@
         ]).then(axios.spread(function(taskResponse, timetrackResponse) {
           console.log("tasks:")
           console.log(taskResponse);
-          const t = x2jsTasks.xml_str2json(taskResponse.data).tasks;
+          const t = x2jsTasks.xml2js(taskResponse.data).tasks;
           self.tasks = t
           console.log("timetrack:")
           console.log(timetrackResponse);
-          const d = x2jsTimetrack.xml_str2json(timetrackResponse.data).workingday;
+          const d = x2jsTimetrack.xml2js(timetrackResponse.data).workingday;
           if (! d.workingtime) {
             self.addDefaultWorkingTime(d);
           }
@@ -326,7 +327,7 @@
         console.log("fetching wd report for " + start + " to " + end)
         const self = this
         self.server.get('../api/report/days/' + start + '/' + end).then(function(wdReportResponse) {
-          self.wdReport = x2jsWdReport.xml_str2json(wdReportResponse.data).workingdays;
+          self.wdReport = x2jsWdReport.xml2js(wdReportResponse.data).workingdays;
           console.log("fetched wd report")
         }).catch(this.handleHttpError);
       },
@@ -337,7 +338,7 @@
         const outjs = deepFilter(this.workingday, function(_, prop) {
           return prop !== 'key'
         })
-        const xmlDocStr = x2jsTimetrack.json2xml_str(
+        const xmlDocStr = x2jsTimetrack.js2xml(
           {
             workingday: outjs
           }

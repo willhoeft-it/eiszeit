@@ -96,6 +96,7 @@
   // eslint-disable-next-line
   import DurationTextfield from '@/components/DurationTextfield.vue'
   import {Duration} from 'luxon'
+  import X2JS from 'x2js'
   import dateUtils from '@/utils/dateUtils.js'
   import pageMixin from '@/views/PageMixin.js'
 
@@ -203,7 +204,7 @@
         const urlDates = "/" + this.bookings._dateFrom + "/" + this.bookings._dateTo
         const self = this
         self.server.get('../api/report/bookings' + urlDates).then(function(reportResponse) {
-          const bs = x2jsBookings.xml_str2json(reportResponse.data).bookings;
+          const bs = x2jsBookings.xml2js(reportResponse.data).bookings;
           self.bookings = bs
 
           self.showMessage('fetched!', 'info')

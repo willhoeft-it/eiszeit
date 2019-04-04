@@ -123,6 +123,7 @@
   // eslint-disable-next-line
   import DurationTextfield from '@/components/DurationTextfield.vue'
   import {Duration} from 'luxon'
+  import X2JS from 'x2js'
   import dateUtils from '@/utils/dateUtils.js'
   import pageMixin from '@/views/PageMixin.js'
 
@@ -209,7 +210,7 @@
         const urlDates = "/" + this.wdReport._dateFrom + "/" + this.wdReport._dateTo
         const self = this
         self.server.get('../api/report/days' + urlDates).then(function(wdReportResponse) {
-          self.wdReport = x2jsWdReport.xml_str2json(wdReportResponse.data).workingdays;
+          self.wdReport = x2jsWdReport.xml2js(wdReportResponse.data).workingdays;
           console.log("fetched wd report")
 
           self.showMessage('fetched!', 'info')

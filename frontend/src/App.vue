@@ -121,6 +121,7 @@
 </template>
 
 <script>
+  import X2JS from 'x2js'
   // eslint-disable-next-line
   import DailyBookingPage from '@/views/DailyBookingPage.vue'
   // eslint-disable-next-line
@@ -170,7 +171,7 @@
       loadStaffmember: function() {
         const self = this
         self.server.get('../user/login').then(function(response) {
-          self.staffmember = x2jsStaffmember.xml_str2json(response.data).staffmember;
+          self.staffmember = x2jsStaffmember.xml2js(response.data).staffmember;
         }).catch(function(error) {
           if (error.response) {
             if (error.response.status == 401) {
