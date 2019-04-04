@@ -330,6 +330,7 @@
           console.log("fetched wd report")
         }).catch(this.handleHttpError);
       },
+      // TODO: validate or don't submit. Avoid backend error on bookings without task id
       submitWorkingtimes: function () {
         console.log("submitWorkingTimes")
         // eslint-disable-next-line

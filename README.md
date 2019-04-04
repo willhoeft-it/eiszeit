@@ -48,15 +48,6 @@ Now all changes under the frontend/src/ and basex/ folders should be instantly r
 
 https://cli.vuejs.org/
 
-
-## ENOSPC no space left on device
-npm, atom etc. überwachen mitunter sehr viele Dateien. Das kann zu diesem irreführenden Fehler führen, auch wenn noch genug Plattenplatz vorhanden ist.
-So können die inotify watchers erhöht werden. Der Default von 64k scheint nicht zu reichen...
-
-Problem lag dann aber doch an BTRFS. Speicherplatz für Metadaten war aufgebraucht. Ein rebalance war nötig.
-
-https://github.com/guard/listen/wiki/Increasing-the-amount-of-inotify-watchers
-
 npm cache verify
 
 ## vuetify docs

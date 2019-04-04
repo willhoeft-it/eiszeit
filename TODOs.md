@@ -28,6 +28,14 @@
 ## reconsider product name "timetracking"
 * Add logo / favicon
 
+## switch authentication to JWT
+see:
+* https://mailman.uni-konstanz.de/pipermail/basex-talk/2019-February/014070.html
+* https://alligator.io/vuejs/vue-jwt-patterns/
+* http://jasonwatmore.com/post/2018/07/06/vue-vuex-jwt-authentication-tutorial-example
+
+Needed for integration with OpenOffice
+
 ## Example for OpenOffice integration
 
 ## Dashboard
