@@ -27,9 +27,9 @@
               :key="header.text"
               :class="['column sortable', pagination.descending ? 'desc' : 'asc', header.value === pagination.sortBy ? 'active' : '', header.align ? 'text-xs-' + header.align : '']"
               :width="header.width"
-              @click="changeSort(header.value)"
+              @click="changeSort(header)"
             >
-              <v-icon small>arrow_upward</v-icon>
+              <v-icon v-if="header.sortable" small>arrow_upward</v-icon>
               {{ header.text }}
             </th>
           </tr>
@@ -134,32 +134,32 @@
           {
             text: 'Date',
             align: 'right',
-            sortable: false,
+            sortable: true,
             width: '14%',
             value: '_date'
           },
           {
             text: 'Project',
             align: 'left',
-            sortable: false,
+            sortable: true,
             width: '21%',
             value: 'project'
           },
           { text: 'Task',
             align: 'left',
-            sortable: false,
+            sortable: true,
             width: '14%',
             value: 'task'
           },
           { text: 'Duration',
             align: 'right',
-            sortable: false,
+            sortable: true,
             width: '7%',
             value: '_duration'
           },
           { text: 'Billable',
             align: 'left',
-            sortable: false,
+            sortable: true,
             width: '7%',
             value: '_billable'
           },
@@ -212,10 +212,11 @@
         }).catch(this.handleHttpError);
       },
       changeSort (column) {
-        if (this.pagination.sortBy === column) {
+        if (!column.sortable) return;
+        if (this.pagination.sortBy === column.value) {
           this.pagination.descending = !this.pagination.descending
         } else {
-          this.pagination.sortBy = column
+          this.pagination.sortBy = column.value
           this.pagination.descending = false
         }
       },

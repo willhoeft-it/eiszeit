@@ -29,9 +29,9 @@
               :key="header.text"
               :class="['column sortable', pagination.descending ? 'desc' : 'asc', header.value === pagination.sortBy ? 'active' : '', header.align ? 'text-xs-' + header.align : '']"
               :width="header.width"
-              @click="changeSort(header.value)"
+              @click="changeSort(header)"
             >
-              <v-icon small>arrow_upward</v-icon>
+              <v-icon v-if="header.sortable" small>arrow_upward</v-icon>
               {{ header.text }}
             </th>
           </tr>
@@ -154,26 +154,26 @@
             text: 'Date',
             align: 'right',
             width: '150em',
-            sortable: false,
+            sortable: true,
             value: '_date'
           },
           {
             text: 'Working Time',
             align: 'right',
             width: '130em',
-            sortable: false,
+            sortable: true,
             value: 'workingtimeSum'
           },
           { text: 'Breaks',
             align: 'right',
             width: '100em',
-            sortable: false,
+            sortable: true,
             value: 'breakSum'
           },
           { text: 'Bookings',
             align: 'right',
             width: '100em',
-            sortable: false,
+            sortable: true,
             value: 'bookingSum'
           },
           { text: '',
@@ -217,10 +217,11 @@
         }).catch(this.handleHttpError);
       },
       changeSort (column) {
-        if (this.pagination.sortBy === column) {
+        if (!column.sortable) return;
+        if (this.pagination.sortBy === column.value) {
           this.pagination.descending = !this.pagination.descending
         } else {
-          this.pagination.sortBy = column
+          this.pagination.sortBy = column.value
           this.pagination.descending = false
         }
       },
