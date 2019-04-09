@@ -14,8 +14,9 @@
       <v-data-table
         :headers="tableHeaders"
         :pagination.sync="pagination"
+        :custom-sort="customSort"
         :items="filteredBookings"
-        :rows-per-page-items="[10,20,{'text': 'All', 'value' :-1}]"
+        :rows-per-page-items="[15,30,{'text': 'All', 'value' :-1}]"
         class="elevation-1"
       >
         <template slot="headers" slot-scope="props">
@@ -217,6 +218,33 @@
           this.pagination.sortBy = column
           this.pagination.descending = false
         }
+      },
+      customSort (items, index, isDescending) {
+        if (index === null) return items
+
+        return items.sort((a, b) => {
+          const sortA = isDescending ? b[index] : a[index]
+          const sortB = isDescending ? a[index] : b[index]
+          // Check if both are numbers
+          if (!isNaN(sortA) && !isNaN(sortB)) {
+            return sortA - sortB
+          }
+          // Check if both cannot be evaluated
+          if (sortA === null && sortB === null) {
+            return 0
+          }
+          // Check for special duration columns
+          if ('_duration' === index) {
+            const [dA, dB] = [sortA, sortB].map(s => (
+              Duration.fromISO(s || 'PT0H').valueOf()
+            ))
+            return dA - dB
+          }
+          const [strA, strB] = [sortA, sortB].map(s => (
+            (s || '').toString()
+          ))
+          return strA.localeCompare(strB)
+        })
       },
       columnValueList(val) {
         return (this.bookings.booking) ? this.bookings.booking.map(d => d[val]) : []

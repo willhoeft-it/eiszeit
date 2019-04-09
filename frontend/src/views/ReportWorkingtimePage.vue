@@ -14,8 +14,9 @@
       <v-data-table
         :headers="tableHeaders"
         :pagination.sync="pagination"
+        :custom-sort="customSort"
         :items="wdReport.workingday"
-        :rows-per-page-items="[10,20,{'text': 'All', 'value' :-1}]"
+        :rows-per-page-items="[15,30,{'text': 'All', 'value' :-1}]"
         expand
         item-key="_date"
         class="elevation-1"
@@ -38,7 +39,6 @@
         <v-alert slot="no-results" :value="true" color="error" icon="warning">
           Your search found no results.
         </v-alert>
-        <!-- TODO: bug: sort on durations > 10 hrs is wrong. (11:00 < 5:45) -->
         <template slot="items" slot-scope="props">
           <tr @click="props.expanded = !props.expanded">
             <td class="text-xs-right">{{ (new Date(props.item._date)).toLocaleDateString("de-de", { weekday: 'short', year: 'numeric', month: '2-digit', day: '2-digit' }) }}</td>
@@ -223,6 +223,33 @@
           this.pagination.sortBy = column
           this.pagination.descending = false
         }
+      },
+      customSort (items, index, isDescending) {
+        if (index === null) return items
+
+        return items.sort((a, b) => {
+          const sortA = isDescending ? b[index] : a[index]
+          const sortB = isDescending ? a[index] : b[index]
+          // Check if both are numbers
+          if (!isNaN(sortA) && !isNaN(sortB)) {
+            return sortA - sortB
+          }
+          // Check if both cannot be evaluated
+          if (sortA === null && sortB === null) {
+            return 0
+          }
+          // Check for special duration columns
+          if (['workingtimeSum', 'breakSum', 'bookingSum'].includes(index)) {
+            const [dA, dB] = [sortA, sortB].map(s => (
+              Duration.fromISO(s || 'PT0H').valueOf()
+            ))
+            return dA - dB
+          }
+          const [strA, strB] = [sortA, sortB].map(s => (
+            (s || '').toString()
+          ))
+          return strA.localeCompare(strB)
+        })
       },
       columnValueList(val) {
         return (this.wdReport.workingday) ? this.wdReport.workingday.map(d => d[val]) : []
