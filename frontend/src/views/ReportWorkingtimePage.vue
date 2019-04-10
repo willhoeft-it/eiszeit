@@ -147,7 +147,7 @@
   });
 
   // using a global vue filter to reuse code for multiple computed values
-  Vue.filter('filterBookings', function(bookings, filters) {
+  Vue.filter('filterWorkingtimes', function(bookings, filters) {
     return (bookings) ? bookings.filter(b => {
       return Object.keys(filters).every(f => {
         if (filters[f].items.length < 1) return true
@@ -219,10 +219,10 @@
     },
     computed:  {
       filteredBookings() {
-        return Vue.filter('filterBookings')(this.wdReport.workingday, this.filters)
+        return Vue.filter('filterWorkingtimes')(this.wdReport.workingday, this.filters)
       },
       totalBookedDuration() {
-        const fbs = Vue.filter('filterBookings')(this.wdReport.workingday, this.filters)
+        const fbs = Vue.filter('filterWorkingtimes')(this.wdReport.workingday, this.filters)
         return (fbs) ? fbs.reduce((total, b) => {
           return total.plus(Duration.fromISO(b.bookingSum))
         }, Duration.fromISO('PT0H')) : "PT0H";
