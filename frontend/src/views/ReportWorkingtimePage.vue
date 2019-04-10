@@ -15,14 +15,13 @@
         :headers="tableHeaders"
         :pagination.sync="pagination"
         :custom-sort="customSort"
-        :items="wdReport.workingday"
+        :items="filteredBookings"
         :rows-per-page-items="[15,30,{'text': 'All', 'value' :-1}]"
         expand
         item-key="_date"
         class="elevation-1"
       >
         <template slot="headers" slot-scope="props">
-          <!-- TODO: add a free text filter for description -->
           <tr>
             <th
               v-for="header in props.headers"
@@ -33,6 +32,17 @@
             >
               <v-icon v-if="header.sortable" small>arrow_upward</v-icon>
               {{ header.text }}
+            </th>
+          </tr>
+          <tr>
+            <th
+              v-for="header in props.headers"
+              :key="header.text"
+            >
+              <div v-if="filters.hasOwnProperty(header.value)">
+                <v-select v-if="filters[header.value].type==='selection'" flat hide-details multiple clearable :items="columnValueList(header.value)" v-model="filters[header.value].items" />
+                <v-combobox v-if="filters[header.value].type==='text'" placeholder="Filter" flat hide-details append-icon="" multiple clearable small-chips deletable-chips v-model="filters[header.value].items" />
+              </div>
             </th>
           </tr>
         </template>
@@ -136,6 +146,24 @@
     ]
   });
 
+  // using a global vue filter to reuse code for multiple computed values
+  Vue.filter('filterBookings', function(bookings, filters) {
+    return (bookings) ? bookings.filter(b => {
+      return Object.keys(filters).every(f => {
+        if (filters[f].items.length < 1) return true
+        switch(filters[f].type) {
+          case "selection": return filters[f].items.includes(b[f])
+          case "text": return filters[f].items.every(txt =>
+            (b.workingtime || []).concat(b.break || []).some(i =>
+              (i.description && i.description.toLowerCase().includes(txt.toLowerCase()))
+            )
+          )
+        }
+        return true
+      })
+    }) : []
+  })
+
   export default Vue.component('report-workingtime-page', {
     mixins: [dateUtils, pageMixin],
     props: {
@@ -176,16 +204,26 @@
             sortable: true,
             value: 'bookingSum'
           },
-          { text: '',
-            align: 'right',
-            sortable: false
+          { text: 'Descriptions',
+            align: 'left',
+            sortable: false,
+            value: 'description'
           }
-        ]
+        ],
+        filters: {
+          description: {
+            type: 'text',
+            items: [] }
+        },
       };
     },
     computed:  {
+      filteredBookings() {
+        return Vue.filter('filterBookings')(this.wdReport.workingday, this.filters)
+      },
       totalBookedDuration() {
-        return (this.wdReport.workingday) ? this.wdReport.workingday.reduce((total, b) => {
+        const fbs = Vue.filter('filterBookings')(this.wdReport.workingday, this.filters)
+        return (fbs) ? fbs.reduce((total, b) => {
           return total.plus(Duration.fromISO(b.bookingSum))
         }, Duration.fromISO('PT0H')) : "PT0H";
       }
@@ -195,6 +233,7 @@
     },
     methods: {
       shortDescriptionArr: function (items) {
+        if (!items) return []
         return items.filter(i => i.description).map(i =>  (i.description.length > 20) ? i.description.substring(0, 20) + "..." : i.description)
       },
       loadData: function() {

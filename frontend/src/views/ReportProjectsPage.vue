@@ -20,7 +20,6 @@
         class="elevation-1"
       >
         <template slot="headers" slot-scope="props">
-          <!-- TODO: add a free text filter for description -->
           <tr>
             <th
               v-for="header in props.headers"
@@ -39,8 +38,8 @@
               :key="header.text"
             >
               <div v-if="filters.hasOwnProperty(header.value)">
-                <v-select flat hide-details multiple clearable :items="columnValueList(header.value)" v-model="filters[header.value]">
-                </v-select>
+                <v-select v-if="filters[header.value].type==='selection'" flat hide-details multiple clearable :items="columnValueList(header.value)" v-model="filters[header.value].items" />
+                <v-combobox v-if="filters[header.value].type==='text'" placeholder="Filter" flat hide-details append-icon="" multiple clearable small-chips deletable-chips v-model="filters[header.value].items" />
               </div>
             </th>
           </tr>
@@ -80,6 +79,11 @@
   .v-input {
     font-size: 13px;
   }
+  /* fix filter combo-box position */
+  .v-text-field.v-text-field--enclosed {
+    margin-top: 4px;
+    padding-top: 12px;
+  }
   table.v-table thead th {
     font-size: 13px;
   }
@@ -110,9 +114,15 @@
 
   // using a global vue filter to reuse code for multiple computed values
   Vue.filter('filterBookings', function(bookings, filters) {
-    return (bookings) ? bookings.filter(d => {
+    return (bookings) ? bookings.filter(b => {
       return Object.keys(filters).every(f => {
-        return filters[f].length < 1 || filters[f].includes(d[f])
+        if (filters[f].items.length < 1) return true
+        switch(filters[f].type) {
+          case "selection": return filters[f].items.includes(b[f])
+          case "text": return filters[f].items.every(txt =>
+            b[f].toLowerCase().includes(txt.toLowerCase()))
+        }
+        return true
       })
     }) : []
   })
@@ -171,9 +181,18 @@
           }
         ],
         filters: {
-          project: [],
-          task: [],
-          _billable: []
+          project: {
+            type: 'selection',
+            items: [] },
+          task: {
+            type: 'selection',
+            items: [] },
+          _billable: {
+            type: 'selection',
+            items: [] },
+          description: {
+            type: 'text',
+            items: [] }
         },
       };
     },
