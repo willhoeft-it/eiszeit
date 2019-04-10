@@ -2,7 +2,7 @@
 
 ## User management
 
-## CLient management
+## Client management
 
 ## remove all willhoeft specific details from code / examples
 
@@ -15,18 +15,18 @@
 
 ## Permissions for project leads / members
 
-## public on Github
-
-## Internationalization
-* Text/labels
-* component localization
-* date formats
-
 ## refactor
 * rename all "working hours" to "attendance"
 
 ## reconsider product name "timetracking"
 * Add logo / favicon
+
+## Milestone: go public on Github
+
+## Internationalization
+* Text/labels
+* component localization
+* date formats
 
 ## switch authentication to JWT
 see:
@@ -41,6 +41,19 @@ Needed for integration with OpenOffice
 ## Dashboard
 * or remove it if not used?
 
+## db update script
+* supply a script that applies all xquery scripts
+* script should be started from outside docker to init/update the data volume
+* make sure that web frontend is not accessible / interferes while scripts are applied
+ * even better: show progress in web frontend
+
+## add sickness
+* add calendar entry type "sick" that adds contracted hours to that day
+
+## holidays
+* add calendar entry type "holiday" that adds contracted hours to that day
+* add holiday contingent for each year
+
 ## billed
 * allow to set booking status to "billed"
  * multiple selects and submit possible in "report on projects"
@@ -51,13 +64,6 @@ Needed for integration with OpenOffice
 ## contracted hours
 * per user, define contracts with date interval and working hours per day
 * additionally add fixed working week days to contract for specific part-time contracts
-
-## add sickness
-* add calendar entry type "sick" that adds contracted hours to that day
-
-## holidays
-* add calendar entry type "holiday" that adds contracted hours to that day
-* add holiday contingent for each year
 
 ## REST API doc
 * Swagger (RAML?) generated from backend?
@@ -70,10 +76,3 @@ Needed for integration with OpenOffice
 * to docker hub
 
 ## public on docker hub
-
-## db update script
-* supply xquery scripts that modify the db from one revision to the next
-* supply a script that applies all xquery scripts
-* script should be started from outside docker to init/update the data volume
-* make sure that web frontend is not accessible / interferes while scripts are applied
- * even better: show progress in web frontend
