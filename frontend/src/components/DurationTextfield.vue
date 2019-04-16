@@ -1,4 +1,5 @@
 <template>
+  <!-- TODO: fix bug: value is not always converted. WF: Type "75" in field, click on field, click on other field. Result: invalid "75" remains. Expected: when focus is lost, should turn to "01:15" (works when using tab-key) -->
   <v-text-field
     v-bind:value="valueAsHours"
     @change="updateValue"
