@@ -68,7 +68,7 @@
       <v-flex md3 xs12>
         <v-select v-model="booking._taskId" label="Task" :items="availableTasks" item-text="_title" item-value="_id"  @input="setBillableToDefault(booking)">
           <template slot="prepend-inner" >
-            <v-icon v-if="availableTasks.find(t => (t._id === booking._taskId))._status === 'locked'">fas fa-lock</v-icon>
+            <v-icon v-if="availableTasks.find(t => (t._id === booking._taskId))._status === 'locked'" small>fas fa-lock</v-icon>
           </template>
           <template slot="label">
             <span v-if="! booking._taskId" class="caption">Task</span>
@@ -77,7 +77,7 @@
           <template slot="item" slot-scope="{ item }">
             <v-list-tile-content>
               <v-list-tile-sub-title>{{ taskPathString(item._id) }}</v-list-tile-sub-title>
-              <v-list-tile-title><v-icon v-if="item._status === 'locked'">fas fa-lock</v-icon> {{ item._title }}</v-list-tile-title>
+              <v-list-tile-title><v-icon v-if="item._status === 'locked'" small>fas fa-lock</v-icon> {{ item._title }}</v-list-tile-title>
             </v-list-tile-content>
           </template>
         </v-select>
