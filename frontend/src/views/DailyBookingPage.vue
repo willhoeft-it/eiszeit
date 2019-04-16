@@ -462,9 +462,11 @@
         booking._billable = task._billableDefault
       },
       taskPathString: function(taskId) {
-        return this.tasks.task.find((t) => {
+        const task = this.tasks.task.find((t) => {
           return t._id == taskId
-        }).path.reduce((s, p, i, arr) => {
+        })
+        if (! task) return "unknown task " + taskId
+        return task.path.reduce((s, p, i, arr) => {
           return s + p._title + ((i < arr.length - 1) ? " » " : "")
         }, "")
       }
