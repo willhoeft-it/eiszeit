@@ -63,20 +63,21 @@
     <v-flex xs12>
       <h2>Bookings</h2>
     </v-flex>
-    <!-- TODO: fix error in taskPathString, when task has been locked. Instead the task path should be shown and the input read-only  -->
     <!-- TODO: sort to top or highlight tasks that have recently been used -->
     <v-layout v-for="booking in workingday.booking" :key="booking.$key" row wrap>
       <v-flex md3 xs12>
-        <v-select v-model="booking._taskId" label="Task" :items="tasks.task" item-text="_title" item-value="_id"  @input="setBillableToDefault(booking)">
+        <v-select v-model="booking._taskId" label="Task" :items="availableTasks" item-text="_title" item-value="_id"  @input="setBillableToDefault(booking)">
+          <template slot="prepend-inner" >
+            <v-icon v-if="availableTasks.find(t => (t._id === booking._taskId))._status === 'locked'">fas fa-lock</v-icon>
+          </template>
           <template slot="label">
             <span v-if="! booking._taskId" class="caption">Task</span>
             <span v-else class="caption">{{ taskPathString(booking._taskId) }}</span>
           </template>
-
           <template slot="item" slot-scope="{ item }">
             <v-list-tile-content>
               <v-list-tile-sub-title>{{ taskPathString(item._id) }}</v-list-tile-sub-title>
-              <v-list-tile-title>{{ item._title }}</v-list-tile-title>
+              <v-list-tile-title><v-icon v-if="item._status === 'locked'">fas fa-lock</v-icon> {{ item._title }}</v-list-tile-title>
             </v-list-tile-content>
           </template>
         </v-select>
@@ -266,6 +267,9 @@
           return b._duration ? total.minus(Duration.fromISO(b._duration)) : total
         }, netwtsum) : netwtsum;
         return unbooked;
+      },
+      availableTasks() {
+        return this.tasks.task.filter(t => (t._status === "open" || this.workingday.booking.some(b => (b._taskId === t._id))))
       },
       isDirty() {
         return !_.isEqual(this.workingday, this.workingdayUnchanged)

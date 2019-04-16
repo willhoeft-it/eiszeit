@@ -275,9 +275,9 @@ declare
     <tasks>{
         let $db := db:open("timetracking")/taskRevisions
         let $dbt := $db/tasks[@rev=max(../tasks/@rev)]
-        for $t in ($dbt//task[staffmemberId=$staffmemberId and not(ancestor-or-self::*[@status='locked'])]) return
-          <task>
-            { $t/@* }
+        for $t in ($dbt//task[staffmemberId=$staffmemberId]) return
+          <task status="{if ($t/ancestor-or-self::*[@status='locked']) then 'locked' else $t/@status}">
+            { $t/(@id, @billableDefault, @title) }
             {
               for $p in ($t/ancestor::*/@title) return
                 <path title="{$p}" />
