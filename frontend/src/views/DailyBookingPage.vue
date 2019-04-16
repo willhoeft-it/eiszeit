@@ -72,7 +72,7 @@
           </template>
           <template slot="label">
             <span v-if="! booking._taskId" class="caption">Task</span>
-            <span v-else class="caption">{{ taskPathString(booking._taskId) }}</span>
+            <span v-else="booking._taskId" class="caption">{{ taskPathString(booking._taskId) }}</span>
           </template>
           <template slot="item" slot-scope="{ item }">
             <v-list-tile-content>
