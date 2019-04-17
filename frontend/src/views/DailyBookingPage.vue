@@ -68,7 +68,7 @@
       <v-flex md3 xs12>
         <v-select v-model="booking._taskId" label="Task" :items="availableTasks" item-text="_title" item-value="_id"  @input="setBillableToDefault(booking)">
           <template slot="prepend-inner" >
-            <v-icon v-if="availableTasks.find(t => (t._id === booking._taskId))._status === 'locked'" small>fas fa-lock</v-icon>
+            <v-icon v-if="isTaskLocked(booking._taskId)" small>fas fa-lock</v-icon>
           </template>
           <template slot="label">
             <span v-if="! booking._taskId" class="caption">Task</span>
@@ -278,7 +278,6 @@
     created: function () {
       const self = this
       window.addEventListener('beforeunload', (event) => {
-        console.log('beforeunload. dirty: ', self.isDirty)
         if (self.isDirty) event.returnValue = 'You have unfinished changes!'
       })
       this.loadData();
@@ -288,7 +287,6 @@
         this.workingdayUnchanged = JSON.parse(JSON.stringify(this.workingday))
       },
       loadData: function() {
-        console.log("loadData")
         if (! this.staffmember._id) {
           return
         }
@@ -299,12 +297,8 @@
           self.server.get('../api/tasks/' + this.staffmember._id),
           self.server.get('../api/timetrack' + urlDate),
         ]).then(axios.spread(function(taskResponse, timetrackResponse) {
-          console.log("tasks:")
-          console.log(taskResponse);
           const t = x2jsTasks.xml2js(taskResponse.data).tasks;
           self.tasks = t
-          console.log("timetrack:")
-          console.log(timetrackResponse);
           const d = x2jsTimetrack.xml2js(timetrackResponse.data).workingday;
           if (! d.workingtime) {
             self.addDefaultWorkingTime(d);
@@ -317,8 +311,6 @@
           }
           self.workingday = d
           self.resetDirty()
-          console.log(self.workingday);
-
           self.showMessage('fetched!', 'info')
         })).catch(this.handleHttpError);
       },
@@ -328,16 +320,13 @@
         const endDate = new Date(start)
         endDate.setMonth(endDate.getMonth() + 1)
         const end = this.dateToLocalISOString(endDate).slice(0, 10)
-        console.log("fetching wd report for " + start + " to " + end)
         const self = this
         self.server.get('../api/report/days/' + start + '/' + end).then(function(wdReportResponse) {
           self.wdReport = x2jsWdReport.xml2js(wdReportResponse.data).workingdays;
-          console.log("fetched wd report")
         }).catch(this.handleHttpError);
       },
       // TODO: validate or don't submit. Avoid backend error on bookings without task id
       submitWorkingtimes: function () {
-        console.log("submitWorkingTimes")
         // eslint-disable-next-line
         const outjs = deepFilter(this.workingday, function(_, prop) {
           return ! prop.toString().startsWith('$')
@@ -347,11 +336,9 @@
             workingday: outjs
           }
         );
-        console.log(xmlDocStr);
         const self = this
         self.server.post('../api/timetrack', xmlDocStr)
           .then(function (response) {
-            console.log(response);
             self.showMessage("posted!", 'success')
             self.resetDirty()
             self.loadWdInfos(self.workingday._date.slice(0, 7))
@@ -371,23 +358,19 @@
         return (Duration.fromISO(wd.workingtimeSum) - Duration.fromISO(wd.breakSum) - Duration.fromISO(wd.bookingSum) == 0) ? 'green' : 'yellow'
       },
       updateOnTimeChange: function(wt, newStart, newEnd) {
-        console.log("updateOnTimeChange", newStart, newEnd)
         const start = newStart ? newStart : wt._start
         const end = newEnd ? newEnd : wt._end
         if (start && end) {
           const startDt = this.toDateTime(this.workingday._date, start)
           const endDt = this.toDateTime(this.workingday._date, end)
           wt._duration = endDt.diff(startDt, ['hours', 'minutes']).toISO()
-          console.log("updateOnEndChange: " + endDt.toISO() + " - " + startDt.toISO() + " = " + wt._duration)
         }
       },
       updateOnDurationChange: function(wt, newDuration) {
-        console.log("updateOnDurationChange: " + newDuration + " / " + wt._start)
         if (newDuration && wt._start) {
           const duration = Duration.fromISO(newDuration)
           const startDt = this.toDateTime(this.workingday._date, wt._start)
           wt._end = startDt.plus(duration).toFormat("HH:mm")
-          console.log("updateOnDurationChange: " + startDt.toISO() + " + " + newDuration + " = " + wt._end)
         }
       },
       addDefaultWorkingTime: function(wd) {
@@ -398,7 +381,6 @@
           $key: pskey++
         }
         if (! wd.workingtime) {
-          console.log("creating workingtime array")
           Vue.set(wd, "workingtime", [])
         }
         wd.workingtime.push(wt)
@@ -410,7 +392,6 @@
           $key: pskey++
         }
         if (! wd.break) {
-          console.log("creating break array")
           Vue.set(wd, "break", [])
         }
         wd.break.push(b)
@@ -423,13 +404,11 @@
           $key: pskey++
         }
         if (! wd.booking) {
-          console.log("creating booking array")
           Vue.set(wd, "booking", [])
         }
         wd.booking.push(b)
       },
       addWorkingTime: function() {
-        console.log("addWorkingTime")
         this.addDefaultWorkingTime(this.workingday)
       },
       removeWorkingTime: function(wt) {
@@ -439,7 +418,6 @@
         }
       },
       addBreak: function() {
-        console.log("addBreak")
         this.addDefaultBreak(this.workingday)
       },
       removeBreak: function(b) {
@@ -455,7 +433,6 @@
         }
       },
       addBooking: function() {
-        console.log("addBooking")
         this.addDefaultBooking(this.workingday)
       },
       setBillableToDefault: function(booking) {
@@ -473,6 +450,11 @@
         return task.path.reduce((s, p, i, arr) => {
           return s + p._title + ((i < arr.length - 1) ? " » " : "")
         }, "")
+      },
+      isTaskLocked: function(taskId) {
+        if (typeof (taskId) === 'undefined') return false
+        const task = this.tasks.task.find(t => (t._id === taskId))
+        return (! task || task._status === 'locked')
       }
     }
   })
