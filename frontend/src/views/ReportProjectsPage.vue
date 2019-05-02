@@ -293,11 +293,11 @@
         return (this.bookings.booking) ? this.bookings.booking.map(d => d[val]) : []
       },
       getAccessToken() {
-        const accessPath = this.accessTokenPath.replace(/^[^\/]*\//, '/')
+        const url = new URL(this.accessTokenPath, window.location.href)
+        const accessPath = url.pathname
         const self = this
         self.server.get('../api/token?path=' + encodeURIComponent(accessPath)).then(function(tokenResponse) {
-          // TODO: send the absolute url
-          self.accessTokenUrl = accessPath + "?accessToken=" + encodeURIComponent(x2js.xml2js(tokenResponse.data).token);
+          self.accessTokenUrl = url.href + "?accessToken=" + encodeURIComponent(x2js.xml2js(tokenResponse.data).token);
         }).catch(this.handleHttpError);
       },
       clipboardAccessTokenUrl(event) {
