@@ -30,11 +30,35 @@
 
 ## switch authentication to JWT
 see:
+* https://www.oauth.com/oauth2-servers/access-tokens/self-encoded-access-tokens/
+* https://www.oauth.com/oauth2-servers/making-authenticated-requests/
 * https://mailman.uni-konstanz.de/pipermail/basex-talk/2019-February/014070.html
 * https://alligator.io/vuejs/vue-jwt-patterns/
 * http://jasonwatmore.com/post/2018/07/06/vue-vuex-jwt-authentication-tutorial-example
 
-Needed for integration with OpenOffice
+Use-Case: integration with OpenOffice needs auth encoded in URL, but it should not contain long-term credentials
+Idea:
+* Provide link on (reporting) page that includes:
+ * URL of this page
+ * sort/filter parameters as currently used
+ * access-token URL parameter composed of
+  * URL of page (without sort/filter)
+  * user session id
+  * timestamp
+  * signature with key that is only known to server (could be generated on start or passed as ENV param)
+* (/) Server will provide this link and token on client request, when
+ * user is logged in
+ * has access rights to the requested URL
+* (/) On use of the link, when usual (session) validation fails, server checks:
+ * access-token given?
+ * signature valid?
+ * session id in token still valid?
+ * (optional) timestamp not older than configured duration (e.g. 1h)
+ * GET request
+ * called URL equals URL in token (parameters ignored)
+* if all checks succeed, grant access with rights of the user session
+* (/) The url can be pasted into a LibreOffice document
+* (/) when user is logged out (or session times out and possibly after server restart), all his created tokens are invalid, because the session id check will fail (see above)
 
 ## Example for OpenOffice integration
 

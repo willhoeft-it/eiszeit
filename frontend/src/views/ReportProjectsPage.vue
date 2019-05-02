@@ -10,6 +10,7 @@
     <v-flex xs12>
       <h2>Monthly Project Report</h2>
     </v-flex>
+    <!-- TODO: add an access token link button -->
     <v-flex xs12>
       <v-data-table
         :headers="tableHeaders"

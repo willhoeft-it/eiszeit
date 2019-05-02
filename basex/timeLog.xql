@@ -1,5 +1,7 @@
 module namespace page = 'http://basex.org/modules/web-page';
 import module namespace session = "http://basex.org/modules/session";
+import module namespace sessions = "http://basex.org/modules/sessions";
+import module namespace request = "http://exquery.org/ns/request";
 declare namespace rnd = "java.security.SecureRandom";
 
 (: TODO: change module namespace to something more meaningful. E.g. github page :)
@@ -127,13 +129,56 @@ declare
     (bin:length($a) = bin:length($b)) and bin:unpack-unsigned-integer(bin:xor($a, $b), 0, bin:length($a)) = 0
 };
 
+(: TODO: this "secret" should be generated randomly or passed via ENV on server start :)
+declare variable $page:secret := 'secretSECRETsecretSECRET';
+
+declare
+  function page:createAccessToken($sid as xs:string, $path as xs:string) as xs:string {
+    let $jtoken := json:serialize(
+      <json type='object'>
+        <sid>{$sid}</sid>
+        <path>{$path}</path>
+        <ts>{current-dateTime()}</ts>
+      </json>,
+      map { 'format': 'xquery', 'indent': 'no', 'escape': 'no' }
+    )
+    let $stoken := xs:string(bin:encode-string($jtoken, 'UTF-8'))
+    let $sig := crypto:hmac($stoken, $page:secret, 'sha256', 'base64')
+    return concat($stoken, '.', $sig)
+};
+
+declare
+  function page:checkAccessToken($jwt as xs:string, $path as xs:string) as xs:boolean {
+    let $parts := tokenize($jwt, '\.')
+    let $stoken := $parts[1]
+    let $sig := $parts[2]
+    let $jtoken := bin:decode-string(xs:base64Binary($stoken), 'UTF-8')
+    let $token := json:parse($jtoken)
+    return
+      (: TODO use page:timeConstantEqual :)
+      (crypto:hmac($stoken, $page:secret, 'sha256', 'base64') = $sig) and
+      ($token/json/sid = sessions:ids()) and
+      ($token/json/path = $path)
+      (:TODO add a max age of timestamp check:)
+};
+
 (:~
- : Permission check: all api functions need logged-in user
+ : Permission check: all api functions need logged-in user.
+ : Alternatively a restricted accessToken can be used.
  : TODO: www-authenticate is set to Basic realm="BaseX" and cannot be overridden? Change in web.xml if necesary.
+ : TODO: accessToken access should work as if the same user. Currently e.g. api/timetrack/{$date} has no session / staffMemberId set.
  :)
-declare %perm:check('api/') function page:checkApp() {
+declare
+  %perm:check('api/')
+  %rest:query-param("accessToken", "{$accessToken}")
+function page:checkApp($accessToken as xs:string?) {
   let $staffmemberId := session:get('staffmemberId')
-  where empty($staffmemberId)
+  where
+    empty($staffmemberId) and not (
+      $accessToken and
+      page:checkAccessToken($accessToken, request:path()) and
+      request:method() = 'GET'
+  )
   return (
     <rest:response>
       <http:response status="401">
@@ -145,9 +190,36 @@ declare %perm:check('api/') function page:checkApp() {
 };
 
 (:~
+ : Request an access token that can be used to have restricted access to data in his place.
+ : The given token must be URL encoded (it might contain '+') and added as accessToken parameter.
+ :)
+declare
+  %rest:path("api/token")
+  %rest:GET
+  %rest:query-param("path", "{$path}")
+  %rest:produces("application/xml", "text/xml")
+  %output:method("xml")
+  %output:omit-xml-declaration("no")
+function page:token-get($path as xs:string) as item()* {
+  (: If detailed user permissions are implemented, we will need to check that the user has permission
+  on the paths he is requesting the token for. Even then sensitive areas (user settings, server configurations, etc.) should be exempt.
+  For now we just limit to some specific paths :)
+  let $bc := tokenize($path, '/')
+  return if ($bc[1] = '' and $bc[2] = 'api' and $bc[3] = ('timetrack', 'report')) then
+    <token>{page:createAccessToken(session:id(), $path)}</token>
+  else (
+    <rest:response>
+      <http:response status="403">
+        <http:header name="Content-Language" value="en"/>
+      </http:response>
+    </rest:response>,
+    "Invalid token request"
+  )
+};
+
+(:~
  : timetrack API
  :)
-
  declare
    %rest:path("api/staff")
    %rest:GET
