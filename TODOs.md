@@ -38,7 +38,7 @@ see:
 
 Use-Case: integration with OpenOffice needs auth encoded in URL, but it should not contain long-term credentials
 Idea:
-* Provide link on (reporting) page that includes:
+* (/) Provide link on (reporting) page that includes:
  * URL of this page
  * sort/filter parameters as currently used
  * access-token URL parameter composed of

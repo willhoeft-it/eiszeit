@@ -6,11 +6,28 @@
       <h2>User: {{staffmember.givenName}} {{staffmember.name}}</h2>
       <v-date-picker v-model="dateSelected" @change="loadData" type="month" color="grey" full-width landscape first-day-of-week="1" reactive />
     </v-flex>
-
-    <v-flex xs12>
-      <h2>Monthly Project Report</h2>
-    </v-flex>
-    <!-- TODO: add an access token link button -->
+    <v-toolbar flat>
+      <v-toolbar-title>Monthly Project Report</v-toolbar-title>
+      <v-spacer></v-spacer>
+      <v-toolbar-items>
+        <v-menu v-model="accessTokenUrl" :close-on-content-click="false" :nudge-width="400" left >
+          <template v-slot:activator="{ on }">
+            <v-btn small icon v-on="on" @click="getAccessToken">
+              <v-icon small>fas fa-key</v-icon>
+            </v-btn>
+          </template>
+          <v-card tile>
+            <v-text-field
+              outline
+              single-line
+              v-model="accessTokenUrl"
+              @focus="clipboardAccessTokenUrl($event)"
+              append-icon="fas fa-paste"
+            />
+          </v-card>
+        </v-menu>
+      </v-toolbar-items>
+    </v-toolbar>
     <v-flex xs12>
       <v-data-table
         :headers="tableHeaders"
@@ -112,6 +129,8 @@
       "bookings.booking"
     ]
   });
+  // eslint-disable-next-line
+  const x2js = new X2JS();
 
   // using a global vue filter to reuse code for multiple computed values
   Vue.filter('filterBookings', function(bookings, filters) {
@@ -195,6 +214,8 @@
             type: 'text',
             items: [] }
         },
+        accessTokenPath: "",
+        accessTokenUrl: ""
       };
     },
     computed:  {
@@ -222,12 +243,13 @@
           _dateFrom: this.dateToLocalISOString(monthBegin),
           _dateTo: this.dateToLocalISOString(nextMonthBegin)
         }
-        const urlDates = "/" + this.bookings._dateFrom + "/" + this.bookings._dateTo
+        const url = '../api/report/bookings/' + this.bookings._dateFrom + '/' + this.bookings._dateTo
         const self = this
-        self.server.get('../api/report/bookings' + urlDates).then(function(reportResponse) {
+        self.server.get(url).then(function(reportResponse) {
           const bs = x2jsBookings.xml2js(reportResponse.data).bookings;
           self.bookings = bs
-
+          self.accessTokenPath = url
+          self.accessTokenUrl = ""
           self.showMessage('fetched!', 'info')
         }).catch(this.handleHttpError);
       },
@@ -269,7 +291,22 @@
       },
       columnValueList(val) {
         return (this.bookings.booking) ? this.bookings.booking.map(d => d[val]) : []
-      }
+      },
+      getAccessToken() {
+        const accessPath = this.accessTokenPath.replace(/^[^\/]*\//, '/')
+        const self = this
+        self.server.get('../api/token?path=' + encodeURIComponent(accessPath)).then(function(tokenResponse) {
+          // TODO: send the absolute url
+          self.accessTokenUrl = accessPath + "?accessToken=" + encodeURIComponent(x2js.xml2js(tokenResponse.data).token);
+        }).catch(this.handleHttpError);
+      },
+      clipboardAccessTokenUrl(event) {
+        event.target.select()
+        const success = document.execCommand('copy');
+        if (success) this.showMessage('copied to clipboard', 'success')
+        else this.showMessage('copy to clipboard failed', 'error')
+        this.accessTokenUrl = ""
+      },
     }
   })
 // </script>
