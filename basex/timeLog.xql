@@ -102,6 +102,29 @@ function page:login() as item()* {
     </staffmember>
 };
 
+(:~
+ : API for user management.
+ :
+ : Add new user
+ : TODO: implement
+ :)
+declare
+  %rest:path("users/user")
+  %rest:POST("{$u}")
+  %rest:produces("application/xml", "text/xml")
+  %updating
+  %output:method("xml")
+  %output:omit-xml-declaration("no")
+  %rest:single
+  function page:user-post($u as document-node()) as empty-sequence() {
+    (: admin:write-log(concat('POST tasks:', serialize($t)), 'DEBUG') :)
+    let $xsdTasks := doc("schemas/user.xsd")
+    let $db := db:open("timetracking")/staff
+    return
+      ()
+        (: TODO: implement :)
+};
+
 declare
   function page:createLocalAuthentication($password as xs:string) as element(authentication) {
     let $salt := page:salt()
