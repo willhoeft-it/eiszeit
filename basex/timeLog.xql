@@ -103,16 +103,50 @@ function page:login() as item()* {
 };
 
 (:~
+ : Set user password
+ : TODO: test this
+ :)
+declare
+  %rest:path("user/password")
+  %rest:query-param("accessToken", "{$accessToken}")
+  %rest:POST
+  %rest:form-param("newCred","{$newCred}")
+  %rest:form-param("oldCred","{$oldCred}")
+  %rest:produces("application/xml", "text/xml")
+  %updating
+  %output:method("xml")
+  %output:omit-xml-declaration("no")
+  %rest:single
+  function page:user-password-post($accessToken as xs:string?, $newCred as xs:string, $oldCred as xs:string?) as empty-sequence() {
+    let $sessionMid := session:get('staffmemberId')
+    let $tokenMid := if($accessToken) then page:checkAccessToken($accessToken, request:path())/mid else ()
+    let $staffmemberId := if($sessionMid) then $sessionMid else $tokenMid
+    return if (empty($staffmemberId))
+      (: TODO fix error name space :)
+      then error(QName("http://error", "notAuthenticated"), "authentication needed")
+      else
+        let $doc := db:open("timetracking")/staff
+        let $m := $doc/staffmember[@id=$staffmemberId]
+        return if (not($accessToken) and (not($oldCred) or not(page:checkLocalAuthentication($oldCred, $m/authentication[type='local']))))
+          then error(QName("http://error", "passwordCheckFailed"), "Required old password check failed")
+          else (
+              delete node $m/authentication[type = ('local', 'preliminary')],
+              (: TODO: quality check password :)
+              insert node page:createLocalAuthentication($newCred) into $m
+          )
+  };
+
+(:~
  : API for user management.
  :
  : Add new user
- : TODO: implement
+ : TODO: implement and %updating
  :)
 declare
   %rest:path("users/user")
   %rest:POST("{$u}")
   %rest:produces("application/xml", "text/xml")
-  %updating
+
   %output:method("xml")
   %output:omit-xml-declaration("no")
   %rest:single
@@ -121,7 +155,16 @@ declare
     let $xsdTasks := doc("schemas/user.xsd")
     let $db := db:open("timetracking")/staff
     return
-      ()
+      <staffmember id="admin">
+        <name>Admin</name>
+        <givenName>Admin</givenName>
+        <alias>admin</alias>
+        <email>admin@example.com</email>
+        <authentication type="local">
+          <hash type="hmac_sha256" salt="QbyZc+snKYU7icHuS0WnDLaMpEoqJEtN72rrQGDzVSU=">LmtrSmqFj0I2eIjGgP5oLBghXswGUCYHTWOqgGqi+VU=</hash>
+        </authentication>
+      </staffmember>
+
         (: TODO: implement :)
 };
 
@@ -156,10 +199,11 @@ declare
 declare variable $page:secret := 'secretSECRETsecretSECRET';
 
 declare
-  function page:createAccessToken($sid as xs:string, $path as xs:string) as xs:string {
+  function page:createAccessToken($sid as xs:string, $mid as xs:string, $path as xs:string) as xs:string {
     let $jtoken := json:serialize(
       <json type='object'>
         <sid>{$sid}</sid>
+        <mid>{$mid}</mid>
         <path>{$path}</path>
         <ts>{current-dateTime()}</ts>
       </json>,
@@ -171,7 +215,7 @@ declare
 };
 
 declare
-  function page:checkAccessToken($jwt as xs:string, $path as xs:string) as xs:boolean {
+  function page:checkAccessToken($jwt as xs:string, $path as xs:string) as element(json) {
     let $parts := tokenize($jwt, '\.')
     let $stoken := $parts[1]
     let $sig := $parts[2]
@@ -179,10 +223,12 @@ declare
     let $token := json:parse($jtoken)
     return
       (: TODO use page:timeConstantEqual :)
-      (crypto:hmac($stoken, $page:secret, 'sha256', 'base64') = $sig) and
-      ($token/json/sid = sessions:ids()) and
-      ($token/json/path = $path)
-      (:TODO add a max age of timestamp check:)
+      if (not((crypto:hmac($stoken, $page:secret, 'sha256', 'base64') = $sig) and
+        ($token/json/sid = sessions:ids()) and
+        ($token/json/path = $path)
+        (:TODO add a max age of timestamp check:)
+      )) then error(QName("http://error", "invalidAccessToken"), "invalid access token")
+      else $token/json
 };
 
 (:~
@@ -229,7 +275,7 @@ function page:token-get($path as xs:string) as item()* {
   For now we just limit to some specific paths :)
   let $bc := tokenize($path, '/')
   return if ($bc[1] = '' and $bc[2] = 'api' and $bc[3] = ('timetrack', 'report')) then
-    <token>{page:createAccessToken(session:id(), $path)}</token>
+    <token>{page:createAccessToken(session:id(), session:get('staffmemberId'), $path)}</token>
   else (
     <rest:response>
       <http:response status="403">

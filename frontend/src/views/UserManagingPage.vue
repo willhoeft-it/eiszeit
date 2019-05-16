@@ -1,6 +1,29 @@
 <template>
   <v-content><v-container fluid><v-layout row wrap>
     <v-container fluid grid-list-md>
+      <v-dialog v-model="newDialog" persistent max-width="300px">
+        <template v-slot:activator="{ on }">
+          <v-btn :disabled="editing" v-on="on"><v-icon>add</v-icon></v-btn>
+        </template>
+        <v-card>
+          <!-- TODO: set focus to first name on dialog open. "autofocus" does nothing-->
+          <v-card-text>
+            <div class="headline mb-2 text-xs-center">
+              <v-text-field placeholder="given name" v-model="newUser.givenName"/>
+              <v-text-field placeholder="name" v-model="newUser.name"/>
+            </div>
+            <div class="mb-2 text-xs-center"><v-text-field placeholder="email" v-model="newUser.email"/></div>
+            <div class="subheading font-weight-bold text-xs-center"><v-text-field placeholder="alias" v-model="newUser.alias"/></div>
+          </v-card-text>
+          <v-divider />
+          <v-card-actions>
+            <v-spacer />
+            <v-btn icon @click="addUser(newUser)"><v-icon>check</v-icon></v-btn>
+            <v-btn icon @click="clearUser(newUser)"><v-icon>cancel</v-icon></v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
       <v-data-iterator
       :items="staffmembers"
       item-key="_id"
@@ -11,24 +34,42 @@
       >
         <template v-slot:item="props">
           <v-flex xs12 sm6 md4 lg3 >
-            <v-card>
+            <v-card v-if="props.item._status==='edit'">
+              <v-card-text>
+                <div class="headline mb-2 text-xs-center">
+                  <v-text-field placeholder="given name" v-model="props.item.givenName"/>
+                  <v-text-field placeholder="name" v-model="props.item.name"/>
+                </div>
+                <!-- TODO: validate email -->
+                <div class="mb-2 text-xs-center"><v-text-field placeholder="email" v-model="props.item.email"/></div>
+                <div class="subheading font-weight-bold text-xs-center"><v-text-field placeholder="alias" v-model="props.item.alias"/></div>
+              </v-card-text>
+              <v-divider />
+              <v-card-actions>
+                <v-spacer />
+                <v-btn icon @click="saveUser(props.item)"><v-icon>check</v-icon></v-btn>
+              </v-card-actions>
+            </v-card>
+            <v-card v-else>
               <v-card-text>
                 <h2 class="headline mb-2 text-xs-center">{{ props.item.givenName }} {{ props.item.name }}</h2>
+                <!-- TODO: validate email -->
                 <div class="mb-2 text-xs-center">{{ props.item.email }}</div>
                 <div class="subheading font-weight-bold text-xs-center">{{ props.item.alias }}</div>
               </v-card-text>
               <v-divider />
               <v-card-actions>
                 <v-spacer />
+                <v-btn icon :disabled="editing" @click="editUser(props.item)"><v-icon>edit</v-icon></v-btn>
                 <v-btn icon @click="removeUser(props.item)"><v-icon>delete</v-icon></v-btn>
               </v-card-actions>
             </v-card>
+
           </v-flex>
         </template>
       </v-data-iterator>
     </v-container>
     <v-flex xs12>
-      <v-btn @click="addUser">add user</v-btn>
       <v-btn @click="loadData">reset</v-btn>
     </v-flex>
   </v-layout></v-container></v-content>
@@ -60,6 +101,9 @@
         pagination: {
           rowsPerPage: 4
         },
+        editing: false,
+        newDialog: false,
+        newUser: {}
       };
     },
     created: function () {
@@ -80,13 +124,42 @@
           self.showMessage('fetched!', 'info')
         })).catch(this.handleHttpError);
       },
-      // TODO: implement addUser
-      addUser: function() {
-        console.log("add user")
+      clearUser: function() {
+        this.newDialog = false
+        this.newUser = {
+          _status: "changed",
+          _id: "",
+          givenName: "",
+          name: "",
+          email: "",
+          alias: ""
+        }
       },
-      // TODO: implement removeUser
+      addUser: function(user) {
+        console.log("add user")
+        this.newDialog = false
+        const u = _.clone(user)
+        const id = this.pskey--
+        u._id = id
+        this.staffmembers.push(u)
+        this.clearUser()
+      },
+      editUser: function(user) {
+        console.log("edit user", user)
+        user._status = 'edit'
+        this.editing = true
+      },
+      // TODO: implement saveUser to db
+      saveUser: function(user) {
+        console.log("save user", user)
+        user._status = 'changed'
+        this.editing = false
+      },
+      // TODO: implement removeUser from db
       removeUser: function(user) {
         console.log("remove user", user)
+        if (user._id < 0)
+          this.staffmembers.splice(this.staffmembers.indexOf(user), 1)
       }
     }
   })
