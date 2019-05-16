@@ -64,6 +64,19 @@ Idea:
 
 ## Dashboard
 * or remove it if not used?
+* Nice fixed reports (in code)
+ * Booked / open / billable hours/days this week and previous week
+ * Booked / open / billable hours/days this month and previous month
+ * For every booked project:
+  * booked / billable hours/days this and previous week
+  * booked / billable hours/days this and previous month
+* Editable and savable report widgets
+ * xquery within secured context
+ * possible charts:
+  * bar chart + text, e.g. billable/non-billable tasks stacked over time
+  * gauge + green/yellow/red, e.g. booked hours compared to amount of days * 8
+  * pie chart, e.g. unbooked vs. non-billable, billable, depends
+  * line chart, e.g. billable hours over time
 
 ## db update script
 * supply a script that applies all xquery scripts

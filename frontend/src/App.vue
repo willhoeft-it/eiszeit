@@ -6,7 +6,7 @@
             <router-link to="/">Home</router-link> |
             <router-link to="/about">About</router-link>
         -->
-        <v-list-tile @click="page='homePage'">
+        <v-list-tile @click="page='dashboardPage'">
           <v-list-tile-action>
             <v-icon>fas fa-chart-line</v-icon>
           </v-list-tile-action>
