@@ -3,15 +3,14 @@
     <v-flex xs12>
       <v-layout>
         <v-flex xs6>
-          <!-- TODO: fix overflow for very long names -->
           <v-card-text>
             <v-treeview
             :active.sync="active"
             :open.sync="open"
             :items="items"
             activatable
-            >
-          </v-treeview>
+            class="overflow-x-hidden"
+            />
         </v-card-text>
       </v-flex>
       <v-divider vertical></v-divider>
