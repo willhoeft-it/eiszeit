@@ -75,6 +75,7 @@
   import X2JS from 'x2js'
   import pageMixin from '@/views/PageMixin.js'
   import {find} from 'deep_find'
+  import deepFilter from 'deep-filter'
   import axios from 'axios'
 
   // eslint-disable-next-line
@@ -216,9 +217,8 @@
       removeElement: function(el) {
         console.log("removeElement: ", el)
         const id = el._id
-        // eslint-disable-next-line
-        this.tasks = deepFilter(this.tasks, function(subject, prop) {
-          return ! ( subject._id && subject._id === id )
+        this.tasks = deepFilter(this.tasks, function(value) {
+          return ! ( value._id && value._id === id )
         })
       },
       loadData: function() {

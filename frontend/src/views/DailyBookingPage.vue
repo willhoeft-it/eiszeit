@@ -199,6 +199,7 @@
   import X2JS from 'x2js'
   import _ from 'lodash'
   import binarySearch from 'binary-search'
+  import deepFilter from 'deep-filter'
   import dateUtils from '@/utils/dateUtils.js'
   import pageMixin from '@/views/PageMixin.js'
 
@@ -327,7 +328,6 @@
       },
       // TODO: validate or don't submit. Avoid backend error on bookings without task id
       submitWorkingtimes: function () {
-        // eslint-disable-next-line
         const outjs = deepFilter(this.workingday, function(_, prop) {
           return ! prop.toString().startsWith('$')
         })
