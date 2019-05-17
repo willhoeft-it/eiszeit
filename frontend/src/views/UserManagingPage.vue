@@ -1,25 +1,23 @@
 <template>
   <v-content><v-container fluid><v-layout row wrap>
     <v-container fluid grid-list-md>
-      <v-dialog v-model="newDialog" persistent max-width="300px">
-        <template v-slot:activator="{ on }">
-          <v-btn :disabled="editing" v-on="on"><v-icon>add</v-icon></v-btn>
-        </template>
+      <v-dialog v-model="editDialog" persistent max-width="300px">
         <v-card>
           <!-- TODO: set focus to first name on dialog open. "autofocus" does nothing-->
           <v-card-text>
             <div class="headline mb-2 text-xs-center">
-              <v-text-field placeholder="given name" v-model="newUser.givenName"/>
-              <v-text-field placeholder="name" v-model="newUser.name"/>
+              <v-text-field ref="editGivenName" placeholder="given name" v-model="modUser.givenName"/>
+              <v-text-field placeholder="name" v-model="modUser.name"/>
             </div>
-            <div class="mb-2 text-xs-center"><v-text-field placeholder="email" v-model="newUser.email"/></div>
-            <div class="subheading font-weight-bold text-xs-center"><v-text-field placeholder="alias" v-model="newUser.alias"/></div>
+            <!-- TODO: validate email -->
+            <div class="mb-2 text-xs-center"><v-text-field placeholder="email" v-model="modUser.email"/></div>
+            <div class="subheading font-weight-bold text-xs-center"><v-text-field placeholder="alias" v-model="modUser.alias"/></div>
           </v-card-text>
           <v-divider />
           <v-card-actions>
             <v-spacer />
-            <v-btn icon @click="addUser(newUser)"><v-icon>check</v-icon></v-btn>
-            <v-btn icon @click="clearUser(newUser)"><v-icon>cancel</v-icon></v-btn>
+            <v-btn icon @click="saveUser(modUser)"><v-icon>check</v-icon></v-btn>
+            <v-btn icon @click="clearUser(modUser)"><v-icon>cancel</v-icon></v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -34,42 +32,25 @@
       >
         <template v-slot:item="props">
           <v-flex xs12 sm6 md4 lg3 >
-            <v-card v-if="props.item._status==='edit'">
-              <v-card-text>
-                <div class="headline mb-2 text-xs-center">
-                  <v-text-field placeholder="given name" v-model="props.item.givenName"/>
-                  <v-text-field placeholder="name" v-model="props.item.name"/>
-                </div>
-                <!-- TODO: validate email -->
-                <div class="mb-2 text-xs-center"><v-text-field placeholder="email" v-model="props.item.email"/></div>
-                <div class="subheading font-weight-bold text-xs-center"><v-text-field placeholder="alias" v-model="props.item.alias"/></div>
-              </v-card-text>
-              <v-divider />
-              <v-card-actions>
-                <v-spacer />
-                <v-btn icon @click="saveUser(props.item)"><v-icon>check</v-icon></v-btn>
-              </v-card-actions>
-            </v-card>
-            <v-card v-else>
+            <v-card>
               <v-card-text>
                 <h2 class="headline mb-2 text-xs-center">{{ props.item.givenName }} {{ props.item.name }}</h2>
-                <!-- TODO: validate email -->
                 <div class="mb-2 text-xs-center">{{ props.item.email }}</div>
                 <div class="subheading font-weight-bold text-xs-center">{{ props.item.alias }}</div>
               </v-card-text>
               <v-divider />
               <v-card-actions>
                 <v-spacer />
-                <v-btn icon :disabled="editing" @click="editUser(props.item)"><v-icon>edit</v-icon></v-btn>
+                <v-btn icon @click="editUser(props.item)"><v-icon>edit</v-icon></v-btn>
                 <v-btn icon @click="removeUser(props.item)"><v-icon>delete</v-icon></v-btn>
               </v-card-actions>
             </v-card>
-
           </v-flex>
         </template>
       </v-data-iterator>
     </v-container>
     <v-flex xs12>
+      <v-btn @click.stop="editUser"><v-icon>add</v-icon></v-btn>
       <v-btn @click="loadData">reset</v-btn>
     </v-flex>
   </v-layout></v-container></v-content>
@@ -101,9 +82,8 @@
         pagination: {
           rowsPerPage: 4
         },
-        editing: false,
-        newDialog: false,
-        newUser: {}
+        editDialog: false,
+        modUser: {}
       };
     },
     created: function () {
@@ -125,35 +105,43 @@
         })).catch(this.handleHttpError);
       },
       clearUser: function() {
-        this.newDialog = false
-        this.newUser = {
-          _status: "changed",
-          _id: "",
-          givenName: "",
-          name: "",
-          email: "",
-          alias: ""
-        }
-      },
-      addUser: function(user) {
-        console.log("add user")
-        this.newDialog = false
-        const u = _.clone(user)
-        const id = this.pskey--
-        u._id = id
-        this.staffmembers.push(u)
-        this.clearUser()
+        this.editDialog = false
+        this.modUser = {}
       },
       editUser: function(user) {
         console.log("edit user", user)
-        user._status = 'edit'
-        this.editing = true
+        if (user) {
+          const u = _.clone(user)
+          this.modUser = u
+        } else {
+          const id = this.pskey--
+          this.modUser = {
+            _status: "new",
+            _id: id,
+            givenName: "",
+            name: "",
+            email: "",
+            alias: ""
+          }
+        }
+        this.editDialog = true
+        this.$nextTick(() => this.$refs.editGivenName.focus())
       },
       // TODO: implement saveUser to db
       saveUser: function(user) {
         console.log("save user", user)
-        user._status = 'changed'
-        this.editing = false
+        this.editDialog = false
+        const u = this.staffmembers.find((v) => {
+          return v._id == user._id
+        })
+        if (! u) {
+          user._status = 'new'
+          this.staffmembers.push(user)
+        } else {
+          user._status = 'changed'
+          Vue.set(this.staffmembers, this.staffmembers.indexOf(u), user)
+        }
+
       },
       // TODO: implement removeUser from db
       removeUser: function(user) {
