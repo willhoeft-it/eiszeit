@@ -3,6 +3,8 @@
 ## What it is
 It tracks the time you spend on tasks and projects and allows you to report to project leads and customers how much time has been spent on them and how much of it can be billed. It will also allow to report on working time contracted between employee and employer. For the latter it is planned (but not yet implemented) to take into account the individual contracted hours, contracted vacation days, public holidays, illnesses, etc.
 
+## Focus
+
 TODO: focus on key features: usability. etc.
 
 ## What it isn't

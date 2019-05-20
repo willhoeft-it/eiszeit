@@ -2,8 +2,6 @@
 
 ## User management
 
-## Client management
-
 ## remove all willhoeft specific details from code / examples
 
 ## front end test
@@ -13,15 +11,20 @@
 * direct db access (crud) for setup / teardown / test
 * integrate in npm tooling, run tests in docker container
 
-## Permissions for project leads / members
-
 ## refactor
 * rename all "working hours" to "attendance"
 
 ## reconsider product name "timetracking"
 * Add logo / favicon
 
+## authentication fix
+* at least in dockered scenario, no browser auth dialog should appear
+
 ## Milestone: go public on Github
+
+## Client management
+
+## Permissions for project leads / members
 
 ## Internationalization
 * Text/labels
