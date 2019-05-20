@@ -6,7 +6,7 @@ declare namespace rnd = "java.security.SecureRandom";
 
 (: TODO: change module namespace to something more meaningful. E.g. github page :)
 (: TODO: split into multiple modules, e.g. api, user, util ... :)
-(: TODO fix error name space "http://error", also instead of returning a stack trace, a nice error response should be returned in these cases generically :)
+(: TODO fix error name space "http://error", also instead of returning a stack trace, a nice error response should be returned in these cases generically. Depending on different QNames, different HTTP status codes could be used :)
 
 (:~
  : Forwards to ui index
@@ -205,10 +205,14 @@ declare
   %output:method("xml")
   %output:omit-xml-declaration("no")
   %rest:single
-  function page:user-delete($id as xs:integer) as empty-sequence() {
-    let $xsdTasks := doc("schemas/staff.xsd")
-    (: TODO: implement :)
-    return ()
+  function page:user-delete($id as xs:string) as empty-sequence() {
+    let $db := db:open("timetracking")/staff
+    let $dbs := $db/staffmember[@id = $id]
+    return (
+      if (not($dbs)) then error(QName("http://error", "unknownStaffmember"), "Staffmember id unknown"),
+      delete node $dbs/(name, givenName, email, @status),
+      insert node (attribute {'status'}{'deleted'}) into $dbs
+    )
 };
 
 declare
@@ -340,7 +344,7 @@ function page:token-get($path as xs:string) as item()* {
    %output:omit-xml-declaration("no")
  function page:staff-get() as item()* {
    <staff> {
-     for $s in (db:open("timetracking")/staff/staffmember) return
+     for $s in (db:open("timetracking")/staff/staffmember[not(@status='deleted')]) return
        <staffmember>
          { $s/(@*|*[not(local-name()='authentication')]) }
        </staffmember>

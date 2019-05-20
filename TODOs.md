@@ -116,3 +116,7 @@ Idea:
 * to docker hub
 
 ## public on docker hub
+
+## cleanup DB scripts
+* truly delete staffmembers, when they are marked as deleted and they are not referenced anywhere
+* truly delete tasks, projects, projecGroups, whole revisions etc., when they are marked deleted and there are no bookings on them

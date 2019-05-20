@@ -139,11 +139,19 @@
           self.editDialog = false
         }).catch(this.handleHttpError);
       },
-      // TODO: implement removeUser from db
       removeUser: function(user) {
         console.log("remove user", user)
+        if (! (user || user._id)) return;
         if (user._id < 0)
           this.staffmembers.splice(this.staffmembers.indexOf(user), 1)
+        else {
+          const self = this
+          self.server.delete('../api/users/user/' + user._id).then(function () {
+            self.showMessage("deleted!", 'success');
+            self.loadData()
+            self.editDialog = false
+          }).catch(this.handleHttpError);
+        }
       }
     }
   })
