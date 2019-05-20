@@ -5,6 +5,8 @@ import module namespace request = "http://exquery.org/ns/request";
 declare namespace rnd = "java.security.SecureRandom";
 
 (: TODO: change module namespace to something more meaningful. E.g. github page :)
+(: TODO: split into multiple modules, e.g. api, user, util ... :)
+(: TODO fix error name space "http://error", also instead of returning a stack trace, a nice error response should be returned in these cases generically :)
 
 (:~
  : Forwards to ui index
@@ -122,7 +124,6 @@ declare
     let $tokenMid := if($accessToken) then page:checkAccessToken($accessToken, request:path())/mid else ()
     let $staffmemberId := if($sessionMid) then $sessionMid else $tokenMid
     return if (empty($staffmemberId))
-      (: TODO fix error name space :)
       then error(QName("http://error", "notAuthenticated"), "authentication needed")
       else
         let $doc := db:open("timetracking")/staff
@@ -140,32 +141,76 @@ declare
  : API for user management.
  :
  : Add new user
- : TODO: implement and %updating
+ : TODO: authentication!
  :)
 declare
   %rest:path("users/user")
   %rest:POST("{$u}")
   %rest:produces("application/xml", "text/xml")
-
+  %updating
   %output:method("xml")
   %output:omit-xml-declaration("no")
   %rest:single
   function page:user-post($u as document-node()) as empty-sequence() {
-    (: admin:write-log(concat('POST tasks:', serialize($t)), 'DEBUG') :)
-    let $xsdTasks := doc("schemas/user.xsd")
-    let $db := db:open("timetracking")/staff
-    return
-      <staffmember id="admin">
-        <name>Admin</name>
-        <givenName>Admin</givenName>
-        <alias>admin</alias>
-        <email>admin@example.com</email>
-        <authentication type="local">
-          <hash type="hmac_sha256" salt="QbyZc+snKYU7icHuS0WnDLaMpEoqJEtN72rrQGDzVSU=">LmtrSmqFj0I2eIjGgP5oLBghXswGUCYHTWOqgGqi+VU=</hash>
-        </authentication>
-      </staffmember>
+    let $xsdTasks := doc("schemas/staff.xsd")
+    return (
+      (: TODO: check that element is staffmember and not anything else from schema :)
+      validate:xsd($u, $xsdTasks),
+      let $db := db:open("timetracking")/staff
+      let $m := $u/staffmember
+      let $dbs := $db/staffmember[@id = $m/@id]
+      return
+        if ($dbs) then
+          copy $dbsn := $dbs
+          modify (
+            delete node $dbsn/(name, givenName, alias, email),
+            insert node ($m/name, $m/givenName, $m/alias, $m/email) as first into $dbsn
+          )
+          return
+            replace node $dbs with $dbsn
+        else (
+          (: TODO: alias of non-active (semi-deleted) members should be reusable (only ids must be unique forever):)
+          if ($db/staffmember[alias=$m/alias]) then
+            error(QName("http://error", "aliasNotUnique"), "Alias already in active use"),
+          (: id = alias or, if taken, = alias_1 or, if taken, = alias_(max n + 1) :)
+          let $newId :=
+            if($db/staffmember[@id=$m/alias]) then
+              if ($db/staffmember[matches(@id, concat('^', $m/alias, '_\d+$'))]) then
+                concat($m/alias, '_',
+                  number(max(
+                    $db/staffmember[matches(@id, concat('^', $m/alias, '_\d+$'))]/replace(@id, concat('^', $m/alias, '_(\d+)$'), '$1')
+                  )) + 1
+                )
+              else
+                concat($m/alias, '_1')
+            else
+              $m/alias
+          return
+            insert node
+              <staffmember id="{$newId}">
+                {$m/name, $m/givenName, $m/alias, $m/email}
+              </staffmember>
+            into $db
+        )
+    )
+};
 
-        (: TODO: implement :)
+(:~
+ : Delete a user
+ : TODO: authentication!
+ :)
+declare
+  %rest:path("users/user/{$id}")
+  %rest:DELETE
+  %rest:produces("application/xml", "text/xml")
+  %updating
+  %output:method("xml")
+  %output:omit-xml-declaration("no")
+  %rest:single
+  function page:user-delete($id as xs:integer) as empty-sequence() {
+    let $xsdTasks := doc("schemas/staff.xsd")
+    (: TODO: implement :)
+    return ()
 };
 
 declare

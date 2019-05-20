@@ -8,6 +8,9 @@ module.exports = {
       },
       '/user/': {
         target: 'http://localhost:8984/',
+      },
+      '/users/': {
+        target: 'http://localhost:8984/',
       }
     }
   }

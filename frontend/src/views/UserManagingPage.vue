@@ -49,7 +49,7 @@
       </v-data-iterator>
     </v-container>
     <v-flex xs12>
-      <v-btn @click.stop="editUser"><v-icon>add</v-icon></v-btn>
+      <v-btn @click.stop="editUser(null)"><v-icon>add</v-icon></v-btn>
       <v-btn @click="loadData">reset</v-btn>
     </v-flex>
   </v-layout></v-container></v-content>
@@ -58,13 +58,14 @@
 <script>
   import Vue from 'vue'
   import pageMixin from '@/views/PageMixin.js'
+  import _ from 'lodash'
   import axios from 'axios'
   import X2JS from 'x2js'
 
-  // eslint-disable-next-line
   const x2jsStaffmembers = new X2JS({
     arrayAccessFormPaths : [ 'staff.staffmember' ]
   })
+  const x2jsStaffmember = new X2JS()
 
   export default Vue.component('user-managing-page', {
     mixins: [pageMixin],
@@ -115,7 +116,6 @@
         } else {
           const id = this.pskey--
           this.modUser = {
-            _status: "new",
             _id: id,
             givenName: "",
             name: "",
@@ -126,21 +126,18 @@
         this.editDialog = true
         this.$nextTick(() => this.$refs.editGivenName.focus())
       },
-      // TODO: implement saveUser to db
       saveUser: function(user) {
         console.log("save user", user)
-        this.editDialog = false
-        const u = this.staffmembers.find((v) => {
-          return v._id == user._id
-        })
-        if (! u) {
-          user._status = 'new'
-          this.staffmembers.push(user)
-        } else {
-          user._status = 'changed'
-          Vue.set(this.staffmembers, this.staffmembers.indexOf(u), user)
-        }
 
+        const xmlDocStr = x2jsStaffmember.js2xml({
+          staffmember: user
+        })
+        const self = this
+        self.server.post('../users/user', xmlDocStr).then(function () {
+          self.showMessage("saved!", 'success');
+          self.loadData()
+          self.editDialog = false
+        }).catch(this.handleHttpError);
       },
       // TODO: implement removeUser from db
       removeUser: function(user) {

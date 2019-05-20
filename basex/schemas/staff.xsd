@@ -8,16 +8,16 @@
       <xs:attribute name="rev" type="xs:integer"/>
     </xs:complexType>
   </xs:element>
-    
+
   <xs:element name="staffmember">
     <xs:complexType>
-      <xs:sequence>
+      <xs:all>
         <xs:element name="name" type="xs:string"/>
         <xs:element name="givenName" type="xs:string"/>
         <xs:element name="alias" type="xs:string"/>
         <xs:element name="email" type="emailType" minOccurs="0"/>
-        <xs:element name="authentication" type="authenticationType" minOccurs="0"/>        
-      </xs:sequence>
+        <xs:element name="authentication" type="authenticationType" minOccurs="0"/>
+      </xs:all>
       <xs:attribute name="id" use="required" type="xs:string">
       </xs:attribute>
     </xs:complexType>
@@ -48,9 +48,9 @@
       <xs:enumeration value="hmac_sha256"/>
     </xs:restriction>
   </xs:simpleType>
-  <xs:simpleType name="emailType"> 
-    <xs:restriction base="xs:string"> 
-      <xs:pattern value="[^@]+@[^\.]+\..+"/> 
-    </xs:restriction> 
-  </xs:simpleType> 
+  <xs:simpleType name="emailType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[^@]+@[^\.]+\..+"/>
+    </xs:restriction>
+  </xs:simpleType>
 </xs:schema>
