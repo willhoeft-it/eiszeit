@@ -10,11 +10,13 @@
             </div>
             <!-- TODO: validate email -->
             <div class="mb-2 text-xs-center"><v-text-field placeholder="email" v-model="modUser.email"/></div>
+            <!-- TODO: validate alias: no underscored, length -->
             <div class="subheading font-weight-bold text-xs-center"><v-text-field placeholder="alias" v-model="modUser.alias"/></div>
           </v-card-text>
           <v-divider />
           <v-card-actions>
             <v-spacer />
+            <!-- TODO: button: reset password, in mini menu? -->
             <v-btn icon @click="saveUser(modUser)"><v-icon>check</v-icon></v-btn>
             <v-btn icon @click="clearUser(modUser)"><v-icon>cancel</v-icon></v-btn>
           </v-card-actions>
