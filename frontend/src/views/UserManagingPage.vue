@@ -133,7 +133,7 @@
           staffmember: user
         })
         const self = this
-        self.server.post('../users/user', xmlDocStr).then(function () {
+        self.server.post('../api/users/user', xmlDocStr).then(function () {
           self.showMessage("saved!", 'success');
           self.loadData()
           self.editDialog = false

@@ -43,7 +43,7 @@ function page:file(
 
 (: TODO: remove GET method when finished testing :)
 declare
-  %rest:path("user/logout")
+  %rest:path("api/user/logout")
   %rest:GET
   %rest:POST
   %perm:allow("all")
@@ -58,7 +58,7 @@ function page:logout() as item()* {
 };
 
 declare
-  %rest:path("user/login")
+  %rest:path("api/user/login")
   %rest:query-param("login", "{$login}")
   %rest:query-param("password", "{$password}")
   %rest:POST
@@ -83,7 +83,7 @@ function page:login($login as xs:string, $password as xs:string) as item()* {
  : Make a GET to user/login to check if the session is valid and retrieve base user data.
  :)
 declare
-  %rest:path("user/login")
+  %rest:path("api/user/login")
   %rest:GET
   %rest:produces("application/xml", "text/xml")
   %output:method("xml")
@@ -109,7 +109,7 @@ function page:login() as item()* {
  : TODO: test this
  :)
 declare
-  %rest:path("user/password")
+  %rest:path("api/user/password")
   %rest:query-param("accessToken", "{$accessToken}")
   %rest:POST
   %rest:form-param("newCred","{$newCred}")
@@ -141,10 +141,9 @@ declare
  : API for user management.
  :
  : Add new user
- : TODO: authentication!
  :)
 declare
-  %rest:path("users/user")
+  %rest:path("api/users/user")
   %rest:POST("{$u}")
   %rest:produces("application/xml", "text/xml")
   %updating
@@ -197,10 +196,9 @@ declare
 
 (:~
  : Delete a user
- : TODO: authentication!
  :)
 declare
-  %rest:path("users/user/{$id}")
+  %rest:path("api/users/user/{$id}")
   %rest:DELETE
   %rest:produces("application/xml", "text/xml")
   %updating

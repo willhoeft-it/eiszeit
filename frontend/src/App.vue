@@ -170,7 +170,7 @@
       },
       loadStaffmember: function() {
         const self = this
-        self.server.get('../user/login').then(function(response) {
+        self.server.get('../api/user/login').then(function(response) {
           self.staffmember = x2jsStaffmember.xml2js(response.data).staffmember;
         }).catch(function(error) {
           if (error.response) {
@@ -193,7 +193,7 @@
       },
       submitLogin: function() {
         const self = this
-        self.server.post('../user/login', 'login=' + this.login + '&' + 'password=' + this.password, {headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
+        self.server.post('../api/user/login', 'login=' + this.login + '&' + 'password=' + this.password, {headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
           .then(function (response) {
             console.log(response)
             self.showSnackbarMessage({text: "Logged in!", level: 'success'})
