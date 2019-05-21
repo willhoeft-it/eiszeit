@@ -123,13 +123,11 @@
   import dateUtils from '@/utils/dateUtils.js'
   import pageMixin from '@/views/PageMixin.js'
 
-  // eslint-disable-next-line
   const x2jsBookings = new X2JS({
     arrayAccessFormPaths : [
       "bookings.booking"
     ]
   });
-  // eslint-disable-next-line
   const x2js = new X2JS();
 
   // using a global vue filter to reuse code for multiple computed values

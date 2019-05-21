@@ -205,19 +205,16 @@
   // page scope unique key generator
   let pskey = 0
 
-  // eslint-disable-next-line
   const x2jsTasks = new X2JS({
     arrayAccessFormPaths : [
       "tasks.task", "tasks.task.path"
     ]
   });
-  // eslint-disable-next-line
   const x2jsTimetrack = new X2JS({
     arrayAccessFormPaths : [
       "workingday.workingtime", "workingday.break", "workingday.booking"
     ]
   });
-  // eslint-disable-next-line
   const x2jsWdReport = new X2JS({
     arrayAccessFormPaths : [
       "workingdays.workingday"
@@ -337,7 +334,7 @@
         );
         const self = this
         self.server.post('../api/timetrack', xmlDocStr)
-          .then(function (response) {
+          .then(function () {
             self.showMessage("posted!", 'success')
             self.resetDirty()
             self.loadWdInfos(self.workingday._date.slice(0, 7))

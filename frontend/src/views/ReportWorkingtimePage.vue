@@ -137,7 +137,6 @@
   import dateUtils from '@/utils/dateUtils.js'
   import pageMixin from '@/views/PageMixin.js'
 
-  // eslint-disable-next-line
   const x2jsWdReport = new X2JS({
     arrayAccessFormPaths : [
       "workingdays.workingday",

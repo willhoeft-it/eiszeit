@@ -78,7 +78,6 @@
   import deepFilter from 'deep-filter'
   import axios from 'axios'
 
-  // eslint-disable-next-line
   const x2jsTasks = new X2JS({
     arrayAccessFormPaths : [
       /.+.projectGroup/,
@@ -88,8 +87,6 @@
       /.+.task/
     ]
   });
-
-  // eslint-disable-next-line
   const x2jsStaffmembers = new X2JS({
     arrayAccessFormPaths : [ 'staff.staffmember' ]
   })

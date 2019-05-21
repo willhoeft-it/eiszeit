@@ -134,7 +134,6 @@
   import ReportWorkingtimePage from '@/views/ReportWorkingtimePage.vue'
   import pageMixin from '@/views/PageMixin.js'
 
-  // eslint-disable-next-line
   const x2jsStaffmember = new X2JS()
 
   export default {
@@ -163,6 +162,7 @@
       this.loadStaffmember()
     },
     methods: {
+      // TODO: fix this: does not always close automatically
       showSnackbarMessage: function(event) {
         this.snackbar.message = event.text;
         this.snackbar.level = event.level;
