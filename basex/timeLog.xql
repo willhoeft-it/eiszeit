@@ -108,7 +108,7 @@ function page:login() as item()* {
 };
 
 (:~
- : Set user password
+ : Set user password. Requires an authentication token (e.g. received by mail) or logged in session and old credential.
  : TODO: test this
  :)
 declare
