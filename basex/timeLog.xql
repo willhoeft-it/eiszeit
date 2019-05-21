@@ -57,6 +57,9 @@ function page:logout() as item()* {
   session:close()
 };
 
+(:
+ : Login with login and password.
+ :)
 declare
   %rest:path("api/user/login")
   %rest:query-param("login", "{$login}")
@@ -285,16 +288,18 @@ declare
  : TODO: accessToken access should work as if the same user. Currently e.g. api/timetrack/{$date} has no session / staffMemberId set.
  :)
 declare
-  %perm:check('api/')
+  %perm:check('api/', '{$perm}')
   %rest:query-param("accessToken", "{$accessToken}")
-function page:checkApp($accessToken as xs:string?) {
+function page:checkApp($perm, $accessToken as xs:string?) {
   let $staffmemberId := session:get('staffmemberId')
   where
     empty($staffmemberId) and not (
+      $perm?allow = 'all'
+    ) and not (
       $accessToken and
-      page:checkAccessToken($accessToken, request:path()) and
-      request:method() = 'GET'
-  )
+      page:checkAccessToken($accessToken, $perm?path) and
+      $perm?method = 'GET'
+    )
   return (
     <rest:response>
       <http:response status="401">
