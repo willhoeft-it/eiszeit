@@ -168,8 +168,8 @@ declare
           return
             replace node $dbs with $dbsn
         else (
-          (: TODO: alias of non-active (semi-deleted) members should be reusable (only ids must be unique forever):)
-          if ($db/staffmember[alias=$m/alias]) then
+          (: alias of non-active (semi-deleted) members are reusable (only ids must be unique forever) :)
+          if ($db/staffmember[alias=$m/alias and not(@status='deleted')]) then
             error(QName("http://error", "aliasNotUnique"), "Alias already in active use"),
           (: id = alias or, if taken, = alias_1 or, if taken, = alias_(max n + 1) :)
           let $newId :=
