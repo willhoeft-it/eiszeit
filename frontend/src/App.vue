@@ -2,11 +2,7 @@
   <v-app :dark="darkTheme">
     <v-navigation-drawer v-model="drawer" fixed app >
       <v-list dense>
-        <!--
-            <router-link to="/">Home</router-link> |
-            <router-link to="/about">About</router-link>
-        -->
-        <v-list-tile @click="page='dashboardPage'">
+        <v-list-tile to='/dashboard'>
           <v-list-tile-action>
             <v-icon>fas fa-chart-line</v-icon>
           </v-list-tile-action>
@@ -14,7 +10,7 @@
             <v-list-tile-title>dashboard</v-list-tile-title>
           </v-list-tile-content>
         </v-list-tile>
-        <v-list-tile @click="page='dailyBookingPage'">
+        <v-list-tile to='/dailyBooking'>
           <v-list-tile-action>
             <v-icon>fas fa-clipboard</v-icon>
           </v-list-tile-action>
@@ -22,7 +18,7 @@
             <v-list-tile-title>daily booking</v-list-tile-title>
           </v-list-tile-content>
         </v-list-tile>
-        <v-list-tile @click="page='taskManagingPage'">
+        <v-list-tile to='/taskManaging'>
           <v-list-tile-action>
             <v-icon>fas fa-tasks</v-icon>
           </v-list-tile-action>
@@ -30,7 +26,7 @@
             <v-list-tile-title>task managing</v-list-tile-title>
           </v-list-tile-content>
         </v-list-tile>
-        <v-list-tile @click="page='userManagingPage'">
+        <v-list-tile to='/userManaging'>
           <v-list-tile-action>
             <v-icon>fas fa-users</v-icon>
           </v-list-tile-action>
@@ -38,7 +34,7 @@
             <v-list-tile-title>user managing</v-list-tile-title>
           </v-list-tile-content>
         </v-list-tile>
-        <v-list-tile @click="page='reportProjectsPage'">
+        <v-list-tile to='/reportProjects'>
           <v-list-tile-action>
             <v-icon>fas fa-money-check-alt</v-icon>
           </v-list-tile-action>
@@ -46,7 +42,7 @@
             <v-list-tile-title>report on projects</v-list-tile-title>
           </v-list-tile-content>
         </v-list-tile>
-        <v-list-tile @click="page='reportWorkingtimePage'">
+        <v-list-tile to='/reportWorkingtime'>
           <v-list-tile-action>
             <v-icon>fas fa-clock</v-icon>
           </v-list-tile-action>
@@ -65,20 +61,7 @@
       </v-btn>
     </v-toolbar>
 
-    <daily-booking-page v-if="page === 'dailyBookingPage'" v-on:pageMessageEvent="showSnackbarMessage" v-on:authFailEvent="loadStaffmember" v-bind:staffmember="staffmember">
-    </daily-booking-page>
-
-    <task-managing-page v-if="page === 'taskManagingPage'" v-on:pageMessageEvent="showSnackbarMessage" v-on:authFailEvent="loadStaffmember" v-bind:staffmember="staffmember">
-    </task-managing-page>
-
-    <user-managing-page v-if="page === 'userManagingPage'" v-on:pageMessageEvent="showSnackbarMessage" v-on:authFailEvent="loadStaffmember" v-bind:staffmember="staffmember">
-    </user-managing-page>
-
-    <report-projects-page v-if="page === 'reportProjectsPage'" v-on:pageMessageEvent="showSnackbarMessage" v-on:authFailEvent="loadStaffmember" v-bind:staffmember="staffmember">
-    </report-projects-page>
-
-    <report-workingtime-page v-if="page === 'reportWorkingtimePage'" v-on:pageMessageEvent="showSnackbarMessage" v-on:authFailEvent="loadStaffmember" v-bind:staffmember="staffmember">
-    </report-workingtime-page>
+    <router-view v-on:pageMessageEvent="showSnackbarMessage" v-on:authFailEvent="loadStaffmember" v-bind:staffmember="staffmember" />
 
     <v-snackbar v-model="snackbar.show" :color="snackbar.level" :multi-line="snackbar.level === 'error'" bottom :timeout="(snackbar.level === 'error') ? 0 : 2000">
     {{ snackbar.message }}
@@ -122,16 +105,6 @@
 
 <script>
   import X2JS from 'x2js'
-  // eslint-disable-next-line
-  import DailyBookingPage from '@/views/DailyBookingPage.vue'
-  // eslint-disable-next-line
-  import TaskManagingPage from '@/views/TaskManagingPage.vue'
-  // eslint-disable-next-line
-  import UserManagingPage from '@/views/UserManagingPage.vue'
-  // eslint-disable-next-line
-  import ReportProjectsPage from '@/views/ReportProjectsPage.vue'
-  // eslint-disable-next-line
-  import ReportWorkingtimePage from '@/views/ReportWorkingtimePage.vue'
   import pageMixin from '@/views/PageMixin.js'
 
   const x2jsStaffmember = new X2JS()

@@ -1,7 +1,7 @@
 # TODOs
 
 ## User management
-* requires vue router for password change page
+* password change page with route
 
 ## remove all willhoeft specific details from code / examples
 
