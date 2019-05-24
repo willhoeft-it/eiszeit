@@ -63,7 +63,7 @@
 
     <router-view v-on:pageMessageEvent="showSnackbarMessage" v-on:authFailEvent="loadStaffmember" v-bind:staffmember="staffmember" />
 
-    <v-snackbar v-model="snackbar.show" :color="snackbar.level" :multi-line="snackbar.level === 'error'" bottom :timeout="(snackbar.level === 'error') ? 0 : 2000">
+    <v-snackbar v-model="snackbar.show" :color="snackbar.level" :multi-line="snackbar.level === 'error'" bottom :timeout="snackbar.timeout">
     {{ snackbar.message }}
       <v-btn flat @click="snackbar.show = false">
         Close
@@ -119,7 +119,8 @@
         snackbar: {
           message: "",
           level: "info",
-          show: false
+          show: false,
+          timeout: 2000
         },
         login: "",
         password: "",
@@ -135,11 +136,17 @@
       this.loadStaffmember()
     },
     methods: {
-      // TODO: fix this: does not always close automatically
       showSnackbarMessage: function(event) {
-        this.snackbar.message = event.text;
-        this.snackbar.level = event.level;
-        this.snackbar.show = true;
+        // If error message is visible, it must be closed manually. Ignoring new messages
+        if (this.snackbar.show && this.snackbar.level === 'error') return
+        this.snackbar.show = false
+        const self = this
+        this.$nextTick(() => {
+          self.snackbar.message = event.text
+          self.snackbar.level = event.level
+          self.snackbar.timeout = (event.level === 'error') ? 0 : 2000
+          self.snackbar.show = true
+        } )
       },
       loadStaffmember: function() {
         const self = this
