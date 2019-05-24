@@ -25,8 +25,10 @@ export default {
           console.log(error.response.headers);
           if (error.response.status == 401) {
             this.$emit('authFailEvent')
+            this.showMessage("Authentication necessary", 'warning')
+          } else {
+            this.showMessage("ERROR " + error.response.status + ": " + error.response.data, 'error')
           }
-          this.showMessage("ERROR " + error.response.status + ": " + error.response.data, 'error')
         } else if (error.request) {
           // The request was made but no response was received
           // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
