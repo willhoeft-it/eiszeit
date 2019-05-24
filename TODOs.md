@@ -88,6 +88,13 @@ Idea:
 * make sure that web frontend is not accessible / interferes while scripts are applied
  * even better: show progress in web frontend
 
+## user/system configuration
+* dark-mode
+* start of week
+* enable auth tokens
+* auth token duration
+* ...
+
 ## add sickness
 * add calendar entry type "sick" that adds contracted hours to that day
 
