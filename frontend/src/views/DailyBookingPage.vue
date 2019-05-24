@@ -281,7 +281,7 @@
     },
     methods: {
       resetDirty: function() {
-        this.workingdayUnchanged = JSON.parse(JSON.stringify(this.workingday))
+        this.workingdayUnchanged = _.cloneDeep(this.workingday)
       },
       loadData: function() {
         if (! this.staffmember._id) {
