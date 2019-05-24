@@ -112,7 +112,7 @@ function page:login() as item()* {
  : TODO: test this
  :)
 declare
-  %rest:path("api/user/password")
+  %rest:path("api/users/user/{$staffmemberId}/password")
   %rest:query-param("accessToken", "{$accessToken}")
   %rest:POST
   %rest:form-param("newCred","{$newCred}")
@@ -122,17 +122,24 @@ declare
   %output:method("xml")
   %output:omit-xml-declaration("no")
   %rest:single
-  function page:user-password-post($accessToken as xs:string?, $newCred as xs:string, $oldCred as xs:string?) as empty-sequence() {
+  function page:user-password-post($staffmemberId as xs:string, $accessToken as xs:string?, $newCred as xs:string, $oldCred as xs:string?) as empty-sequence() {
     let $sessionMid := session:get('staffmemberId')
     let $tokenMid := if($accessToken) then page:checkAccessToken($accessToken, request:path())/mid else ()
-    let $staffmemberId := if($sessionMid) then $sessionMid else $tokenMid
-    return if (empty($staffmemberId))
-      then error(QName("http://error", "notAuthenticated"), "authentication needed")
+    let $authMid := util:or($sessionMid, $tokenMid)
+    return
+      if (empty($authMid)) then
+        error(QName("http://error", "notAuthenticated"), "authentication needed")
+      (: TODO: instead of requiring 'admin' id, check for admin permission :)
+      else if ($authMid != $staffmemberId and not($authMid = 'admin')) then
+        error(QName("http://error", "adminPrivilegeRequired"), "Admin privilege required")
       else
         let $doc := db:open("timetracking")/staff
         let $m := $doc/staffmember[@id=$staffmemberId]
-        return if (not($accessToken) and (not($oldCred) or not(page:checkLocalAuthentication($oldCred, $m/authentication[type='local']))))
-          then error(QName("http://error", "passwordCheckFailed"), "Required old password check failed")
+        return
+          if (empty($m)) then
+            error(QName("http://error", "unknownStaffmember"), "Staffmember id unknown")
+          else if (not($accessToken) and (not($oldCred) or not(page:checkLocalAuthentication($oldCred, $m/authentication[type='local'])))) then
+            error(QName("http://error", "passwordCheckFailed"), "Required old password check failed")
           else (
               delete node $m/authentication[type = ('local', 'preliminary')],
               (: TODO: quality check password :)
@@ -326,16 +333,11 @@ function page:token-get($path as xs:string) as item()* {
   on the paths he is requesting the token for. Even then sensitive areas (user settings, server configurations, etc.) should be exempt.
   For now we just limit to some specific paths :)
   let $bc := tokenize($path, '/')
-  return if ($bc[1] = '' and $bc[2] = 'api' and $bc[3] = ('timetrack', 'report')) then
-    <token>{page:createAccessToken(session:id(), session:get('staffmemberId'), $path)}</token>
-  else (
-    <rest:response>
-      <http:response status="403">
-        <http:header name="Content-Language" value="en"/>
-      </http:response>
-    </rest:response>,
-    "Invalid token request"
-  )
+  return
+    if (not($bc[1] = '' and $bc[2] = 'api' and $bc[3] = ('timetrack', 'report', 'users'))) then
+      error(QName("http://error", "invalidTokenRequest"), "Invalid token request")
+    else
+      <token>{page:createAccessToken(session:id(), session:get('staffmemberId'), $path)}</token>
 };
 
 (:~

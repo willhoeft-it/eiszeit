@@ -16,7 +16,6 @@
           <v-divider />
           <v-card-actions>
             <v-spacer />
-            <!-- TODO: button: reset password, in mini menu? -->
             <v-btn icon @click="saveUser(modUser)"><v-icon>check</v-icon></v-btn>
             <v-btn icon @click="clearUser(modUser)"><v-icon>cancel</v-icon></v-btn>
           </v-card-actions>
@@ -43,6 +42,7 @@
               <v-card-actions>
                 <v-spacer />
                 <v-btn icon @click="editUser(props.item)"><v-icon>edit</v-icon></v-btn>
+                <v-btn icon @click="resetPassword(props.item)" :disabled="(! props.item._id) || (props.item._id < 0)"><v-icon small>fas fa-key</v-icon></v-btn>
                 <v-btn icon @click="removeUser(props.item)"><v-icon>delete</v-icon></v-btn>
               </v-card-actions>
             </v-card>
@@ -154,6 +154,11 @@
             self.editDialog = false
           }).catch(this.handleHttpError);
         }
+      },
+      resetPassword: function(user) {
+        console.log("reset password")
+        if (! (user || user._id || user._id < 0)) return;
+        // TODO: implement GET password reset link and set to ui
       }
     }
   })
