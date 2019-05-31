@@ -159,10 +159,10 @@ declare
   %output:omit-xml-declaration("no")
   %rest:single
   function page:user-post($u as document-node()) as empty-sequence() {
-    let $xsdTasks := doc("schemas/staff.xsd")
+    let $xsdStaff := doc("schemas/staff.xsd")
     return (
       (: TODO: check that element is staffmember and not anything else from schema :)
-      validate:xsd($u, $xsdTasks),
+      validate:xsd($u, $xsdStaff),
       let $db := db:open("eiszeit")/staff
       let $m := $u/staffmember
       let $dbs := $db/staffmember[@id = $m/@id]

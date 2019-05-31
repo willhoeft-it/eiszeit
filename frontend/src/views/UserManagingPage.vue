@@ -4,19 +4,17 @@
       <v-dialog v-model="editDialog" persistent max-width="300px">
         <v-card>
           <v-card-text>
-            <div class="headline mb-2 text-xs-center">
-              <v-text-field ref="editGivenName" placeholder="given name" v-model="modUser.givenName"/>
-              <v-text-field placeholder="name" v-model="modUser.name"/>
-            </div>
-            <!-- TODO: validate email -->
-            <div class="mb-2 text-xs-center"><v-text-field placeholder="email" v-model="modUser.email"/></div>
-            <!-- TODO: validate alias: no underscored, length -->
-            <div class="subheading font-weight-bold text-xs-center"><v-text-field placeholder="alias" v-model="modUser.alias"/></div>
+            <v-form ref="userForm" v-model="userFormValid" lazy-validation>
+              <v-text-field ref="editGivenName" placeholder="given name" v-model="modUser.givenName" required :rules="givenNameRules"/>
+              <v-text-field placeholder="name" v-model="modUser.name" required :rules="nameRules"/>
+              <v-text-field placeholder="email" v-model="modUser.email" :rules="emailRules"/>
+              <v-text-field placeholder="alias" v-model="modUser.alias" required :rules="aliasRules"/>
+            </v-form>
           </v-card-text>
           <v-divider />
           <v-card-actions>
             <v-spacer />
-            <v-btn icon @click="saveUser(modUser)"><v-icon>check</v-icon></v-btn>
+            <v-btn :disabled="!userFormValid" icon @click="saveUser(modUser)"><v-icon>check</v-icon></v-btn>
             <v-btn icon @click="clearUser(modUser)"><v-icon>cancel</v-icon></v-btn>
           </v-card-actions>
         </v-card>
@@ -85,7 +83,27 @@
           rowsPerPage: 4
         },
         editDialog: false,
-        modUser: {}
+        modUser: {},
+        userFormValid: false,
+        givenNameRules: [
+          v => !!v || 'Given name is required',
+          v => /^[\w\x7f-\xff \.]+$/.test(v) || 'No special characters allowed',
+          v => v.length <= 40 || 'Given name must be less than 40 characters'
+        ],
+        nameRules: [
+          v => !!v || 'Name is required',
+          v => /^[\w\x7f-\xff \.]+$/.test(v) || 'No special characters allowed',
+          v => v.length <= 40 || 'Name must be less than 40 characters'
+        ],
+        emailRules: [
+          v => !v || /^([^@]+@[^\.]+\..+)?$/.test(v) || 'E-mail must be valid',
+          v => !v || v.length <= 40 || 'E-mail must be less than 40 characters'
+        ],
+        aliasRules: [
+          v => !!v || 'Alias is required',
+          v => /^[a-z0-9]+$/.test(v) || 'Alias may contain only lower case letters',
+          v => v.length <= 10 || 'Alias must be less than 10 characters'
+        ]
       };
     },
     created: function () {
@@ -96,7 +114,6 @@
     },
     methods: {
       loadData: function() {
-        console.log("loadData")
         const self = this
         axios.all([
           self.server.get('../api/staff')
@@ -111,7 +128,6 @@
         this.modUser = {}
       },
       editUser: function(user) {
-        console.log("edit user", user)
         if (user) {
           const u = _.clone(user)
           this.modUser = u
@@ -120,8 +136,8 @@
           this.modUser = {
             _id: id,
             givenName: "",
+            // email,
             name: "",
-            email: "",
             alias: ""
           }
         }
@@ -129,10 +145,9 @@
         this.$nextTick(() => this.$refs.editGivenName.focus())
       },
       saveUser: function(user) {
-        console.log("save user", user)
-
+        const u = _.omitBy(user, v => (_.isEmpty(v) && !_.isNumber(v)) )
         const xmlDocStr = x2jsStaffmember.js2xml({
-          staffmember: user
+          staffmember: u
         })
         const self = this
         self.server.post('../api/users/user', xmlDocStr).then(function () {
@@ -142,7 +157,6 @@
         }).catch(this.handleHttpError);
       },
       removeUser: function(user) {
-        console.log("remove user", user)
         if (! (user || user._id)) return;
         if (user._id < 0)
           this.staffmembers.splice(this.staffmembers.indexOf(user), 1)
