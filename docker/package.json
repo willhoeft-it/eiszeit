@@ -1,13 +1,13 @@
 {
-  "name": "timetracking-docker",
+  "name": "eiszeit-docker",
   "version": "0.1.0",
   "config": {
-    "imageRepo": "willhoeft-it/timetracking",
-    "imageName": "timetracking",
+    "imageRepo": "willhoeft-it/eiszeit",
+    "imageName": "eiszeit",
     "imagePort": "8984",
     "imageDataVol": "/srv/basex/data",
     "externalPort": "3000",
-    "externalDataVol": "timetracking-data"
+    "externalDataVol": "eiszeit-data"
   },
   "scripts": {
     "TODO_predocker:build": "npm run build # TODO: would be nice to run frontend build from here",
@@ -20,7 +20,7 @@
     "docker:publish": "cross-conf-env docker image push $npm_package_config_imageRepo:$npm_package_version",
     "postdocker:publish": "cross-conf-env docker image push $npm_package_config_imageRepo:latest",
     "docker:clean": "cross-conf-env docker rm -f $npm_package_config_imageName",
-    "docker:clean:data": "run-s docker:clean && cross-conf-env docker volume rm $npm_package_config_externalDataVol",
+    "docker:clean:data": "cross-conf-env docker volume rm $npm_package_config_externalDataVol",
     "predocker:taillogs": "echo Web Server Logs:",
     "docker:taillogs": "cross-conf-env docker logs -f $npm_package_config_imageName",
     "docker:open:linux": "echo Trying to launch on Linux && sleep 5 && URL=http://localhost:$npm_package_config_imagePort && xdg-open $URL",

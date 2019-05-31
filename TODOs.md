@@ -23,6 +23,8 @@
 
 ## Milestone: go public on Github
 
+------
+
 ## Client management
 
 ## Permissions for project leads / members
@@ -88,6 +90,10 @@ Idea:
 * make sure that web frontend is not accessible / interferes while scripts are applied
  * even better: show progress in web frontend
 
+# add healthcheck to docker image
+See https://docs.docker.com/engine/reference/#healthcheck
+Might need a small script
+
 ## user/system configuration
 * dark-mode
 * start of week
@@ -108,6 +114,9 @@ Idea:
  * booking is locked in dailybooking page
  * backend checks that it cannot be changed
  * status is shown in reports
+
+## "Freezing" of attendance
+* so it cannot be edited after being accepted by HR
 
 ## contracted hours
 * per user, define contracts with date interval and working hours per day

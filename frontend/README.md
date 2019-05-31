@@ -1,14 +1,6 @@
-# timetracking
+# Eiszeit Track & Report  - Frontend
 
-## Project administration
-Overview and updates to all your Vue components
-
-```
-vue ui
-```
-
-
-## Project setup
+## Frontend project setup
 ```
 npm install
 ```

@@ -8,6 +8,9 @@ We setup npm scripts for a unified build environment to create and maintain the 
   * externalPort: the exposed port from which you can access the app.
   * externalDataVol: name of the data volume to store the db data. It will survive during builds, until cleaned by '''npm run docker:clean:data'''
 
+## Install npm libraries
+  npm i
+
 ## Build
   npm run docker:build : Builds and Tags the image. After first run, you can just use npm run docker:debug.
 
@@ -19,5 +22,8 @@ Note: The container will be based on the current image. If you made any changes,
 
   npm run docker:debug : Test (optional), Build, Tag, Run, Tail and launch your app in a browser to test.
 
+## Clean
+  npm run docker:clean:data : WARNING: deletes your data volume! Good to start from scratch.
+
 ## Deploy
-  npm run docker:publish : Voila, you results are published on the repository you've defined.
+  npm run docker:publish : Voíla, your results are published on the repository you've defined.
