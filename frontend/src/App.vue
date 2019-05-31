@@ -139,7 +139,7 @@
     },
     computed: {
       loginVisible: function() {
-        return ! this.staffmember._id
+        return ! (this.staffmember._id || this.$route.path === "/resetPassword")
       }
     },
     created: function () {
