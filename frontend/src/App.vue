@@ -64,7 +64,7 @@
     </v-navigation-drawer>
     <v-toolbar fixed app>
       <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
-      <v-toolbar-title>Timetracking</v-toolbar-title>
+      <v-toolbar-title>Eiszeit - Track &amp; Report</v-toolbar-title>
       <v-spacer/>
       <v-btn icon @click.stop="darkTheme = !darkTheme">
         <v-icon>far fa-lightbulb</v-icon>
