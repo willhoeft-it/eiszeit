@@ -8,7 +8,7 @@
     </v-flex>
     <v-toolbar flat>
       <v-toolbar-title>Monthly Project Report</v-toolbar-title>
-      <v-spacer></v-spacer>
+      <v-spacer />
       <v-toolbar-items>
         <v-menu v-model="accessTokenUrl" :close-on-content-click="false" :nudge-width="400" left >
           <template v-slot:activator="{ on }">
