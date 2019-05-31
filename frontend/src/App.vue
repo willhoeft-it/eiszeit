@@ -50,6 +50,16 @@
             <v-list-tile-title>report on working time</v-list-tile-title>
           </v-list-tile-content>
         </v-list-tile>
+        <v-divider />
+        <v-list-tile @click="logout">
+          <v-list-tile-action>
+            <v-icon>fas fa-power-off</v-icon>
+          </v-list-tile-action>
+          <v-list-tile-content>
+            <v-list-tile-title>log out</v-list-tile-title>
+          </v-list-tile-content>
+        </v-list-tile>
+
       </v-list>
     </v-navigation-drawer>
     <v-toolbar fixed app>
@@ -136,6 +146,21 @@
       this.loadStaffmember()
     },
     methods: {
+      handleError: function(error) {
+        if (error.response) {
+          this.showSnackbarMessage({text: "ERROR " + error.response.status + ": " + error.response.data, level: 'error'})
+        } else if (error.request) {
+          // The request was made but no response was received
+          // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+          // http.ClientRequest in node.js
+          console.log(error.request);
+          this.showSnackbarMessage({text: "ERROR : Failed contacting server", level: 'error'})
+        } else {
+          // Something happened in setting up the request that triggered an Error
+          console.log('Error', error.message);
+          this.showSnackbarMessage({text: "ERROR : Failed setting up server request", level: 'error'})
+        }
+      },
       showSnackbarMessage: function(event) {
         // If error message is visible, it must be closed manually. Ignoring new messages
         if (this.snackbar.show && this.snackbar.level === 'error') return
@@ -153,22 +178,11 @@
         self.server.get('../api/user/login').then(function(response) {
           self.staffmember = x2jsStaffmember.xml2js(response.data).staffmember;
         }).catch(function(error) {
-          if (error.response) {
-            if (error.response.status == 401) {
-              self.staffmember = {}
-              return
-            }
-            console.log(error.response.data);
-            console.log(error.response.status);
-            console.log(error.response.headers);
-            self.showSnackbarMessage({text: "ERROR " + error.response.status + ": " + error.response.data, level: 'error'})
-          } else if (error.request) {
-            console.log(error.request);
-            self.showSnackbarMessage({text: "ERROR : Failed contacting server", level: 'error'})
-          } else {
-            console.log('Error', error.message);
-            self.showSnackbarMessage({text: "ERROR : Failed setting up server request", level: 'error'})
+          if (error.response && error.response.status == 401) {
+            self.staffmember = {}
+            return
           }
+          self.handleError(error)
         })
       },
       submitLogin: function() {
@@ -180,26 +194,21 @@
             self.loadStaffmember()
           })
           .catch(function (error) {
-            if (error.response) {
-              // The request was made and the server responded with a status code
-              // that falls out of the range of 2xx
-              console.log(error.response.data);
-              console.log(error.response.status);
-              console.log(error.response.headers);
-              self.showSnackbarMessage({text: "ERROR " + error.response.status + ": " + error.response.data, level: 'error'})
-            } else if (error.request) {
-              // The request was made but no response was received
-              // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-              // http.ClientRequest in node.js
-              console.log(error.request);
-              self.showSnackbarMessage({text: "ERROR : Failed contacting server", level: 'error'})
-            } else {
-              // Something happened in setting up the request that triggered an Error
-              console.log('Error', error.message);
-              self.showSnackbarMessage({text: "ERROR : Failed setting up server request", level: 'error'})
-            }
-        });
-
+            self.handleError(error)
+        })
+      },
+      logout: function() {
+        const self = this
+        self.server.post('../api/user/logout')
+          .then(function (response) {
+            console.log(response)
+            self.showSnackbarMessage({text: "Logged out!", level: 'success'})
+            self.loadStaffmember()
+            self.$router.push({path: '/'})
+          })
+          .catch(function (error) {
+            self.handleError(error)
+        })
       }
     }
   }

@@ -41,10 +41,8 @@ function page:file(
   )
 };
 
-(: TODO: remove GET method when finished testing :)
 declare
   %rest:path("api/user/logout")
-  %rest:GET
   %rest:POST
   %perm:allow("all")
 function page:logout() as item()* {
