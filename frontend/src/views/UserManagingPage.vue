@@ -40,7 +40,20 @@
               <v-card-actions>
                 <v-spacer />
                 <v-btn icon @click="editUser(props.item)"><v-icon>edit</v-icon></v-btn>
-                <v-btn icon @click="resetPassword(props.item)" :disabled="(! props.item._id) || (props.item._id < 0)"><v-icon small>fas fa-key</v-icon></v-btn>
+                <v-menu v-model="resetPasswordUrl" :disabled="(! props.item._id) || (props.item._id < 0)" :close-on-content-click="false" :nudge-width="400" left >
+                  <template v-slot:activator="{ on }">
+                    <v-btn icon v-on="on" @click="resetPassword(props.item)"><v-icon small>fas fa-key</v-icon></v-btn>
+                  </template>
+                  <v-card tile>
+                    <v-text-field
+                      outline
+                      single-line
+                      v-model="resetPasswordUrl"
+                      @focus="clipboardAccessTokenUrl($event)"
+                      append-icon="fas fa-paste"
+                    />
+                  </v-card>
+                </v-menu>
                 <v-btn icon @click="removeUser(props.item)"><v-icon>delete</v-icon></v-btn>
               </v-card-actions>
             </v-card>
@@ -65,7 +78,7 @@
   const x2jsStaffmembers = new X2JS({
     arrayAccessFormPaths : [ 'staff.staffmember' ]
   })
-  const x2jsStaffmember = new X2JS()
+  const x2js = new X2JS();
 
   export default Vue.component('user-managing-page', {
     mixins: [pageMixin],
@@ -85,15 +98,16 @@
         editDialog: false,
         modUser: {},
         userFormValid: false,
+        resetPasswordUrl: "",
         givenNameRules: [
           v => !!v || 'Given name is required',
-          v => /^[\w\x7f-\xff \.]+$/.test(v) || 'No special characters allowed',
-          v => v.length <= 40 || 'Given name must be less than 40 characters'
+          v => !v || /^[\w\x7f-\xff \.]+$/.test(v) || 'No special characters allowed',
+          v => !v || v.length <= 40 || 'Given name must be less than 40 characters'
         ],
         nameRules: [
           v => !!v || 'Name is required',
-          v => /^[\w\x7f-\xff \.]+$/.test(v) || 'No special characters allowed',
-          v => v.length <= 40 || 'Name must be less than 40 characters'
+          v => !v || /^[\w\x7f-\xff \.]+$/.test(v) || 'No special characters allowed',
+          v => !v || v.length <= 40 || 'Name must be less than 40 characters'
         ],
         emailRules: [
           v => !v || /^([^@]+@[^\.]+\..+)?$/.test(v) || 'E-mail must be valid',
@@ -101,8 +115,8 @@
         ],
         aliasRules: [
           v => !!v || 'Alias is required',
-          v => /^[a-z0-9]+$/.test(v) || 'Alias may contain only lower case letters',
-          v => v.length <= 10 || 'Alias must be less than 10 characters'
+          v => !v || /^[a-z0-9]+$/.test(v) || 'Alias may contain only lower case letters',
+          v => !v || v.length <= 10 || 'Alias must be less than 10 characters'
         ]
       };
     },
@@ -146,7 +160,7 @@
       },
       saveUser: function(user) {
         const u = _.omitBy(user, v => (_.isEmpty(v) && !_.isNumber(v)) )
-        const xmlDocStr = x2jsStaffmember.js2xml({
+        const xmlDocStr = x2js.js2xml({
           staffmember: u
         })
         const self = this
@@ -172,8 +186,20 @@
       resetPassword: function(user) {
         console.log("reset password")
         if (! (user || user._id || user._id < 0)) return;
-        // TODO: implement GET password reset link and set to ui
-      }
+        const path = "../api/users/user/" + user._id + "/password"
+        const url = new URL(path, window.location.href)
+        const self = this
+        self.server.get('../api/token?path=' + encodeURIComponent(url.pathname)).then(function(tokenResponse) {
+          self.resetPasswordUrl = url.href + "?accessToken=" + encodeURIComponent(x2js.xml2js(tokenResponse.data).token);
+        }).catch(this.handleHttpError);
+      },
+      clipboardAccessTokenUrl(event) {
+        event.target.select()
+        const success = document.execCommand('copy');
+        if (success) this.showMessage('Password reset link copied to clipboard', 'success')
+        else this.showMessage('Copy to clipboard failed', 'error')
+        this.resetPasswordUrl = ""
+      },
     }
   })
 </script>
