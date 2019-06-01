@@ -101,16 +101,16 @@
         resetPasswordUrl: "",
         givenNameRules: [
           v => !!v || 'Given name is required',
-          v => !v || /^[\w\x7f-\xff \.]+$/.test(v) || 'No special characters allowed',
+          v => !v || /^[\w\x7f-\xff .]+$/.test(v) || 'No special characters allowed',
           v => !v || v.length <= 40 || 'Given name must be less than 40 characters'
         ],
         nameRules: [
           v => !!v || 'Name is required',
-          v => !v || /^[\w\x7f-\xff \.]+$/.test(v) || 'No special characters allowed',
+          v => !v || /^[\w\x7f-\xff .]+$/.test(v) || 'No special characters allowed',
           v => !v || v.length <= 40 || 'Name must be less than 40 characters'
         ],
         emailRules: [
-          v => !v || /^([^@]+@[^\.]+\..+)?$/.test(v) || 'E-mail must be valid',
+          v => !v || /^([^@]+@[^.]+\..+)?$/.test(v) || 'E-mail must be valid',
           v => !v || v.length <= 40 || 'E-mail must be less than 40 characters'
         ],
         aliasRules: [
