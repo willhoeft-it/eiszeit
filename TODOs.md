@@ -3,8 +3,6 @@
 ## User management
 * password change page with route
 
-## remove all willhoeft specific details from code / examples
-
 ## front end test
 * Jasmine
 
@@ -15,9 +13,6 @@
 ## refactor
 * rename all "working hours" to "attendance"
 
-## reconsider product name "timetracking"
-* Add logo / favicon
-
 ## authentication fix
 * at least in dockered scenario, no browser auth dialog should appear
 
@@ -25,7 +20,8 @@
 
 ------
 
-## Client management
+## Add intro start page
+* Links to github, issue tracker, docker, wiki, about, etc.
 
 ## Permissions for project leads / members
 
@@ -33,6 +29,9 @@
 * Text/labels
 * component localization
 * date formats
+
+## Logo "Eiszeit"
+* Add logo / favicon
 
 ## switch authentication to JWT
 see:
@@ -67,6 +66,8 @@ Idea:
 * (/) when user is logged out (or session times out and possibly after server restart), all his created tokens are invalid, because the session id check will fail (see above)
 
 ## Example for OpenOffice integration
+
+## Client management
 
 ## Dashboard
 * or remove it if not used?

@@ -81,6 +81,10 @@ How to setup a nice dev environment with basex and Vue CLI.
 
 Now all changes under the frontend/src/ and basex/ folders should be instantly reflected. Go code!
 
+### run backend tests
+
+TODO
+
 ### vuetify docs (optional)
 Because the docs may not be available in the used version online, check it out and compile the version you need:
 
