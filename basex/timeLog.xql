@@ -111,10 +111,10 @@ function page:login() as item()* {
  :)
 declare
   %rest:path("api/users/user/{$staffmemberId}/password")
-  %rest:query-param("accessToken", "{$accessToken}")
   %rest:POST
-  %rest:form-param("newCred","{$newCred}")
-  %rest:form-param("oldCred","{$oldCred}")
+  %rest:query-param("accessToken", "{$accessToken}")
+  %rest:query-param("newCred","{$newCred}")
+  %rest:query-param("oldCred","{$oldCred}")
   %rest:produces("application/xml", "text/xml")
   %updating
   %output:method("xml")
@@ -140,7 +140,7 @@ declare
             error(QName("http://error", "passwordCheckFailed"), "Required old password check failed")
           else (
               delete node $m/authentication[type = ('local', 'preliminary')],
-              (: TODO: quality check password :)
+              (: TODO: validate password as in frontend :)
               insert node page:createLocalAuthentication($newCred) into $m
           )
   };
@@ -278,11 +278,23 @@ declare
     let $token := json:parse($jtoken)
     return
       (: TODO use page:timeConstantEqual :)
+      (:TODO add a max age of timestamp check:)
+      (: TODO hide the error details (needed for debugging) :)
+      (:
       if (not((crypto:hmac($stoken, $page:secret, 'sha256', 'base64') = $sig) and
         ($token/json/sid = sessions:ids()) and
         ($token/json/path = $path)
-        (:TODO add a max age of timestamp check:)
       )) then error(QName("http://error", "invalidAccessToken"), "invalid access token")
+      :)
+
+(: TODO: this check fails: $token should not be json, but hash, or not? :)
+
+      if (not(crypto:hmac($stoken, $page:secret, 'sha256', 'base64') = $sig)) then
+        error(QName("http://error", "invalidAccessToken"), concat("invalid access token: signature failed. Token:", $token))
+      else if (not($token/json/sid = sessions:ids())) then
+        error(QName("http://error", "invalidAccessToken"), "invalid access token: session unknown")
+      else if (not($token/json/path = $path)) then
+        error(QName("http://error", "invalidAccessToken"), "invalid access token: path doesn't match")
       else $token/json
 };
 

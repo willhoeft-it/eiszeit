@@ -191,7 +191,7 @@
         const self = this
         self.server.get('../api/token?path=' + encodeURIComponent(url.pathname)).then(function(tokenResponse) {
           const resetUrl = new URL("#/resetPassword", window.location.href)
-          self.resetPasswordUrl =  resetUrl.href + "?accessToken=" + encodeURIComponent(x2js.xml2js(tokenResponse.data).token);
+          self.resetPasswordUrl =  resetUrl.href + "?staffmemberId=" + user._id + "&accessToken=" + encodeURIComponent(x2js.xml2js(tokenResponse.data).token);
         }).catch(this.handleHttpError);
       },
       clipboardAccessTokenUrl(event) {

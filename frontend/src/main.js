@@ -22,7 +22,13 @@ const router = new VueRouter({
     { path: '/userManaging', component: UserManagingPage },
     { path: '/reportProjects', component: ReportProjectsPage },
     { path: '/reportWorkingtime', component: ReportWorkingtimePage },
-    { path: '/resetPassword', component: ResetPasswordPage },
+    { path: '/resetPassword',
+        component: ResetPasswordPage,
+        props: (route) => ({
+          staffmemberId: route.query.staffmemberId,
+          accessToken: route.query.accessToken
+        })
+    }
   ]
 })
 
