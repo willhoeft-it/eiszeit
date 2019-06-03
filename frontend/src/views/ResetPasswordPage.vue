@@ -49,11 +49,9 @@
       submit: function() {
         console.log('submit')
         const self = this
-
-        // TODO: signature check fails. url encode? 
         this.server.post(
           '../api/users/user/' + this.staffmemberId + '/password',
-          'newCred=' + this.passwd + '&accessToken=' + this.accessToken,
+          'newCred=' + encodeURIComponent(this.passwd) + '&accessToken=' + encodeURIComponent(this.accessToken),
           { headers: {'Content-Type': 'application/x-www-form-urlencoded' } }
         ).then(function () {
           self.showMessage("Password set!", 'success');

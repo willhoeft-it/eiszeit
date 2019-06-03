@@ -107,11 +107,14 @@ function page:login() as item()* {
 
 (:~
  : Set user password. Requires an authentication token (e.g. received by mail) or logged in session and old credential.
- : TODO: test this
+ : Currently only tokens are accepted that have been created by user "admin".
+ :
+ : TODO: A token must only be usable once and only within a certain time
  :)
 declare
   %rest:path("api/users/user/{$staffmemberId}/password")
   %rest:POST
+  %perm:allow("all")
   %rest:query-param("accessToken", "{$accessToken}")
   %rest:query-param("newCred","{$newCred}")
   %rest:query-param("oldCred","{$oldCred}")
@@ -122,9 +125,10 @@ declare
   %rest:single
   function page:user-password-post($staffmemberId as xs:string, $accessToken as xs:string?, $newCred as xs:string, $oldCred as xs:string?) as empty-sequence() {
     let $sessionMid := session:get('staffmemberId')
-    let $tokenMid := if($accessToken) then page:checkAccessToken($accessToken, request:path())/mid else ()
-    let $authMid := util:or($sessionMid, $tokenMid)
-    return
+    let $tokenMid := if($accessToken) then page:checkAccessToken($accessToken, request:path(), true())/mid else ()
+    let $authMid := util:or($tokenMid, $sessionMid)
+    return (
+      admin:write-log('sessionMid: ' || $sessionMid || 'accessToken: ' || string(exists($accessToken)) || ' tokenMid: ' || $tokenMid || ' newCred: ' || string(exists($newCred)), 'DEBUG'),
       if (empty($authMid)) then
         error(QName("http://error", "notAuthenticated"), "authentication needed")
       (: TODO: instead of requiring 'admin' id, check for admin permission :)
@@ -132,17 +136,18 @@ declare
         error(QName("http://error", "adminPrivilegeRequired"), "Admin privilege required")
       else
         let $doc := db:open("eiszeit")/staff
-        let $m := $doc/staffmember[@id=$staffmemberId]
+        let $m := $doc/staffmember[@id=$staffmemberId and not(@status='deleted')]
         return
           if (empty($m)) then
-            error(QName("http://error", "unknownStaffmember"), "Staffmember id unknown")
+            error(QName("http://error", "inaccessibleStaffmember"), "Staffmember unknown or not accessible")
           else if (not($accessToken) and (not($oldCred) or not(page:checkLocalAuthentication($oldCred, $m/authentication[type='local'])))) then
             error(QName("http://error", "passwordCheckFailed"), "Required old password check failed")
           else (
-              delete node $m/authentication[type = ('local', 'preliminary')],
+              delete node $m/authentication[@type = ('local', 'preliminary')],
               (: TODO: validate password as in frontend :)
               insert node page:createLocalAuthentication($newCred) into $m
           )
+    )
   };
 
 (:~
@@ -270,7 +275,7 @@ declare
 };
 
 declare
-  function page:checkAccessToken($jwt as xs:string, $path as xs:string) as element(json) {
+  function page:checkAccessToken($jwt as xs:string, $path as xs:string, $ignoreSession as xs:boolean?) as element(json) {
     let $parts := tokenize($jwt, '\.')
     let $stoken := $parts[1]
     let $sig := $parts[2]
@@ -279,19 +284,16 @@ declare
     return
       (: TODO use page:timeConstantEqual :)
       (:TODO add a max age of timestamp check:)
-      (: TODO hide the error details (needed for debugging) :)
+      (: TODO hide the error details (needed only for debugging) :)
       (:
       if (not((crypto:hmac($stoken, $page:secret, 'sha256', 'base64') = $sig) and
         ($token/json/sid = sessions:ids()) and
         ($token/json/path = $path)
       )) then error(QName("http://error", "invalidAccessToken"), "invalid access token")
       :)
-
-(: TODO: this check fails: $token should not be json, but hash, or not? :)
-
       if (not(crypto:hmac($stoken, $page:secret, 'sha256', 'base64') = $sig)) then
-        error(QName("http://error", "invalidAccessToken"), concat("invalid access token: signature failed. Token:", $token))
-      else if (not($token/json/sid = sessions:ids())) then
+        error(QName("http://error", "invalidAccessToken"), "invalid access token: signature failed")
+      else if (not($ignoreSession) and not($token/json/sid = sessions:ids())) then
         error(QName("http://error", "invalidAccessToken"), "invalid access token: session unknown")
       else if (not($token/json/path = $path)) then
         error(QName("http://error", "invalidAccessToken"), "invalid access token: path doesn't match")
@@ -314,7 +316,7 @@ function page:checkApp($perm, $accessToken as xs:string?) {
       $perm?allow = 'all'
     ) and not (
       $accessToken and
-      page:checkAccessToken($accessToken, $perm?path) and
+      page:checkAccessToken($accessToken, $perm?path, false) and
       $perm?method = 'GET'
     )
   return (
