@@ -316,7 +316,7 @@ function page:checkApp($perm, $accessToken as xs:string?) {
       $perm?allow = 'all'
     ) and not (
       $accessToken and
-      page:checkAccessToken($accessToken, $perm?path, false) and
+      page:checkAccessToken($accessToken, $perm?path, false()) and
       $perm?method = 'GET'
     )
   return (
