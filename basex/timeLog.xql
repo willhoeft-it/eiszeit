@@ -73,7 +73,7 @@ function page:login($login as xs:string, $password as xs:string) as item()* {
   ) else (
     <rest:response>
       <http:response status="401">
-        <http:header name="Content-Language" value="en"/>
+        <http:header name="WWW-Authenticate" value="Bearer realm='eiszeit'"/>
       </http:response>
     </rest:response>,
     "Authentication failed"
@@ -95,7 +95,9 @@ function page:login() as item()* {
   return if (empty($staffmemberId))
   then (
     <rest:response>
-      <http:response status="401" />
+      <http:response status="401">
+        <http:header name="WWW-Authenticate" value="Bearer realm='eiszeit'"/>
+      </http:response>
     </rest:response>,
     <error>Not logged in</error>
   ) else
@@ -303,7 +305,6 @@ declare
 (:~
  : Permission check: all api functions need logged-in user.
  : Alternatively a restricted accessToken can be used.
- : TODO: www-authenticate is set to Basic realm="BaseX" and cannot be overridden? Change in web.xml if necesary.
  : TODO: accessToken access should work as if the same user. Currently e.g. api/timetrack/{$date} has no session / staffMemberId set.
  :)
 declare
@@ -322,7 +323,7 @@ function page:checkApp($perm, $accessToken as xs:string?) {
   return (
     <rest:response>
       <http:response status="401">
-        <http:header name="Content-Language" value="en"/>
+        <http:header name="WWW-Authenticate" value="Bearer realm='eiszeit'"/>
       </http:response>
     </rest:response>,
     "Authentication needed"

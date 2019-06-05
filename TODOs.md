@@ -1,8 +1,5 @@
 # TODOs
 
-## User management
-* password change page with route
-
 ## front end test
 * Jasmine
 
@@ -13,8 +10,7 @@
 ## refactor
 * rename all "working hours" to "attendance"
 
-## authentication fix
-* at least in dockered scenario, no browser auth dialog should appear
+## update to docker basexhttp-9.2.2 for authentication fix
 
 ## Milestone: go public on Github
 
