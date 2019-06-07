@@ -382,9 +382,9 @@
         }
         wd.workingtime.push(wt)
       },
-      addDefaultBreak: function(wd) {
+      addDefaultBreak: function(wd, duration) {
         const b = {
-          _duration: "PT0H30M",
+          _duration: duration ? duration : "PT0H30M",
           description: "",
           $key: pskey++
         }
@@ -420,7 +420,7 @@
       removeBreak: function(b) {
         this.workingday.break.splice(this.workingday.break.indexOf(b), 1)
         if (this.workingday.break.length==0) {
-          this.addDefaultBreak(this.workingday)
+          this.addDefaultBreak(this.workingday, "PT0M")
         }
       },
       removeBooking: function(b) {
