@@ -515,6 +515,7 @@ declare
         let $db := db:open("eiszeit")
         let $wds := $db/timetrack/workingday[@date>=$dateFrom and @date<$dateTo]
         for $wd in ($wds)
+        order by $wd/@date
         return
           <workingday date="{$wd/@date}">
             {$wd/workingtime}
