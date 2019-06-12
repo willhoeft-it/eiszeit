@@ -1,5 +1,5 @@
 # Base image, see https://hub.docker.com/r/basex/basexhttp/
-FROM basex/basexhttp:9.1.2
+FROM basex/basexhttp:9.2.2
 LABEL maintainer="Willhöft IT Beratung GmbH<eiszeit@willhoeft-it.com>"
 LABEL version="0.1.0"
 # Because Docker cannot reference files from outside its context directory, we assume to be started
