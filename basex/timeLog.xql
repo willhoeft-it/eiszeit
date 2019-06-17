@@ -583,3 +583,66 @@ declare
       }
       </bookings>
 };
+
+(: Booked projects and efforts overview with sums of work for different time spans and aggregations :)
+declare
+  %rest:path("api/report/projects/{$dateFrom}")
+  (: one of: day, week, month :)
+  %rest:query-param("aggrPeriod", "{$aggrPeriod}", "P1D")
+  %rest:query-param("noPeriods", "{$noPeriods}", 20)
+  %rest:GET
+  %rest:produces("application/xml", "text/xml")
+  %output:method("xml")
+  %output:omit-xml-declaration("no")
+  function page:timetrack-get-projectEfforts($dateFrom as xs:date, $aggrPeriod as xs:string, $noPeriods as xs:integer) as element(projectReport){
+    let $aggrDur :=
+      if ($aggrPeriod = ('P1D', 'P7D')) then xs:dayTimeDuration($aggrPeriod)
+      else if ($aggrPeriod = ('P1M', 'P3M', 'P1Y')) then xs:yearMonthDuration($aggrPeriod)
+      else error(QName("http://error", "invalidAggrPeriod"), "Invalid aggregation period")
+    let $dateTo := $dateFrom + $noPeriods * $aggrDur
+    let $db := db:open("eiszeit")
+    let $wds := $db/timetrack/workingday[@date>=$dateFrom and @date<$dateTo]
+    (: only those tasks that are used in the given time span :)
+    (: TODO: include deleted tasks from older revisions, but use only the most current id for title :)
+    let $tasks := page:tasks-get()//task[@id = $wds/booking/@taskId]
+    return <projectReport> {
+      if ($noPeriods < 1 or $noPeriods > 366) then
+        error(QName("http://error", "invalidNoPeriod"), "Invalid number of periods"),
+      attribute dateFrom {fn:adjust-date-to-timezone($dateFrom, [])},
+      attribute dateTo {fn:adjust-date-to-timezone($dateTo, [])},
+
+      for $period in (1 to $noPeriods)
+      let $periodFrom := $dateFrom + ($period - 1) * $aggrDur
+      let $periodTo := $periodFrom + $aggrDur
+      let $bs := $wds[@date >= $periodFrom and @date < $periodTo]/booking
+      return
+        <period dateFrom="{$periodFrom}" dateTo="{$periodTo}"> { (
+          for $p in ($tasks/ancestor::project)
+          let $pbs := $bs[@taskId=$p//task/@id]
+          return
+            <project id="{$p/@id}" title="{$p/@title}"> { (
+              for $t in ($p//task)
+              let $tbs := $pbs[@taskId=$t/@id]
+              return
+                <task id="{$t/@id}" title="{$t/@title}"> {
+                  for $billable in ("yes", "no", "depends")
+                  return
+                    <bookingSum billable="{$billable}"> {
+                      sum($tbs[@billable=$billable]/xs:dayTimeDuration(@duration))
+                    } </bookingSum>
+                } </task>,
+              for $billable in ("yes", "no", "depends")
+              return
+                <bookingSum billable="{$billable}"> {
+                  sum($pbs[@billable=$billable]/xs:dayTimeDuration(@duration))
+                } </bookingSum>
+            ) } </project>,
+          for $billable in ("yes", "no", "depends")
+          return
+            <bookingSum billable="{$billable}"> {
+              sum($bs[@billable=$billable]/xs:dayTimeDuration(@duration))
+            } </bookingSum>
+        ) } </period>
+    } </projectReport>
+
+};
