@@ -501,6 +501,7 @@ declare
 (: Booked days overview with sum of work, breaks and bookings  :)
 (: TODO: filter on staffMember / authorized user :)
 (: TODO: add infos about weekends, holidays, vacations, sickness :)
+(: TODO dateDrom and dateTo should rather be query-params :)
 declare
   %rest:path("api/report/days/{$dateFrom}/{$dateTo}")
   %rest:GET
@@ -530,6 +531,7 @@ declare
 
 
 (: Bookings from (included) / to (excluded). Multiple filters are connected as "or" :)
+(: TODO dateDrom and dateTo should rather be query-params :)
 declare
   %rest:path("api/report/bookings/{$dateFrom}/{$dateTo}")
   %rest:query-param("projectTitle", "{$projectTitle}")
