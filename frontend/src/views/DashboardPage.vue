@@ -88,6 +88,14 @@
 
 </template>
 
+<style scoped>
+  .theme--dark.v-table tbody tr td:nth-child(3n + 2)  {
+    background: #4e4e4e
+  }
+  .theme--light.v-table tbody tr td:nth-child(3n + 2)  {
+    background: #eeeeee
+  }
+</style>
 */
 
 // <script>
