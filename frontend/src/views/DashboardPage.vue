@@ -40,8 +40,11 @@
       <v-select v-model="periods" label="Periods" :items="periodsItems" @change="loadData" />
     </v-flex>
 
-    <!-- TODO add verticle lines to table -->
     <!-- TODO add options to configure yes / depends / no / all columns -->
+    <!-- TODO filter on project -->
+    <!-- TODO page on projects, but with up / down buttons  -->
+    <!-- TODO add option to change detail level to customer, project, task -->
+    <!-- TODO add horizontal navigation in time buttons (earlier, later) -->
     <!-- TODO add options to configure durations between : hhh:mm, h.00, d.00 (d=8h), d.00 (d=24h) -->
     <v-flex xs12>
       <v-data-table
