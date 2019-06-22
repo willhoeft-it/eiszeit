@@ -8,7 +8,7 @@ import DailyBookingPage from '@/views/DailyBookingPage.vue'
 import TaskManagingPage from '@/views/TaskManagingPage.vue'
 import UserManagingPage from '@/views/UserManagingPage.vue'
 import ReportProjectsPage from '@/views/ReportProjectsPage.vue'
-import ReportWorkingtimePage from '@/views/ReportWorkingtimePage.vue'
+import ReportAttendancePage from '@/views/ReportAttendancePage.vue'
 import ResetPasswordPage from '@/views/ResetPasswordPage.vue'
 
 Vue.config.productionTip = false
@@ -22,7 +22,7 @@ const router = new VueRouter({
     { path: '/taskManaging', component: TaskManagingPage },
     { path: '/userManaging', component: UserManagingPage },
     { path: '/reportProjects', component: ReportProjectsPage },
-    { path: '/reportWorkingtime', component: ReportWorkingtimePage },
+    { path: '/reportAttendance', component: ReportAttendancePage },
     { path: '/resetPassword',
         component: ResetPasswordPage,
         props: (route) => ({

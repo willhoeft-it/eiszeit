@@ -42,12 +42,12 @@
             <v-list-tile-title>report on projects</v-list-tile-title>
           </v-list-tile-content>
         </v-list-tile>
-        <v-list-tile to='/reportWorkingtime'>
+        <v-list-tile to='/reportAttendance'>
           <v-list-tile-action>
             <v-icon>fas fa-clock</v-icon>
           </v-list-tile-action>
           <v-list-tile-content>
-            <v-list-tile-title>report on working time</v-list-tile-title>
+            <v-list-tile-title>report on attendance</v-list-tile-title>
           </v-list-tile-content>
         </v-list-tile>
         <v-divider />

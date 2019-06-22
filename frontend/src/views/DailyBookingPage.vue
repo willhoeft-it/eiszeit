@@ -8,33 +8,33 @@
       <v-date-picker v-model="workingday._date" @change="loadData" @update:pickerDate="loadWdInfos($event)" :events="wdInfos" color="grey" first-day-of-week="1" reactive v-show="$vuetify.breakpoint.smAndDown"/>
     </v-flex>
     <v-flex xs12>
-      <h2>Working Time</h2>
+      <h2>Attendance</h2>
     </v-flex>
     <v-flex xs12>
       <v-alert :value="unbookedTime.valueOf() > 0" type="warning" :outline="isDirty">{{durationAsHours(unbookedTime)}} unbooked time</v-alert>
       <v-alert :value="unbookedTime.valueOf() < 0" type="warning" :outline="isDirty">{{durationAsHours(unbookedTime.negate())}} overbooked time</v-alert>
       <v-alert :value="unbookedTime.valueOf() == 0" type="success" :outline="isDirty" >All day booked!</v-alert>
     </v-flex>
-    <v-layout v-for="wt in workingday.workingtime" :key="wt.$key" row wrap>
+    <v-layout v-for="a in workingday.attendance" :key="a.$key" row wrap>
       <v-flex md1 xs4>
-        <daily-time-picker v-model="wt._start" @change="updateOnTimeChange(wt, $event, null)" label="begin" />
+        <daily-time-picker v-model="a._start" @change="updateOnTimeChange(a, $event, null)" label="begin" />
       </v-flex>
       <v-flex md1 xs4>
-        <daily-time-picker v-model="wt._end" @change="updateOnTimeChange(wt, null, $event)" label="end" />
+        <daily-time-picker v-model="a._end" @change="updateOnTimeChange(a, null, $event)" label="end" />
       </v-flex>
       <v-flex md1 xs4>
-        <duration-textfield v-model="wt._duration" @change="updateOnDurationChange(wt, $event)" />
+        <duration-textfield v-model="a._duration" @change="updateOnDurationChange(a, $event)" />
       </v-flex>
       <v-flex md8 xs11>
-        <v-textarea v-model="wt.description" label="comment" auto-grow rows="1"></v-textarea>
+        <v-textarea v-model="a.description" label="comment" auto-grow rows="1"></v-textarea>
       </v-flex>
       <v-flex md1 xs1>
-        <v-btn @click="removeWorkingTime(wt)" flat><v-icon>clear</v-icon></v-btn>
+        <v-btn @click="removeAttendance(a)" flat><v-icon>clear</v-icon></v-btn>
       </v-flex>
     </v-layout>
     <v-flex xs11></v-flex>
     <v-flex xs1 v-show="$vuetify.breakpoint.mdAndUp">
-        <v-btn @click="addWorkingTime"><v-icon>add</v-icon></v-btn>
+        <v-btn @click="addAttendance"><v-icon>add</v-icon></v-btn>
     </v-flex>
     <v-flex xs12>
       <h2>Breaks</h2>
@@ -107,7 +107,7 @@
         <v-btn @click="addBooking"><v-icon>add</v-icon></v-btn>
     </v-flex>
     <v-flex xs12>
-      <v-btn color="green" @click="submitWorkingtimes">submit</v-btn>
+      <v-btn color="green" @click="submitWorkingday">submit</v-btn>
       <v-btn @click="loadData">reset</v-btn>
     </v-flex>
 
@@ -177,11 +177,11 @@
         dark
         small
         color="indigo"
-        @click="addWorkingTime"
+        @click="addAttendance"
       >
         <v-icon>alarm_add</v-icon>
       </v-btn>
-      <span>add working time</span>
+      <span>add attendance</span>
     </v-tooltip>
   </v-speed-dial>
 </v-content>
@@ -213,7 +213,7 @@
   });
   const x2jsTimetrack = new X2JS({
     arrayAccessFormPaths : [
-      "workingday.workingtime", "workingday.break", "workingday.booking"
+      "workingday.attendance", "workingday.break", "workingday.booking"
     ]
   });
   const x2jsWdReport = new X2JS({
@@ -253,17 +253,17 @@
     },
     computed: {
       unbookedTime() {
-        if (! this.workingday.workingtime)
+        if (! this.workingday.attendance)
           return Duration.fromISO('PT0H')
-        const wtsum = this.workingday.workingtime.reduce((total, wt) => {
-          return wt._duration ? total.plus(Duration.fromISO(wt._duration)) : total
+        const asum = this.workingday.attendance.reduce((total, a) => {
+          return a._duration ? total.plus(Duration.fromISO(a._duration)) : total
         }, Duration.fromISO('PT0H'));
-        const netwtsum = (this.workingday.break) ? this.workingday.break.reduce((total, b) => {
+        const netasum = (this.workingday.break) ? this.workingday.break.reduce((total, b) => {
           return b._duration ? total.minus(Duration.fromISO(b._duration)) : total
-        }, wtsum) : wtsum;
+        }, asum) : asum;
         const unbooked = (this.workingday.booking) ? this.workingday.booking.reduce((total, b) => {
           return b._duration ? total.minus(Duration.fromISO(b._duration)) : total
-        }, netwtsum) : netwtsum;
+        }, netasum) : netasum;
         return unbooked;
       },
       availableTasks() {
@@ -298,8 +298,8 @@
           const t = x2jsTasks.xml2js(taskResponse.data).tasks;
           self.tasks = t
           const d = x2jsTimetrack.xml2js(timetrackResponse.data).workingday;
-          if (! d.workingtime) {
-            self.addDefaultWorkingTime(d);
+          if (! d.attendance) {
+            self.addDefaultAttendance(d);
           }
           if (! d.break) {
             self.addDefaultBreak(d);
@@ -324,7 +324,7 @@
         }).catch(this.handleHttpError);
       },
       // TODO: validate or don't submit. Avoid backend error on bookings without task id
-      submitWorkingtimes: function () {
+      submitWorkingday: function () {
         const outjs = deepFilter(this.workingday, function(_, prop) {
           return ! prop.toString().startsWith('$')
         })
@@ -352,35 +352,35 @@
         })
         if (wdi < 0) return false
         const wd = this.wdReport.workingday[wdi]
-        return (Duration.fromISO(wd.workingtimeSum) - Duration.fromISO(wd.breakSum) - Duration.fromISO(wd.bookingSum) == 0) ? 'green' : 'yellow'
+        return (Duration.fromISO(wd.attendanceSum) - Duration.fromISO(wd.breakSum) - Duration.fromISO(wd.bookingSum) == 0) ? 'green' : 'yellow'
       },
-      updateOnTimeChange: function(wt, newStart, newEnd) {
-        const start = newStart ? newStart : wt._start
-        const end = newEnd ? newEnd : wt._end
+      updateOnTimeChange: function(a, newStart, newEnd) {
+        const start = newStart ? newStart : a._start
+        const end = newEnd ? newEnd : a._end
         if (start && end) {
           const startDt = this.toDateTime(this.workingday._date, start)
           const endDt = this.toDateTime(this.workingday._date, end)
-          wt._duration = endDt.diff(startDt, ['hours', 'minutes']).toISO()
+          a._duration = endDt.diff(startDt, ['hours', 'minutes']).toISO()
         }
       },
-      updateOnDurationChange: function(wt, newDuration) {
-        if (newDuration && wt._start) {
+      updateOnDurationChange: function(a, newDuration) {
+        if (newDuration && a._start) {
           const duration = Duration.fromISO(newDuration)
-          const startDt = this.toDateTime(this.workingday._date, wt._start)
-          wt._end = startDt.plus(duration).toFormat("HH:mm")
+          const startDt = this.toDateTime(this.workingday._date, a._start)
+          a._end = startDt.plus(duration).toFormat("HH:mm")
         }
       },
-      addDefaultWorkingTime: function(wd) {
-        const wt = {
+      addDefaultAttendance: function(wd) {
+        const a = {
           _start: "10:00",
           _duration: "PT9H30M",
           description: "",
           $key: pskey++
         }
-        if (! wd.workingtime) {
-          Vue.set(wd, "workingtime", [])
+        if (! wd.attendance) {
+          Vue.set(wd, "attendance", [])
         }
-        wd.workingtime.push(wt)
+        wd.attendance.push(a)
       },
       addDefaultBreak: function(wd, duration) {
         const b = {
@@ -405,13 +405,13 @@
         }
         wd.booking.push(b)
       },
-      addWorkingTime: function() {
-        this.addDefaultWorkingTime(this.workingday)
+      addAttendance: function() {
+        this.addDefaultAttendance(this.workingday)
       },
-      removeWorkingTime: function(wt) {
-        this.workingday.workingtime.splice(this.workingday.workingtime.indexOf(wt), 1)
-        if (this.workingday.workingtime.length==0) {
-          this.addDefaultWorkingTime(this.workingday)
+      removeAttendance: function(a) {
+        this.workingday.attendance.splice(this.workingday.attendance.indexOf(a), 1)
+        if (this.workingday.attendance.length==0) {
+          this.addDefaultAttendance(this.workingday)
         }
       },
       addBreak: function() {

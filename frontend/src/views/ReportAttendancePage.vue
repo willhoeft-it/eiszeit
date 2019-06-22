@@ -8,7 +8,7 @@
     </v-flex>
 
     <v-flex xs12>
-      <h2>Monthly Working Time Report</h2>
+      <h2>Monthly Attendance Report</h2>
     </v-flex>
     <v-flex xs12>
       <v-data-table
@@ -52,16 +52,16 @@
         <template slot="items" slot-scope="props">
           <tr @click="props.expanded = !props.expanded">
             <td class="text-xs-right">{{ (new Date(props.item._date)).toLocaleDateString("de-de", { weekday: 'short', year: 'numeric', month: '2-digit', day: '2-digit' }) }}</td>
-            <td class="text-xs-right">{{ durationAsHours(props.item.workingtimeSum) }}</td>
+            <td class="text-xs-right">{{ durationAsHours(props.item.attendanceSum) }}</td>
             <td class="text-xs-right">{{ durationAsHours(props.item.breakSum) }}</td>
             <td class="text-xs-right">{{ durationAsHours(props.item.bookingSum) }}</td>
-            <td>{{ shortDescriptionArr(props.item.workingtime).concat(shortDescriptionArr(props.item.break)).join(", ") }}</td>
+            <td>{{ shortDescriptionArr(props.item.attendance).concat(shortDescriptionArr(props.item.break)).join(", ") }}</td>
           </tr>
         </template>
         <template slot="expand" slot-scope="props">
           <table>
             <tbody>
-              <tr v-for="(wt, i) in props.item.workingtime" :key="i">
+              <tr v-for="(wt, i) in props.item.attendance" :key="i">
                 <td width="150em"/>
                 <td width="130em" class="text-xs-right">{{ durationAsHours(wt._duration) }}</td>
                 <td width="100em" />
@@ -140,20 +140,20 @@
   const x2jsWdReport = new X2JS({
     arrayAccessFormPaths : [
       "workingdays.workingday",
-      "workingdays.workingday.workingtime",
+      "workingdays.workingday.attendance",
       "workingdays.workingday.break"
     ]
   });
 
   // using a global vue filter to reuse code for multiple computed values
-  Vue.filter('filterWorkingtimes', function(bookings, filters) {
+  Vue.filter('filterAttendance', function(bookings, filters) {
     return (bookings) ? bookings.filter(b => {
       return Object.keys(filters).every(f => {
         if (filters[f].items.length < 1) return true
         switch(filters[f].type) {
           case "selection": return filters[f].items.includes(b[f])
           case "text": return filters[f].items.every(txt =>
-            (b.workingtime || []).concat(b.break || []).some(i =>
+            (b.attendance || []).concat(b.break || []).some(i =>
               (i.description && i.description.toLowerCase().includes(txt.toLowerCase()))
             )
           )
@@ -163,7 +163,7 @@
     }) : []
   })
 
-  export default Vue.component('report-workingtime-page', {
+  export default Vue.component('report-attendance-page', {
     mixins: [dateUtils, pageMixin],
     props: {
       staffmember: Object
@@ -185,11 +185,11 @@
             value: '_date'
           },
           {
-            text: 'Working Time',
+            text: 'Attendance',
             align: 'right',
             width: '130em',
             sortable: true,
-            value: 'workingtimeSum'
+            value: 'attendanceSum'
           },
           { text: 'Breaks',
             align: 'right',
@@ -218,10 +218,10 @@
     },
     computed:  {
       filteredBookings() {
-        return Vue.filter('filterWorkingtimes')(this.wdReport.workingday, this.filters)
+        return Vue.filter('filterAttendance')(this.wdReport.workingday, this.filters)
       },
       totalBookedDuration() {
-        const fbs = Vue.filter('filterWorkingtimes')(this.wdReport.workingday, this.filters)
+        const fbs = Vue.filter('filterAttendance')(this.wdReport.workingday, this.filters)
         return (fbs) ? fbs.reduce((total, b) => {
           return total.plus(Duration.fromISO(b.bookingSum))
         }, Duration.fromISO('PT0H')) : "PT0H";
@@ -278,7 +278,7 @@
             return 0
           }
           // Check for special duration columns
-          if (['workingtimeSum', 'breakSum', 'bookingSum'].includes(index)) {
+          if (['attendanceSum', 'breakSum', 'bookingSum'].includes(index)) {
             const [dA, dB] = [sortA, sortB].map(s => (
               Duration.fromISO(s || 'PT0H').valueOf()
             ))

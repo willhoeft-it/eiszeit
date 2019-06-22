@@ -3,7 +3,7 @@
   <xs:element name="workingday">
     <xs:complexType>
       <xs:choice minOccurs="0" maxOccurs="unbounded">
-        <xs:element ref="workingtime"/>
+        <xs:element ref="attendance"/>
         <xs:element ref="break"/>
         <xs:element ref="booking"/>
       </xs:choice>
@@ -11,7 +11,7 @@
       <xs:attribute name="date" use="required" type="xs:date"/>
     </xs:complexType>
   </xs:element>
-  <xs:element name="workingtime">
+  <xs:element name="attendance">
     <xs:complexType>
       <xs:choice minOccurs="0" maxOccurs="1">
         <xs:element name="description"/>

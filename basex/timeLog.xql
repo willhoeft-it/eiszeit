@@ -519,8 +519,8 @@ declare
         order by $wd/@date
         return
           <workingday date="{$wd/@date}">
-            {$wd/workingtime}
-            <workingtimeSum>{sum($wd/workingtime/xs:dayTimeDuration(@duration))}</workingtimeSum>
+            {$wd/attendance}
+            <attendanceSum>{sum($wd/attendance/xs:dayTimeDuration(@duration))}</attendanceSum>
             {$wd/break}
             <breakSum>{sum($wd/break/xs:dayTimeDuration(@duration))}</breakSum>
             <bookingSum>{sum($wd/booking/xs:dayTimeDuration(@duration))}</bookingSum>
