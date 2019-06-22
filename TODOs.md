@@ -1,5 +1,17 @@
 # TODOs
 
+## refactor
+* rename all "working hours" to "attendance"
+
+## Milestone: go public on Github
+
+------
+## Logo "Eiszeit"
+* Add logo / favicon
+
+## Add intro start page
+* Links to github, issue tracker, docker, wiki, about, etc.
+
 ## front end test
 * Jasmine
 
@@ -7,27 +19,12 @@
 * direct db access (crud) for setup / teardown / test
 * integrate in npm tooling, run tests in docker container
 
-## refactor
-* rename all "working hours" to "attendance"
-
-## update to docker basexhttp-9.2.2 for authentication fix
-
-## Milestone: go public on Github
-
-------
-
-## Add intro start page
-* Links to github, issue tracker, docker, wiki, about, etc.
-
 ## Permissions for project leads / members
 
 ## Internationalization
 * Text/labels
 * component localization
 * date formats
-
-## Logo "Eiszeit"
-* Add logo / favicon
 
 ## switch authentication to JWT
 see:
