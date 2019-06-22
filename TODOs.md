@@ -1,8 +1,5 @@
 # TODOs
 
-## refactor
-* rename all "working hours" to "attendance"
-
 ## Milestone: go public on Github
 
 ------
@@ -11,6 +8,14 @@
 
 ## Add intro start page
 * Links to github, issue tracker, docker, wiki, about, etc.
+
+## Bundle external icons and fonts
+* should work offline
+* no external dependencies
+
+## Add a sample docker data container
+* complete populated project with users, projects, tasks, bookings, etc.
+* basis for all migration tasks
 
 ## front end test
 * Jasmine

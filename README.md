@@ -29,7 +29,6 @@ Eiszeit grows on a as needed basis. "We eat our own dog food" and add features a
 * "Freezing" of attendance so it cannot be edited after being accepted by HR
 * A logo
 * Front-end tests. Jasmine coming
-* Dashboard. The page is there, but nothing on it.
 * Configuration of user and application settings.
 * Documentation
 
