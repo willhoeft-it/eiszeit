@@ -34,7 +34,7 @@ Eiszeit grows on a as needed basis. "We eat our own dog food" and add features a
 
 ## License
 
-TODO
+The application is licensed under the [Mozilla Public License 2.0] (LICENSE.md)
 
 ## Quick start
 
