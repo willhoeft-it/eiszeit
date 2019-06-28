@@ -26,4 +26,6 @@ Note: The container will be based on the current image. If you made any changes,
   npm run docker:clean:data : WARNING: deletes your data volume! Good to start from scratch.
 
 ## Deploy
+
+  docker login
   npm run docker:publish : Voíla, your results are published on the repository you've defined.
