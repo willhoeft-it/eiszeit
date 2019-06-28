@@ -14,16 +14,19 @@
     "deep-filter": "^1.0.2",
     "deep_find": "^1.0.1",
     "luxon": "^1.16.0",
+    "typeface-roboto": "0.0.54",
     "vue": "^2.6.10",
     "vue-router": "^3.0.6",
     "vuetify": "^1.5.16",
     "x2js": "^3.3.0"
   },
   "devDependencies": {
+    "@fortawesome/fontawesome-free": "^5.9.0",
     "@vue/cli-plugin-babel": "^3.8.0",
     "@vue/cli-plugin-eslint": "^3.8.0",
     "@vue/cli-service": "^3.8.4",
     "babel-plugin-transform-remove-console": "^6.9.4",
+    "material-design-icons-iconfont": "^5.0.1",
     "vue-cli-plugin-vuetify": "^0.2.0",
     "vue-template-compiler": "^2.6.10"
   }
