@@ -1,7 +1,7 @@
-# Eiszeit Track & Report
+# Eiszeit Time Tracking & Reports
 
 ## What it is
-Eiszeit tracks the time you spend on tasks and projects and allows you to report to project leads and customers of how much time has been spent for them and how much of it can be billed. It will also allow to report on working time contracted between employee and employer. For the latter it is planned (but not yet implemented) to take into account the individual contracted hours, contracted vacation days, public holidays, illnesses, etc.
+Eiszeit is a web based time tracking app. It tracks time you spend on tasks and projects and allows to report to project leads and customers how much time has been spent for them and what is billable. It will also allow to report on working time contracted between employee and employer. For the latter it is planned (but not yet implemented) to take into account the individual contracted hours, contracted vacation days, public holidays, illnesses, etc.
 
 ## Focus
 This application is meant to be efficient and not to get into your way, especially in daily repeating tasks like booking your attendance and project hours. It might not (and probably never will) ship with all bells and whistles that other software has, but it is meant to be as open as possible. So it should always be easy to integrate with other software.
@@ -34,11 +34,32 @@ Eiszeit grows on a as needed basis. "We eat our own dog food" and add features a
 
 ## License
 
-The application is licensed under the [Mozilla Public License 2.0] (LICENSE.md)
+The application is licensed under the [Mozilla Public License 2.0](LICENSE.md)
 
 ## Quick start
 
-TODO
+* Pull and run the official docker image on your local machine:
+
+```
+docker run willhoeftit/eiszeit
+```
+
+* Open up your local [webpage](http://localhost:3000) on port 3000
+* Login as "admin" and password "password"
+* Go to the [user managing page](http://localhost:3000/ui/index.html#/userManaging) and a new user.
+* Click on the user's "key" symbol (below of his card) to copy the password reset link to your clipboard
+* Logout as admin
+* Paste the password reset link into your browser
+* Enter your new password
+* [Login](http://localhost:3000) as the new user
+* Go to the [task managing page](http://localhost:3000/ui/index.html#/taskManaging)
+ * add a project group, project and some tasks
+ * add the new user to the new tasks
+* Go to the [daily booking page](http://localhost:3000/ui/index.html#/dailyBooking) and log some work to your assigned tasks
+* Examine the reports on your tasks in the
+ * [dashboard](http://localhost:3000/ui/index.html#/dashboard)
+ * [report on projects](http://localhost:3000/ui/index.html#/reportProjects)
+ * [report on attendance](http://localhost:3000/ui/index.html#/reportAttendance)
 
 ## Technology stack
 From user to CPU, Eiszeit is built on
