@@ -1,6 +1,6 @@
 {
   "name": "eiszeit-docker",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "config": {
     "imageRepo": "willhoeftit/eiszeit",
     "imageName": "eiszeit",
