@@ -1,4 +1,4 @@
-# Eiszeit Track & Report
+# Eiszeit Time Tracking & Reports
 
 ## What it is
 Eiszeit is a web based time tracking app. It tracks time you spend on tasks and projects and allows to report to project leads and customers how much time has been spent for them and what is billable. It will also allow to report on working time contracted between employee and employer. For the latter it is planned (but not yet implemented) to take into account the individual contracted hours, contracted vacation days, public holidays, illnesses, etc.
