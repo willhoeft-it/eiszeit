@@ -168,7 +168,8 @@ declare
   function page:user-post($u as document-node()) as empty-sequence() {
     let $xsdStaff := doc("schemas/staff.xsd")
     return (
-      (: TODO: check that element is staffmember and not anything else from schema :)
+      if (not($u/staffmember)) then
+        error(QName("http://error", "validationFailed"), "Expected staffmember"),
       validate:xsd($u, $xsdStaff),
       let $db := db:open("eiszeit")/staff
       let $m := $u/staffmember
@@ -412,7 +413,8 @@ declare
     return copy $tn := $t
     modify (
         (: TODO: validate that all task ids are valid and valid for the user :)
-        (: TODO: validate that the root node is "workingday" (schema has many elements) :)
+        if (not($t/workingday)) then
+          error(QName("http://error", "validationFailed"), "Expected workingday"),
         validate:xsd($t, $xsdWorkingday),
         replace value of node $tn/workingday/@staffmemberId with $memberId
     )
