@@ -241,6 +241,15 @@
       };
     },
     watch: {
+      staffmember: function() {
+        // (re)load data when the user logs in
+        if (! this.staffmember._id)
+          return
+        if (! this.isDirty)
+          this.loadData()
+        // Hacky way of updating the date picker's event bubbles. The date picker should trigger the load, but does only on explicit click
+        this.loadWdInfos(new Date().toISOString().substr(0, 7))
+      },
       // fix so that tooltips work with the speed dial animation
       fab (val) {
         this.tooltips = false
@@ -288,7 +297,6 @@
         if (! this.staffmember._id) {
           return
         }
-
         const urlDate = (this.workingday && this.workingday._date) ? ("/" + this.workingday._date) : ""
         const self = this
         axios.all([
