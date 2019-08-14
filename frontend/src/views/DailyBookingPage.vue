@@ -4,8 +4,8 @@
     <v-flex xs6>
       <h2>User: {{staffmember.givenName}} {{staffmember.name}}</h2>
       <!-- TODO: current date does not update when window is not reloaded over 24h -->
-      <v-date-picker v-model="workingday._date" @change="loadData" @update:pickerDate="loadWdInfos($event)" :events="wdInfos" color="grey" full-width landscape show-week first-day-of-week="1" reactive v-show="$vuetify.breakpoint.mdAndUp"/>
-      <v-date-picker v-model="workingday._date" @change="loadData" @update:pickerDate="loadWdInfos($event)" :events="wdInfos" color="grey" first-day-of-week="1" reactive v-show="$vuetify.breakpoint.smAndDown"/>
+      <v-date-picker :value="workingday._date" @change="loadData($event)" @update:pickerDate="loadWdInfos($event)" :events="wdInfos" color="grey" full-width landscape show-week first-day-of-week="1" reactive v-show="$vuetify.breakpoint.mdAndUp"/>
+      <v-date-picker :value="workingday._date" @change="loadData($event)" @update:pickerDate="loadWdInfos($event)" :events="wdInfos" color="grey" first-day-of-week="1" reactive v-show="$vuetify.breakpoint.smAndDown"/>
     </v-flex>
     <v-flex xs12>
       <h2>Attendance</h2>
@@ -245,10 +245,11 @@
         // (re)load data when the user logs in
         if (! this.staffmember._id)
           return
-        if (! this.isDirty)
-          this.loadData()
         // Hacky way of updating the date picker's event bubbles. The date picker should trigger the load, but does only on explicit click
         this.loadWdInfos(new Date().toISOString().substr(0, 7))
+        if (! this.isDirty)
+          this.loadData()
+
       },
       // fix so that tooltips work with the speed dial animation
       fab (val) {
@@ -293,11 +294,11 @@
       resetDirty: function() {
         this.workingdayUnchanged = _.cloneDeep(this.workingday)
       },
-      loadData: function() {
+      loadData: function(currentDay) {
         if (! this.staffmember._id) {
           return
         }
-        const urlDate = (this.workingday && this.workingday._date) ? ("/" + this.workingday._date) : ""
+        const urlDate = currentDay ? ("/" + currentDay) : ""
         const self = this
         axios.all([
           self.server.get('../api/tasks/' + this.staffmember._id),
