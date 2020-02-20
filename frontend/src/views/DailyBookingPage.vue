@@ -4,12 +4,13 @@
     <v-flex xs6>
       <h2>User: {{staffmember.givenName}} {{staffmember.name}}</h2>
       <!-- TODO: current date does not update when window is not reloaded over 24h -->
-      <v-date-picker :value="workingday._date" @change="loadData($event)" @update:pickerDate="loadWdInfos($event)" :events="wdInfos" color="grey" full-width landscape show-week first-day-of-week="1" reactive v-show="$vuetify.breakpoint.mdAndUp">
+      <!-- TODO: "Today" button does not update/reset the month calendar view if selected date is still today -->
+      <v-date-picker v-show="$vuetify.breakpoint.mdAndUp" :value="workingday._date" @change="loadData($event)" @update:pickerDate="loadWdInfos($event)" :events="wdInfos" color="grey" full-width landscape show-week first-day-of-week="1" reactive>
         <v-flex class="text-xs-center">
           <v-btn @click="goToToday" small flat>Today</v-btn>
         </v-flex>
       </v-date-picker>
-      <v-date-picker :value="workingday._date" @change="loadData($event)" @update:pickerDate="loadWdInfos($event)" :events="wdInfos" color="grey" first-day-of-week="1" reactive v-show="$vuetify.breakpoint.smAndDown">
+      <v-date-picker v-show="$vuetify.breakpoint.smAndDown" :value="workingday._date" @change="loadData($event)" @update:pickerDate="loadWdInfos($event)" :events="wdInfos" color="grey" first-day-of-week="1" reactive>
         <v-flex class="text-xs-center">
           <v-btn @click="goToToday" small flat>Today</v-btn>
         </v-flex>
