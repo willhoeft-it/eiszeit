@@ -4,8 +4,16 @@
     <v-flex xs6>
       <h2>User: {{staffmember.givenName}} {{staffmember.name}}</h2>
       <!-- TODO: current date does not update when window is not reloaded over 24h -->
-      <v-date-picker :value="workingday._date" @change="loadData($event)" @update:pickerDate="loadWdInfos($event)" :events="wdInfos" color="grey" full-width landscape show-week first-day-of-week="1" reactive v-show="$vuetify.breakpoint.mdAndUp"/>
-      <v-date-picker :value="workingday._date" @change="loadData($event)" @update:pickerDate="loadWdInfos($event)" :events="wdInfos" color="grey" first-day-of-week="1" reactive v-show="$vuetify.breakpoint.smAndDown"/>
+      <v-date-picker :value="workingday._date" @change="loadData($event)" @update:pickerDate="loadWdInfos($event)" :events="wdInfos" color="grey" full-width landscape show-week first-day-of-week="1" reactive v-show="$vuetify.breakpoint.mdAndUp">
+        <v-flex class="text-xs-center">
+          <v-btn @click="goToToday" small flat>Today</v-btn>
+        </v-flex>
+      </v-date-picker>
+      <v-date-picker :value="workingday._date" @change="loadData($event)" @update:pickerDate="loadWdInfos($event)" :events="wdInfos" color="grey" first-day-of-week="1" reactive v-show="$vuetify.breakpoint.smAndDown">
+        <v-flex class="text-xs-center">
+          <v-btn @click="goToToday" small flat>Today</v-btn>
+        </v-flex>
+      </v-date-picker>
     </v-flex>
     <v-flex xs12>
       <h2>Attendance</h2>
@@ -362,6 +370,10 @@
         if (wdi < 0) return false
         const wd = this.wdReport.workingday[wdi]
         return (Duration.fromISO(wd.attendanceSum) - Duration.fromISO(wd.breakSum) - Duration.fromISO(wd.bookingSum) == 0) ? 'green' : 'yellow'
+      },
+      goToToday: function() {
+        // TODO: implement
+        this.loadData(this.dateToLocalISOString(new Date()).slice(0, 10))
       },
       updateOnTimeChange: function(a, newStart, newEnd) {
         const start = newStart ? newStart : a._start
