@@ -18,7 +18,7 @@
     "vue": "^2.6.10",
     "vue-router": "^3.0.6",
     "vuetify": "^1.5.16",
-    "x2js": "^3.3.0"
+    "x2js": "^3.4.3"
   },
   "devDependencies": {
     "@fortawesome/fontawesome-free": "^5.9.0",
