@@ -60,12 +60,12 @@ function page:logout() as item()* {
  :)
 declare
   %rest:path("api/user/login")
-  %rest:query-param("login", "{$login}")
-  %rest:query-param("password", "{$password}")
+  %rest:form-param("login", "{$login}")
+  %rest:form-param("password", "{$password}")
   %rest:POST
   %perm:allow("all")
 function page:login($login as xs:string, $password as xs:string) as item()* {
-  let $staffmember := db:open("eiszeit")/staff/staffmember[alias=$login]
+  let $staffmember := db:get("eiszeit")/staff/staffmember[alias=$login]
   let $auth := $staffmember/authentication[@type='local']
   return if ($auth and page:checkLocalAuthentication($password, $auth))
   then (
@@ -102,7 +102,7 @@ function page:login() as item()* {
     <error>Not logged in</error>
   ) else
     <staffmember>  {
-      db:open("eiszeit")/staff/staffmember[@id=$staffmemberId]/(@*|*[not(local-name()='authentication')])
+      db:get("eiszeit")/staff/staffmember[@id=$staffmemberId]/(@*|*[not(local-name()='authentication')])
     }
     </staffmember>
 };
@@ -128,7 +128,7 @@ declare
   function page:user-password-post($staffmemberId as xs:string, $accessToken as xs:string?, $newCred as xs:string, $oldCred as xs:string?) as empty-sequence() {
     let $sessionMid := session:get('staffmemberId')
     let $tokenMid := if($accessToken) then page:checkAccessToken($accessToken, request:path(), true())/mid else ()
-    let $authMid := util:or($tokenMid, $sessionMid)
+    let $authMid := $tokenMid otherwise $sessionMid
     return (
       admin:write-log('sessionMid: ' || $sessionMid || 'accessToken: ' || string(exists($accessToken)) || ' tokenMid: ' || $tokenMid || ' newCred: ' || string(exists($newCred)), 'DEBUG'),
       if (empty($authMid)) then
@@ -137,7 +137,7 @@ declare
       else if ($authMid != $staffmemberId and not($authMid = 'admin')) then
         error(QName("http://error", "adminPrivilegeRequired"), "Admin privilege required")
       else
-        let $doc := db:open("eiszeit")/staff
+        let $doc := db:get("eiszeit")/staff
         let $m := $doc/staffmember[@id=$staffmemberId and not(@status='deleted')]
         return
           if (empty($m)) then
@@ -171,7 +171,7 @@ declare
       if (not($u/staffmember)) then
         error(QName("http://error", "validationFailed"), "Expected staffmember"),
       validate:xsd($u, $xsdStaff),
-      let $db := db:open("eiszeit")/staff
+      let $db := db:get("eiszeit")/staff
       let $m := $u/staffmember
       let $dbs := $db/staffmember[@id = $m/@id]
       return
@@ -222,7 +222,7 @@ declare
   %output:omit-xml-declaration("no")
   %rest:single
   function page:user-delete($id as xs:string) as empty-sequence() {
-    let $db := db:open("eiszeit")/staff
+    let $db := db:get("eiszeit")/staff
     let $dbs := $db/staffmember[@id = $id]
     return (
       if (not($dbs)) then error(QName("http://error", "unknownStaffmember"), "Staffmember id unknown"),
@@ -365,7 +365,7 @@ function page:token-get($path as xs:string) as item()* {
    %output:omit-xml-declaration("no")
  function page:staff-get() as item()* {
    <staff> {
-     for $s in (db:open("eiszeit")/staff/staffmember[not(@status='deleted')]) return
+     for $s in (db:get("eiszeit")/staff/staffmember[not(@status='deleted')]) return
        <staffmember>
          { $s/(@*|*[not(local-name()='authentication')]) }
        </staffmember>
@@ -383,7 +383,7 @@ declare
   function page:timetrack-get($date as xs:date) as element(workingday) {
     let $staffmemberId := session:get('staffmemberId')
     return
-      db:open("eiszeit")/timetrack/workingday[@date=$date and @staffmemberId=$staffmemberId] ?:
+      db:get("eiszeit")/timetrack/workingday[@date=$date and @staffmemberId=$staffmemberId] otherwise
         <workingday date="{fn:adjust-date-to-timezone($date, [])}" staffmemberId="{$staffmemberId}" />
 };
 
@@ -407,7 +407,7 @@ declare
   %rest:single
   function page:timetrack-post($t as document-node()) as empty-sequence() {
     let $xsdWorkingday := doc("schemas/workingday.xsd")
-    let $doc := db:open("eiszeit")/timetrack
+    let $doc := db:get("eiszeit")/timetrack
     let $memberId := session:get('staffmemberId')
     let $dbt := $doc/workingday[@date=$t/workingday/@date and @staffmemberId=$memberId]
     return copy $tn := $t
@@ -435,7 +435,7 @@ declare
   %output:omit-xml-declaration("no")
   %rest:single
   function page:tasks-get() as element(tasks) {
-    let $db := db:open("eiszeit")/taskRevisions
+    let $db := db:get("eiszeit")/taskRevisions
     return $db/tasks[@rev=max(../tasks/@rev)]
 };
 
@@ -453,8 +453,8 @@ declare
   function page:tasks-post($t as document-node()) as empty-sequence() {
     (: admin:write-log(concat('POST tasks:', serialize($t)), 'DEBUG') :)
     let $xsdTasks := doc("schemas/tasks.xsd")
-    let $db := db:open("eiszeit")/taskRevisions
-    let $dbt := $db/tasks[@rev=max(../tasks/@rev)] ?: <tasks/>
+    let $db := db:get("eiszeit")/taskRevisions
+    let $dbt := $db/tasks[@rev=max(../tasks/@rev)] otherwise <tasks/>
     return
         copy $tn := $t
         modify (
@@ -483,7 +483,7 @@ declare
   %rest:single
   function page:tasks-get-by-staffmember($staffmemberId as xs:string) as element(tasks) {
     <tasks>{
-        let $db := db:open("eiszeit")/taskRevisions
+        let $db := db:get("eiszeit")/taskRevisions
         let $dbt := $db/tasks[@rev=max(../tasks/@rev)]
         for $t in ($dbt//task[staffmemberId=$staffmemberId]) return
           <task status="{if ($t/ancestor-or-self::*[@status='locked']) then 'locked' else $t/@status}">
@@ -515,7 +515,7 @@ declare
       {
         attribute dateFrom {fn:adjust-date-to-timezone($dateFrom, [])},
         attribute dateTo {fn:adjust-date-to-timezone($dateTo, [])},
-        let $db := db:open("eiszeit")
+        let $db := db:get("eiszeit")
         let $wds := $db/timetrack/workingday[@date>=$dateFrom and @date<$dateTo]
         for $wd in ($wds)
         order by $wd/@date
@@ -555,7 +555,7 @@ declare
         if (exists($billable)) then
           attribute billable {$billable},
         :)
-        let $db := db:open("eiszeit")
+        let $db := db:get("eiszeit")
         let $wds := $db/timetrack/workingday[@date>=$dateFrom and @date<$dateTo]
         let $tasks := page:tasks-get()
         for $wd in ($wds), $b in ($wd/booking), $t in ($tasks//task[@id = $b/@taskId]), $p in ($t/ancestor::project)
@@ -604,7 +604,7 @@ declare
       else if ($aggrPeriod = ('P1M', 'P3M', 'P1Y')) then xs:yearMonthDuration($aggrPeriod)
       else error(QName("http://error", "invalidAggrPeriod"), "Invalid aggregation period")
     let $dateTo := $dateFrom + $noPeriods * $aggrDur
-    let $db := db:open("eiszeit")
+    let $db := db:get("eiszeit")
     let $wds := $db/timetrack/workingday[@date>=$dateFrom and @date<$dateTo]
     (: only those tasks that are used in the given time span :)
     (: TODO: include deleted tasks from older revisions, but use only the most current id for title :)
