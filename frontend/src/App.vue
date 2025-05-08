@@ -80,7 +80,6 @@
       </v-btn>
     </v-snackbar>
 
-    <!-- TODO: after a failed access and then a successful login, retry the failed access -->
     <v-dialog v-bind:value="loginVisible" persistent max-width="600px">
       <v-card>
         <v-card-title>
@@ -108,7 +107,7 @@
     </v-dialog>
 
     <v-footer dark app>
-      <span class="white--text">&copy; 2018-2019 - Willhöft IT-Beratung GmbH</span>
+      <span class="white--text">&copy; 2018-2020 - Willhöft IT-Beratung GmbH</span>
     </v-footer>
   </v-app>
 </template>
@@ -176,7 +175,7 @@
       loadStaffmember: function() {
         const self = this
         self.server.get('../api/user/login').then(function(response) {
-          self.staffmember = x2jsStaffmember.xml2js(response.data).staffmember;
+          self.staffmember = x2jsStaffmember.xml2js(response.data).staffmember
         }).catch(function(error) {
           if (error.response && error.response.status == 401) {
             self.staffmember = {}

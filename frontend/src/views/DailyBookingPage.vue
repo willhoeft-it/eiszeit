@@ -3,9 +3,19 @@
   <v-content><v-container fluid grid-list-md><v-layout wrap>
     <v-flex xs6>
       <h2>User: {{staffmember.givenName}} {{staffmember.name}}</h2>
+      <!-- TODO: Warn on unsaved data before switching to another day -->
       <!-- TODO: current date does not update when window is not reloaded over 24h -->
-      <v-date-picker v-model="workingday._date" @change="loadData" @update:pickerDate="loadWdInfos($event)" :events="wdInfos" color="grey" full-width landscape show-week first-day-of-week="1" reactive v-show="$vuetify.breakpoint.mdAndUp"/>
-      <v-date-picker v-model="workingday._date" @change="loadData" @update:pickerDate="loadWdInfos($event)" :events="wdInfos" color="grey" first-day-of-week="1" reactive v-show="$vuetify.breakpoint.smAndDown"/>
+      <!-- TODO: "Today" button does not update/reset the month calendar view if selected date is still today -->
+      <v-date-picker v-show="$vuetify.breakpoint.mdAndUp" :value="workingday._date" @change="loadData($event)" @update:pickerDate="loadWdInfos($event)" :events="wdInfos" color="grey" full-width landscape show-week first-day-of-week="1" reactive>
+        <v-flex class="text-xs-center">
+          <v-btn @click="goToToday" small flat>Today</v-btn>
+        </v-flex>
+      </v-date-picker>
+      <v-date-picker v-show="$vuetify.breakpoint.smAndDown" :value="workingday._date" @change="loadData($event)" @update:pickerDate="loadWdInfos($event)" :events="wdInfos" color="grey" first-day-of-week="1" reactive>
+        <v-flex class="text-xs-center">
+          <v-btn @click="goToToday" small flat>Today</v-btn>
+        </v-flex>
+      </v-date-picker>
     </v-flex>
     <v-flex xs12>
       <h2>Attendance</h2>
@@ -241,6 +251,16 @@
       };
     },
     watch: {
+      staffmember: function() {
+        // (re)load data when the user logs in
+        if (! this.staffmember._id)
+          return
+        // Hacky way of updating the date picker's event bubbles. The date picker should trigger the load, but does only on explicit click
+        this.loadWdInfos(new Date().toISOString().substr(0, 7))
+        if (! this.isDirty)
+          this.loadData()
+
+      },
       // fix so that tooltips work with the speed dial animation
       fab (val) {
         this.tooltips = false
@@ -284,12 +304,11 @@
       resetDirty: function() {
         this.workingdayUnchanged = _.cloneDeep(this.workingday)
       },
-      loadData: function() {
+      loadData: function(currentDay) {
         if (! this.staffmember._id) {
           return
         }
-
-        const urlDate = (this.workingday && this.workingday._date) ? ("/" + this.workingday._date) : ""
+        const urlDate = currentDay ? ("/" + currentDay) : ""
         const self = this
         axios.all([
           self.server.get('../api/tasks/' + this.staffmember._id),
@@ -353,6 +372,10 @@
         if (wdi < 0) return false
         const wd = this.wdReport.workingday[wdi]
         return (Duration.fromISO(wd.attendanceSum) - Duration.fromISO(wd.breakSum) - Duration.fromISO(wd.bookingSum) == 0) ? 'green' : 'yellow'
+      },
+      goToToday: function() {
+        // TODO: implement
+        this.loadData(this.dateToLocalISOString(new Date()).slice(0, 10))
       },
       updateOnTimeChange: function(a, newStart, newEnd) {
         const start = newStart ? newStart : a._start
